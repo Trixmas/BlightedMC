@@ -1,7 +1,7 @@
 package fr.moussax.blightedSMP.content.recipes;
 
-import fr.moussax.blightedSMP.engine.items.recipes.CraftingObject;
-import fr.moussax.blightedSMP.engine.items.recipes.forging.ForgeRecipe;
+import fr.moussax.blightedSMP.engine.recipes.CraftingObject;
+import fr.moussax.blightedSMP.engine.recipes.forging.ForgeRecipe;
 import fr.moussax.blightedSMP.engine.items.registry.ItemRegistry;
 import fr.moussax.blightedSMP.registry.RegistryModule;
 import java.util.function.Consumer;

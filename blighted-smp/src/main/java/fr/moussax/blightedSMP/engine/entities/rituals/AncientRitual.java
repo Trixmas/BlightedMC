@@ -2,7 +2,7 @@ package fr.moussax.blightedSMP.engine.entities.rituals;
 
 import fr.moussax.bedrock.utils.ItemBuilder;
 import fr.moussax.blightedSMP.engine.items.BlightedItem;
-import fr.moussax.blightedSMP.engine.items.recipes.CraftingObject;
+import fr.moussax.blightedSMP.engine.recipes.CraftingObject;
 import fr.moussax.blightedSMP.engine.items.registry.ItemRegistry;
 import lombok.Getter;
 import org.bukkit.Material;
