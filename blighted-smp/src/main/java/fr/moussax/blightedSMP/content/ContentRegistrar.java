@@ -13,7 +13,6 @@ import fr.moussax.blightedSMP.content.items.Hyperion;
 import fr.moussax.blightedSMP.content.items.KnightsSword;
 import fr.moussax.blightedSMP.content.items.ThermalFuels;
 import fr.moussax.blightedSMP.content.items.armors.FishingArmors;
-import fr.moussax.blightedSMP.content.items.armors.HomodeusArmor;
 import fr.moussax.blightedSMP.content.items.armors.RocketBoots;
 import fr.moussax.blightedSMP.content.blocks.BlightedBlockItems;
 import fr.moussax.blightedSMP.content.blocks.BlightedBlocks;
@@ -50,7 +49,6 @@ public final class ContentRegistrar {
             new Bonemerang(),
             new GlimmeringEye(),
             new KnightsSword(),
-            new HomodeusArmor(),
             new RocketBoots(),
             new ThermalFuels(),
             new FishingArmors(),
