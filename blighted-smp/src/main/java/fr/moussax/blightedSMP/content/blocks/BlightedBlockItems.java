@@ -4,8 +4,9 @@ import fr.moussax.blightedSMP.engine.items.BlightedItem;
 import fr.moussax.blightedSMP.engine.items.ItemRarity;
 import fr.moussax.blightedSMP.engine.items.ItemType;
 import fr.moussax.blightedSMP.registry.RegistryModule;
-import java.util.function.Consumer;
 import org.bukkit.Material;
+
+import java.util.function.Consumer;
 
 public class BlightedBlockItems implements RegistryModule<Consumer<BlightedItem>> {
 
@@ -20,9 +21,7 @@ public class BlightedBlockItems implements RegistryModule<Consumer<BlightedItem>
                 " §7A crafting table infused with ",
                 " §5blighted energy §7capable",
                 " §7of weaving forbidden magic",
-                " §7into physical form.",
-                "",
-                ItemRarity.UNCOMMON.getName() + " BLOCK"
+                " §7into physical form."
         );
         blightedWorkbench.glow();
 
@@ -34,9 +33,7 @@ public class BlightedBlockItems implements RegistryModule<Consumer<BlightedItem>
                 " §7An industrial crucible powered by ",
                 " §5blighted energy§7, designed to fuse ",
                 " §7magic and metal under heat",
-                " §7intolerable to mortal craft.",
-                "",
-                ItemRarity.RARE.getName() + " MACHINE"
+                " §7intolerable to mortal craft."
         );
         blightedForge.glow();
 
