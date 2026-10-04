@@ -62,6 +62,8 @@ public class BlightedItem extends ItemBuilder implements Supplier<ItemStack> {
     @Getter
     private boolean recipePreviewEnabled = false;
     @Getter
+    private boolean spacedRarity = true;
+    @Getter
     private ItemConsumeHandler consumeHandler;
 
     /**
@@ -192,6 +194,37 @@ public class BlightedItem extends ItemBuilder implements Supplier<ItemStack> {
     @Override
     public BlightedItem addLore(String... lines) {
         Collections.addAll(this.customLoreLines, lines);
+        return this;
+    }
+
+    /**
+     * Configures the item lore footer to sit flush against the preceding line without an empty spacer line.
+     *
+     * @return this item instance for method chaining
+     */
+    public BlightedItem flushRarity() {
+        this.spacedRarity = false;
+        return this;
+    }
+
+    /**
+     * Configures the item lore footer to include an empty spacer line before the rarity tag.
+     *
+     * @return this item instance for method chaining
+     */
+    public BlightedItem spacedRarity() {
+        this.spacedRarity = true;
+        return this;
+    }
+
+    /**
+     * Configures whether an empty spacer line precedes the rarity footer.
+     *
+     * @param spaced {@code true} to include an empty line spacer, {@code false} to sit flush
+     * @return this item instance for method chaining
+     */
+    public BlightedItem padRarity(boolean spaced) {
+        this.spacedRarity = spaced;
         return this;
     }
 

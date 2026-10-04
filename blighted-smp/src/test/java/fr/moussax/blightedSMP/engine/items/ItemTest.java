@@ -1,5 +1,11 @@
 package fr.moussax.blightedSMP.engine.items;
 
+import fr.moussax.blightedSMP.content.items.ThermalFuels;
+import fr.moussax.blightedSMP.content.items.abilities.BonemerangAbility;
+import fr.moussax.blightedSMP.content.items.abilities.tools.AutosmeltAbility;
+import fr.moussax.blightedSMP.content.items.abilities.tools.HammerAbility;
+import fr.moussax.blightedSMP.content.items.abilities.tools.TimberAbility;
+import fr.moussax.blightedSMP.content.items.abilities.tools.VeinmineAbility;
 import fr.moussax.blightedSMP.engine.items.abilities.AbilityTrigger;
 import fr.moussax.blightedSMP.engine.items.abilities.ItemAbility;
 import fr.moussax.blightedSMP.engine.items.lore.ItemLoreRenderer;
@@ -82,7 +88,7 @@ class ItemTest {
     @Test
     @DisplayName("ItemLoreRenderer renders canonical footer, description, and abilities")
     void testItemLoreRenderer() {
-        BlightedItem item = new BlightedItem("test_sword", ItemType.SWORD, ItemRarity.LEGENDARY, Material.DIAMOND_SWORD)
+        BlightedItem item = new BlightedItem("test_sword", ItemType.SWORD, ItemRarity.UNIQUE, Material.DIAMOND_SWORD)
                 .description("A blade forged in ancient fires.", "Destroys enemies.")
                 .addAbility(new ItemAbility<PlayerInteractEvent>() {
                     @Override
@@ -124,16 +130,27 @@ class ItemTest {
         assertTrue(lore.stream().anyMatch(l -> l.contains("RIGHT CLICK")));
         assertTrue(lore.stream().anyMatch(l -> l.contains("Mana Cost: §330")));
         assertTrue(lore.stream().anyMatch(l -> l.contains("Cooldown: §a5s")));
-        assertTrue(lore.stream().anyMatch(l -> l.contains(ItemRarity.LEGENDARY.getName() + " SWORD")));
-        long rarityLineCount = lore.stream().filter(l -> l.contains(ItemRarity.LEGENDARY.getName())).count();
+        assertTrue(lore.stream().anyMatch(l -> l.contains(ItemRarity.UNIQUE.getName() + " SWORD")));
+        long rarityLineCount = lore.stream().filter(l -> l.contains(ItemRarity.UNIQUE.getName())).count();
         assertEquals(1, rarityLineCount, "Item lore should contain exactly one canonical rarity footer");
+    }
+
+    @Test
+    @DisplayName("Special rarity items render canonical SPECIAL footer")
+    void testSpecialRarityLoreRendering() {
+        BlightedItem specialItem = new BlightedItem("special_relic", ItemType.UNCATEGORIZED, ItemRarity.SPECIAL, Material.PLAYER_HEAD)
+                .description("A lost relic from an ancient epoch.");
+        List<String> lore = ItemLoreRenderer.render(specialItem);
+
+        assertNotNull(lore);
+        assertTrue(lore.getLast().contains(ItemRarity.SPECIAL.getName()), "Last line must contain the SPECIAL footer");
     }
 
     @Test
     @DisplayName("Thermal Fuel items render flush header without leading blank line")
     void testThermalFuelLoreRendering() {
         ItemRegistry.clear();
-        new fr.moussax.blightedSMP.content.items.ThermalFuels().register(ItemRegistry::register);
+        new ThermalFuels().register(ItemRegistry::register);
 
         BlightedItem enchantedCoal = ItemRegistry.getOrThrow("ENCHANTED_COAL");
         List<String> lore = ItemLoreRenderer.render(enchantedCoal);
@@ -142,8 +159,67 @@ class ItemTest {
         assertFalse(lore.isEmpty());
         assertEquals("§8Thermal Fuel", lore.getFirst(), "First lore line must be the flush subtitle header without empty line above");
         assertEquals("", lore.get(1), "Second lore line should separate subtitle from body description");
-        assertTrue(lore.getLast().contains(ItemRarity.UNCOMMON.getName()), "Last line must be canonical rarity footer");
+        assertEquals(ItemRarity.COMMON.getName(), lore.getLast(), "Material items must render bare rarity without 'MATERIAL' suffix");
+        assertFalse(lore.getLast().contains("MATERIAL"), "Lore footer must not contain 'MATERIAL'");
         ItemRegistry.clear();
+    }
+
+    @Test
+    @DisplayName("ItemType footer distinguishes equipment from materials and blocks")
+    void testItemTypeLoreFooterFormatting() {
+        BlightedItem material = new BlightedItem("mat_iron", ItemType.MATERIAL, ItemRarity.RARE, Material.IRON_INGOT);
+        assertEquals(ItemRarity.RARE.getName(), ItemLoreRenderer.render(material).getLast(), "Material must render just rarity");
+
+        BlightedItem block = new BlightedItem("custom_furnace", ItemType.BLOCK, ItemRarity.RARE, Material.BLAST_FURNACE);
+        assertEquals(ItemRarity.RARE.getName(), ItemLoreRenderer.render(block).getLast(), "Block must render just rarity");
+
+        BlightedItem lavaRod = new BlightedItem("lava_rod", ItemType.LAVA_FISHING_ROD, ItemRarity.RARE, Material.FISHING_ROD);
+        assertEquals(ItemRarity.RARE.getName() + " FISHING ROD", ItemLoreRenderer.render(lavaRod).getLast(), "Lava fishing rod must format cleanly as FISHING ROD");
+
+        BlightedItem helmet = new BlightedItem("rare_helmet", ItemType.HELMET, ItemRarity.UNIQUE, Material.DIAMOND_HELMET);
+        assertEquals(ItemRarity.UNIQUE.getName() + " HELMET", ItemLoreRenderer.render(helmet).getLast(), "Armor piece must include slot suffix");
+    }
+
+    @Test
+    @DisplayName("Rarity spacing DX controls empty line before canonical footer")
+    void testRaritySpacingDX() {
+        // 1. Default is spaced (blank line above rarity footer)
+        BlightedItem defaultSpaced = new BlightedItem("spaced_sword", ItemType.SWORD, ItemRarity.UNIQUE, Material.DIAMOND_SWORD)
+                .description("Line 1", "Line 2");
+        List<String> spacedLore = ItemLoreRenderer.render(defaultSpaced);
+        assertEquals("", spacedLore.get(spacedLore.size() - 2), "Default item must have empty line before rarity");
+        assertEquals(ItemRarity.UNIQUE.getName() + " SWORD", spacedLore.getLast());
+
+        // 2. Flush rarity (no empty line above rarity footer)
+        BlightedItem flushItem = new BlightedItem("flush_ingot", ItemType.MATERIAL, ItemRarity.RARE, Material.IRON_INGOT)
+                .description("Dense ingot.")
+                .flushRarity();
+        List<String> flushLore = ItemLoreRenderer.render(flushItem);
+        assertEquals("§7 Dense ingot.", flushLore.get(flushLore.size() - 2), "Flush item must have text directly above rarity");
+        assertEquals(ItemRarity.RARE.getName(), flushLore.getLast());
+
+        // 3. Flush item strips accidental trailing empty line from custom lore
+        BlightedItem flushTrailingEmpty = new BlightedItem("flush_extra_empty", ItemType.MATERIAL, ItemRarity.RARE, Material.IRON_INGOT)
+                .description("Dense ingot.", "")
+                .flushRarity();
+        List<String> flushExtraEmptyLore = ItemLoreRenderer.render(flushTrailingEmpty);
+        assertEquals("§7 Dense ingot.", flushExtraEmptyLore.get(flushExtraEmptyLore.size() - 2), "Flush item must strip trailing empty line");
+        assertEquals(ItemRarity.RARE.getName(), flushExtraEmptyLore.getLast());
+
+        // 4. Spaced item does not duplicate blank lines if one is already present
+        BlightedItem spacedWithTrailingEmpty = new BlightedItem("spaced_extra_empty", ItemType.MATERIAL, ItemRarity.RARE, Material.IRON_INGOT)
+                .description("Dense ingot.", "");
+        List<String> dedupedLore = ItemLoreRenderer.render(spacedWithTrailingEmpty);
+        assertEquals("", dedupedLore.get(dedupedLore.size() - 2), "Line before footer must be blank");
+        assertNotEquals("", dedupedLore.get(dedupedLore.size() - 3), "Must not have duplicate blank lines");
+
+        // 5. padRarity toggle programmatic API
+        BlightedItem toggledItem = new BlightedItem("toggle_test", ItemType.MATERIAL, ItemRarity.RARE, Material.IRON_INGOT)
+                .description("Toggle test")
+                .padRarity(false);
+        assertFalse(toggledItem.isSpacedRarity());
+        toggledItem.padRarity(true);
+        assertTrue(toggledItem.isSpacedRarity());
     }
 
     @Test
@@ -166,23 +242,19 @@ class ItemTest {
     @Test
     @DisplayName("AbilityTrigger correctly identifies click actions and formatted display names")
     void testAbilityTriggerMatches() {
-        assertEquals("§d§lRIGHT CLICK", AbilityTrigger.RIGHT_CLICK.getDisplayName());
-        assertEquals("§d§lLEFT CLICK", AbilityTrigger.LEFT_CLICK.getDisplayName());
-        assertEquals("§d§lSNEAK RIGHT CLICK", AbilityTrigger.SNEAK_RIGHT_CLICK.getDisplayName());
-        assertEquals("§d§lSNEAK LEFT CLICK", AbilityTrigger.SNEAK_LEFT_CLICK.getDisplayName());
+        assertEquals("§b§lRIGHT CLICK", AbilityTrigger.RIGHT_CLICK.getDisplayName());
+        assertEquals("§b§lLEFT CLICK", AbilityTrigger.LEFT_CLICK.getDisplayName());
+        assertEquals("§b§lSNEAK RIGHT CLICK", AbilityTrigger.SNEAK_RIGHT_CLICK.getDisplayName());
+        assertEquals("§b§lSNEAK LEFT CLICK", AbilityTrigger.SNEAK_LEFT_CLICK.getDisplayName());
     }
 
     @Test
     @DisplayName("Tool abilities preserve block break/drop events while interactive abilities cancel them")
     void testAbilityEventCancellation() {
-        fr.moussax.blightedSMP.content.items.abilities.tools.AutosmeltAbility autosmelt =
-                new fr.moussax.blightedSMP.content.items.abilities.tools.AutosmeltAbility();
-        fr.moussax.blightedSMP.content.items.abilities.tools.TimberAbility timber =
-                new fr.moussax.blightedSMP.content.items.abilities.tools.TimberAbility();
-        fr.moussax.blightedSMP.content.items.abilities.tools.VeinmineAbility veinmine =
-                new fr.moussax.blightedSMP.content.items.abilities.tools.VeinmineAbility();
-        fr.moussax.blightedSMP.content.items.abilities.tools.HammerAbility hammer =
-                new fr.moussax.blightedSMP.content.items.abilities.tools.HammerAbility();
+        AutosmeltAbility autosmelt = new AutosmeltAbility();
+        TimberAbility timber = new TimberAbility();
+        VeinmineAbility veinmine = new VeinmineAbility();
+        HammerAbility hammer = new HammerAbility();
 
         assertFalse(autosmelt.cancelEvent(false), "Autosmelt should not cancel unhandled drops");
         assertFalse(autosmelt.cancelEvent(true), "Autosmelt should not cancel handled drops");
@@ -196,8 +268,7 @@ class ItemTest {
         assertFalse(hammer.cancelEvent(false), "Hammer should not cancel unhandled block breaks");
         assertFalse(hammer.cancelEvent(true), "Hammer should not cancel handled block breaks");
 
-        fr.moussax.blightedSMP.content.items.abilities.BonemerangAbility bonemerang =
-                new fr.moussax.blightedSMP.content.items.abilities.BonemerangAbility();
+        BonemerangAbility bonemerang = new BonemerangAbility();
         assertTrue(bonemerang.cancelEvent(false), "Interactive abilities cancel on failure by default");
         assertTrue(bonemerang.cancelEvent(true), "Interactive abilities cancel on success by default");
     }

@@ -41,7 +41,7 @@ public final class ItemLoreRenderer {
         // 2. Abilities
         for (ItemAbility<?> ability : item.getAbilities()) {
             lore.add("");
-            lore.add("§5 Ability: " + ability.getName() + "  " + ability.getTrigger().getDisplayName());
+            lore.add("§3 Ability: " + ability.getName() + "  " + ability.getTrigger().getDisplayName());
 
             for (String line : ability.getDescription()) {
                 lore.add(line.isEmpty() ? "" : "§7 " + line);
@@ -72,9 +72,21 @@ public final class ItemLoreRenderer {
         }
 
         // 5. Canonical Rarity & Type Footer
+        if (!lore.isEmpty()) {
+            if (item.isSpacedRarity()) {
+                if (!lore.getLast().isEmpty()) {
+                    lore.add("");
+                }
+            } else {
+                while (!lore.isEmpty() && lore.getLast().isEmpty()) {
+                    lore.removeLast();
+                }
+            }
+        }
+
         ItemRarity rarity = item.getItemRarity();
         ItemType type = item.getItemType();
-        String typeSuffix = (type != null && type != ItemType.UNCATEGORIZED) ? " " + type.name() : "";
+        String typeSuffix = (type != null && type.getDisplayName() != null) ? " " + type.getDisplayName() : "";
 
         lore.add(rarity.getName() + typeSuffix);
 

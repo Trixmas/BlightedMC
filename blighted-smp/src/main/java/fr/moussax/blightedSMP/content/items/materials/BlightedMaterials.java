@@ -12,7 +12,7 @@ public class BlightedMaterials implements RegistryModule<Consumer<BlightedItem>>
     @Override
     public void register(Consumer<BlightedItem> registry) {
         BlightedItem enchantedIronIngot =
-                createMaterialItem("ENCHANTED_IRON_INGOT", ItemType.MATERIAL, ItemRarity.UNCOMMON, Material.IRON_INGOT,
+                createMaterialItem("ENCHANTED_IRON_INGOT", ItemType.MATERIAL, ItemRarity.COMMON, Material.IRON_INGOT,
                         "Enchanted Iron Ingot", false, false);
 
         BlightedItem enchantedIronBlock =
@@ -20,63 +20,63 @@ public class BlightedMaterials implements RegistryModule<Consumer<BlightedItem>>
                         "Enchanted Iron Block", true, false);
 
         BlightedItem enchantedCopperIngot =
-                createMaterialItem("ENCHANTED_COPPER_INGOT", ItemType.MATERIAL, ItemRarity.UNCOMMON, Material.COPPER_INGOT,
+                createMaterialItem("ENCHANTED_COPPER_INGOT", ItemType.MATERIAL, ItemRarity.COMMON, Material.COPPER_INGOT,
                         "Enchanted Copper Ingot", false, false);
 
         BlightedItem enchantedGoldIngot =
-                createMaterialItem("ENCHANTED_GOLD_INGOT", ItemType.MATERIAL, ItemRarity.UNCOMMON, Material.GOLD_INGOT,
+                createMaterialItem("ENCHANTED_GOLD_INGOT", ItemType.MATERIAL, ItemRarity.COMMON, Material.GOLD_INGOT,
                         "Enchanted Gold Ingot", false, false);
 
         BlightedItem enchantedLapisLazuli =
-                createMaterialItem("ENCHANTED_LAPIS_LAZULI", ItemType.MATERIAL, ItemRarity.UNCOMMON, Material.LAPIS_LAZULI,
+                createMaterialItem("ENCHANTED_LAPIS_LAZULI", ItemType.MATERIAL, ItemRarity.COMMON, Material.LAPIS_LAZULI,
                         "Enchanted Lapis Lazuli", false, false);
 
         BlightedItem enchantedRedstone =
-                createMaterialItem("ENCHANTED_REDSTONE", ItemType.MATERIAL, ItemRarity.UNCOMMON, Material.REDSTONE,
+                createMaterialItem("ENCHANTED_REDSTONE", ItemType.MATERIAL, ItemRarity.COMMON, Material.REDSTONE,
                         "Enchanted Redstone", false, false);
 
         BlightedItem enchantedAmethystShard =
-                createMaterialItem("ENCHANTED_AMETHYST_SHARD", ItemType.MATERIAL, ItemRarity.UNCOMMON, Material.AMETHYST_SHARD,
+                createMaterialItem("ENCHANTED_AMETHYST_SHARD", ItemType.MATERIAL, ItemRarity.COMMON, Material.AMETHYST_SHARD,
                         "Enchanted Amethyst Shard", false, false);
 
         BlightedItem enchantedEmerald =
-                createMaterialItem("ENCHANTED_EMERALD", ItemType.MATERIAL, ItemRarity.UNCOMMON, Material.EMERALD,
+                createMaterialItem("ENCHANTED_EMERALD", ItemType.MATERIAL, ItemRarity.COMMON, Material.EMERALD,
                         "Enchanted Emerald", false, false);
 
         BlightedItem enchantedRottenFlesh =
-                createMaterialItem("ENCHANTED_ROTTEN_FLESH", ItemType.MATERIAL, ItemRarity.UNCOMMON, Material.ROTTEN_FLESH,
+                createMaterialItem("ENCHANTED_ROTTEN_FLESH", ItemType.MATERIAL, ItemRarity.COMMON, Material.ROTTEN_FLESH,
                         "Enchanted Rotten Flesh", false, false);
 
         BlightedItem enchantedBone =
-                createMaterialItem("ENCHANTED_BONE", ItemType.MATERIAL, ItemRarity.UNCOMMON, Material.BONE,
+                createMaterialItem("ENCHANTED_BONE", ItemType.MATERIAL, ItemRarity.COMMON, Material.BONE,
                         "Enchanted Bone", false, false);
 
         BlightedItem enchantedString =
-                createMaterialItem("ENCHANTED_STRING", ItemType.MATERIAL, ItemRarity.UNCOMMON, Material.STRING,
+                createMaterialItem("ENCHANTED_STRING", ItemType.MATERIAL, ItemRarity.COMMON, Material.STRING,
                         "Enchanted String", false, false);
 
         BlightedItem enchantedGunpowder =
-                createMaterialItem("ENCHANTED_GUNPOWDER", ItemType.MATERIAL, ItemRarity.UNCOMMON, Material.GUNPOWDER,
+                createMaterialItem("ENCHANTED_GUNPOWDER", ItemType.MATERIAL, ItemRarity.COMMON, Material.GUNPOWDER,
                         "Enchanted Gunpowder", false, false);
 
         BlightedItem enchantedSpiderEye =
-                createMaterialItem("ENCHANTED_SPIDER_EYE", ItemType.MATERIAL, ItemRarity.UNCOMMON, Material.SPIDER_EYE,
+                createMaterialItem("ENCHANTED_SPIDER_EYE", ItemType.MATERIAL, ItemRarity.COMMON, Material.SPIDER_EYE,
                         "Enchanted Spider Eye", false, false);
 
         BlightedItem enchantedSlimeBall =
-                createMaterialItem("ENCHANTED_SLIME_BALL", ItemType.MATERIAL, ItemRarity.UNCOMMON, Material.SLIME_BALL,
+                createMaterialItem("ENCHANTED_SLIME_BALL", ItemType.MATERIAL, ItemRarity.COMMON, Material.SLIME_BALL,
                         "Enchanted Slime Ball", false, false);
 
         BlightedItem enchantedPhantomMembrane =
-                createMaterialItem("ENCHANTED_PHANTOM_MEMBRANE", ItemType.MATERIAL, ItemRarity.UNCOMMON, Material.PHANTOM_MEMBRANE,
+                createMaterialItem("ENCHANTED_PHANTOM_MEMBRANE", ItemType.MATERIAL, ItemRarity.COMMON, Material.PHANTOM_MEMBRANE,
                         "Enchanted Phantom Membrane", false, false);
 
         BlightedItem enchantedResinClump =
-                createMaterialItem("ENCHANTED_RESIN_CLUMP", ItemType.MATERIAL, ItemRarity.UNCOMMON, Material.RESIN_CLUMP,
+                createMaterialItem("ENCHANTED_RESIN_CLUMP", ItemType.MATERIAL, ItemRarity.COMMON, Material.RESIN_CLUMP,
                         "Enchanted Resin Clump", false, false);
 
         BlightedItem enchantedCobblestone =
-                createMaterialItem("ENCHANTED_COBBLESTONE", ItemType.MATERIAL, ItemRarity.UNCOMMON, Material.COBBLESTONE,
+                createMaterialItem("ENCHANTED_COBBLESTONE", ItemType.MATERIAL, ItemRarity.COMMON, Material.COBBLESTONE,
                         "Enchanted Cobblestone", true, false);
 
         BlightedItem enchantedObsidian =
@@ -84,31 +84,31 @@ public class BlightedMaterials implements RegistryModule<Consumer<BlightedItem>>
                         "Enchanted Obsidian", true, false);
 
         BlightedItem enchantedPaper =
-                createMaterialItem("ENCHANTED_PAPER", ItemType.MATERIAL, ItemRarity.UNCOMMON, Material.PAPER,
+                createMaterialItem("ENCHANTED_PAPER", ItemType.MATERIAL, ItemRarity.COMMON, Material.PAPER,
                         "Enchanted Paper", false, false);
 
         BlightedItem enchantedClayBall =
-                createMaterialItem("ENCHANTED_CLAY_BALL", ItemType.MATERIAL, ItemRarity.UNCOMMON, Material.CLAY_BALL,
+                createMaterialItem("ENCHANTED_CLAY_BALL", ItemType.MATERIAL, ItemRarity.COMMON, Material.CLAY_BALL,
                         "Enchanted Clay Ball", false, false);
 
         BlightedItem enchantedCod =
-                createMaterialItem("ENCHANTED_COD", ItemType.MATERIAL, ItemRarity.UNCOMMON, Material.COD,
+                createMaterialItem("ENCHANTED_COD", ItemType.MATERIAL, ItemRarity.COMMON, Material.COD,
                         "Enchanted Cod", false, true);
 
         BlightedItem enchantedSalmon =
-                createMaterialItem("ENCHANTED_SALMON", ItemType.MATERIAL, ItemRarity.UNCOMMON, Material.SALMON,
+                createMaterialItem("ENCHANTED_SALMON", ItemType.MATERIAL, ItemRarity.COMMON, Material.SALMON,
                         "Enchanted Salmon", false, true);
 
         BlightedItem enchantedTropicalFish =
-                createMaterialItem("ENCHANTED_TROPICAL_FISH", ItemType.MATERIAL, ItemRarity.UNCOMMON, Material.TROPICAL_FISH,
+                createMaterialItem("ENCHANTED_TROPICAL_FISH", ItemType.MATERIAL, ItemRarity.COMMON, Material.TROPICAL_FISH,
                         "Enchanted Tropical Fish", false, true);
 
         BlightedItem enchantedPufferfish =
-                createMaterialItem("ENCHANTED_PUFFERFISH", ItemType.MATERIAL, ItemRarity.UNCOMMON, Material.PUFFERFISH,
+                createMaterialItem("ENCHANTED_PUFFERFISH", ItemType.MATERIAL, ItemRarity.COMMON, Material.PUFFERFISH,
                         "Enchanted Pufferfish", false, true);
 
         BlightedItem enchantedSeaPickle =
-                createMaterialItem("ENCHANTED_SEA_PICKLE", ItemType.MATERIAL, ItemRarity.UNCOMMON, Material.SEA_PICKLE,
+                createMaterialItem("ENCHANTED_SEA_PICKLE", ItemType.MATERIAL, ItemRarity.COMMON, Material.SEA_PICKLE,
                         "Enchanted Sea Pickle", true, false);
 
         registry.accept(enchantedIronIngot);
@@ -150,6 +150,7 @@ public class BlightedMaterials implements RegistryModule<Consumer<BlightedItem>>
         BlightedItem item = new BlightedItem(id, type, rarity, material);
         item.setDisplayName(displayName);
         item.glow();
+        item.flushRarity();
 
         if (preventPlacement) {
             item.preventPlacement();
