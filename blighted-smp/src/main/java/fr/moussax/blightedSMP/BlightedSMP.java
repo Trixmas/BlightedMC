@@ -11,6 +11,7 @@ import fr.moussax.blightedSMP.server.PluginSettings;
 import fr.moussax.blightedSMP.server.database.PluginDatabase;
 import fr.moussax.bedrock.scheduling.PluginContext;
 import fr.moussax.bedrock.utils.debug.Log;
+import fr.moussax.blightedSMP.engine.player.cinematic.FirstJoinCinematic;
 import lombok.Getter;
 import fr.moussax.blightedSMP.engine.player.BlightedPlayer;
 import org.bukkit.Bukkit;
@@ -69,6 +70,7 @@ public final class BlightedSMP extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        FirstJoinCinematic.cleanupAll();
         CustomFishingHook.cleanupAll();
         BlightedPlayer.saveAllSync();
         if (database != null) {
