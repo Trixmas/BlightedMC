@@ -1,7 +1,7 @@
 package fr.moussax.blightedSMP.engine.recipes.crafting.builder;
 
 import fr.moussax.blightedSMP.engine.items.BlightedItem;
-import fr.moussax.blightedSMP.engine.recipes.CraftingObject;
+import fr.moussax.blightedSMP.engine.recipes.RecipeIngredient;
 import fr.moussax.blightedSMP.engine.recipes.crafting.BlightedShapedRecipe;
 import fr.moussax.blightedSMP.engine.recipes.ShapeEncoder;
 import fr.moussax.blightedSMP.engine.items.registry.ItemRegistry;
@@ -24,7 +24,7 @@ public final class ShapedRecipeBuilder {
     private String line1;
     private String line2;
     private String line3;
-    private final Map<Character, CraftingObject> bindings = new HashMap<>();
+    private final Map<Character, RecipeIngredient> bindings = new HashMap<>();
     private int attributeSourceSlot = -1;
 
     private ShapedRecipeBuilder(BlightedItem result, int amount) {
@@ -96,7 +96,7 @@ public final class ShapedRecipeBuilder {
      * @return this builder
      */
     public ShapedRecipeBuilder bind(char key, Material material, int amount) {
-        bindings.put(key, new CraftingObject(material, amount));
+        bindings.put(key, new RecipeIngredient(material, amount));
         return this;
     }
 
@@ -121,7 +121,7 @@ public final class ShapedRecipeBuilder {
      * @return this builder
      */
     public ShapedRecipeBuilder bind(char key, BlightedItem item, int amount) {
-        bindings.put(key, new CraftingObject(item, amount));
+        bindings.put(key, new RecipeIngredient(item, amount));
         return this;
     }
 

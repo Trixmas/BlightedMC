@@ -5,6 +5,7 @@ import fr.moussax.blightedSMP.engine.recipes.crafting.BlightedRecipe;
 import fr.moussax.blightedSMP.engine.recipes.crafting.BlightedShapedRecipe;
 import fr.moussax.blightedSMP.engine.recipes.crafting.BlightedShapelessRecipe;
 import fr.moussax.blightedSMP.engine.recipes.crafting.menu.CraftingRecipePreviewMenu;
+import fr.moussax.blightedSMP.engine.recipes.crafting.registry.RecipeRegistry;
 import fr.moussax.blightedSMP.engine.recipes.forging.ForgeRecipe;
 import fr.moussax.blightedSMP.engine.recipes.forging.menu.ForgeRecipePreviewMenu;
 import fr.moussax.blightedSMP.engine.recipes.forging.registry.ForgeRegistry;
@@ -32,7 +33,7 @@ public final class RecipePreviewManager {
     public static List<Object> getAllRecipesForItem(@NonNull BlightedItem targetItem) {
         List<Object> recipes = new ArrayList<>();
 
-        for (BlightedRecipe blightedRecipe : BlightedRecipe.REGISTERED_RECIPES) {
+        for (BlightedRecipe blightedRecipe : RecipeRegistry.getAll()) {
             if (blightedRecipe != null && blightedRecipe.getResult() != null && blightedRecipe.getResult().equals(targetItem)) {
                 recipes.add(blightedRecipe);
             }
@@ -44,7 +45,7 @@ public final class RecipePreviewManager {
             }
         }
 
-        for (BlightedRecipe blightedRecipe : BlightedRecipe.REGISTERED_RECIPES) {
+        for (BlightedRecipe blightedRecipe : RecipeRegistry.getAll()) {
             if (isIngredientInCraftingRecipe(targetItem, blightedRecipe) && !recipes.contains(blightedRecipe)) {
                 recipes.add(blightedRecipe);
             }
@@ -60,7 +61,7 @@ public final class RecipePreviewManager {
     }
 
     private static boolean isIngredientInCraftingRecipe(BlightedItem targetItem, BlightedRecipe blightedRecipe) {
-        List<CraftingObject> ingredients;
+        List<RecipeIngredient> ingredients;
         if (blightedRecipe instanceof BlightedShapedRecipe shapedRecipe) {
             ingredients = shapedRecipe.getRecipe();
         } else if (blightedRecipe instanceof BlightedShapelessRecipe shapelessRecipe) {
@@ -69,8 +70,8 @@ public final class RecipePreviewManager {
             return false;
         }
 
-        for (CraftingObject ingredient : ingredients) {
-            if (ingredient != null && ingredient.isCustom() && targetItem.equals(ingredient.getManager())) {
+        for (RecipeIngredient ingredient : ingredients) {
+            if (ingredient != null && ingredient.isCustom() && targetItem.equals(ingredient.getItem())) {
                 return true;
             }
         }
@@ -79,8 +80,8 @@ public final class RecipePreviewManager {
 
     private static boolean isIngredientInForgeRecipe(BlightedItem targetItem, ForgeRecipe forgeRecipe) {
         if (forgeRecipe.getIngredients() == null) return false;
-        for (CraftingObject ingredient : forgeRecipe.getIngredients()) {
-            if (ingredient != null && ingredient.isCustom() && targetItem.equals(ingredient.getManager())) {
+        for (RecipeIngredient ingredient : forgeRecipe.getIngredients()) {
+            if (ingredient != null && ingredient.isCustom() && targetItem.equals(ingredient.getItem())) {
                 return true;
             }
         }

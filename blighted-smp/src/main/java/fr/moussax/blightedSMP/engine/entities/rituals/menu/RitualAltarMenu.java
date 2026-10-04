@@ -11,7 +11,7 @@ import fr.moussax.blightedSMP.content.sound.BlightedSounds;
 import fr.moussax.blightedSMP.engine.entities.rituals.AncientCreature;
 import fr.moussax.blightedSMP.engine.entities.rituals.AncientRitual;
 import fr.moussax.blightedSMP.engine.entities.rituals.RitualAnimations;
-import fr.moussax.blightedSMP.engine.recipes.CraftingObject;
+import fr.moussax.blightedSMP.engine.recipes.RecipeIngredient;
 import fr.moussax.blightedSMP.engine.player.BlightedPlayer;
 import fr.moussax.blightedSMP.utils.Utilities;
 import org.bukkit.Bukkit;
@@ -156,7 +156,7 @@ public final class RitualAltarMenu extends Menu implements TickableMenu {
         Map<String, Integer> counts = new HashMap<>();
         if (ritual == null) return counts;
 
-        for (CraftingObject ingredient : ritual.getOfferings()) {
+        for (RecipeIngredient ingredient : ritual.getOfferings()) {
             counts.merge(ingredient.getId(), ingredient.getAmount(), Integer::sum);
         }
         return counts;
@@ -164,17 +164,13 @@ public final class RitualAltarMenu extends Menu implements TickableMenu {
 
     private void displayRequiredIngredients() {
         for (int i = 0; i < ritual.getOfferings().size() && i < GRID_SLOTS.length; i++) {
-            CraftingObject ingredient = ritual.getOfferings().get(i);
+            RecipeIngredient ingredient = ritual.getOfferings().get(i);
             setItem(GRID_SLOTS[i], createDisplayItem(ingredient));
         }
     }
 
-    private ItemStack createDisplayItem(CraftingObject ingredient) {
-        ItemStack item = ingredient.isCustom()
-                ? Objects.requireNonNull(ingredient.getManager()).toItemStack().clone()
-                : Objects.requireNonNull(ingredient.getVanillaItem()).clone();
-        item.setAmount(ingredient.getAmount());
-        return item;
+    private ItemStack createDisplayItem(RecipeIngredient ingredient) {
+        return ingredient.toItemStack();
     }
 
     private void setupStatusPanes() {
@@ -223,7 +219,7 @@ public final class RitualAltarMenu extends Menu implements TickableMenu {
             builder.setDisplayName("§5Invoke " + creatureName)
                     .addLore("", " §7Offerings required:");
 
-            for (CraftingObject ingredient : ritual.getOfferings()) {
+            for (RecipeIngredient ingredient : ritual.getOfferings()) {
                 builder.addLore(" §8‣ " + Utilities.extractIngredientName(ingredient) + " §8x" + ingredient.getAmount());
             }
 
@@ -277,7 +273,7 @@ public final class RitualAltarMenu extends Menu implements TickableMenu {
     }
 
     private void consumeIngredients(Player player) {
-        for (CraftingObject ingredient : ritual.getOfferings()) {
+        for (RecipeIngredient ingredient : ritual.getOfferings()) {
             Utilities.consumeItemsFromInventory(player, ingredient);
         }
         BlightedPlayer.get(player).removeGems(ritual.getGemsCost());

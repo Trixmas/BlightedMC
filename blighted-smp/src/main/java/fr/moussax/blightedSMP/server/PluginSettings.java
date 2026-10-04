@@ -11,7 +11,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class PluginSettings {
 
     /**
-     * Default passive mana regeneration rate per tick.
+     * Default passive mana regeneration amount per second (applied every 20 server ticks).
      */
     @Getter
     private double defaultManaRegenerationRate;

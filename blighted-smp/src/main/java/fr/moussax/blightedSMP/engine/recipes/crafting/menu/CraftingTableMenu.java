@@ -3,7 +3,8 @@ package fr.moussax.blightedSMP.engine.recipes.crafting.menu;
 import fr.moussax.blightedSMP.engine.recipes.crafting.BlightedRecipe;
 import fr.moussax.blightedSMP.engine.recipes.crafting.BlightedShapedRecipe;
 import fr.moussax.blightedSMP.engine.recipes.crafting.BlightedShapelessRecipe;
-import fr.moussax.blightedSMP.engine.recipes.CraftingObject;
+import fr.moussax.blightedSMP.engine.recipes.RecipeIngredient;
+import fr.moussax.blightedSMP.engine.recipes.crafting.registry.RecipeRegistry;
 import fr.moussax.bedrock.ui.menu.types.InteractiveMenu;
 import fr.moussax.bedrock.ui.menu.interaction.MenuElementPreset;
 import fr.moussax.bedrock.utils.ItemBuilder;
@@ -117,10 +118,10 @@ public final class CraftingTableMenu extends InteractiveMenu {
     }
 
     private void consumeShaped(BlightedShapedRecipe recipe, int times) {
-        List<CraftingObject> pattern = recipe.getRecipe();
+        List<RecipeIngredient> pattern = recipe.getRecipe();
         for (int i = 0; i < INPUT_SLOTS.length; i++) {
             if (i >= pattern.size()) break;
-            CraftingObject requiredIngredient = pattern.get(i);
+            RecipeIngredient requiredIngredient = pattern.get(i);
             if (requiredIngredient == null) continue;
 
             ItemStack stack = inventory.getItem(INPUT_SLOTS[i]);
@@ -171,10 +172,10 @@ public final class CraftingTableMenu extends InteractiveMenu {
     private int getMaxCraftCount(BlightedRecipe recipe) {
         if (recipe instanceof BlightedShapedRecipe shaped) {
             int max = Integer.MAX_VALUE;
-            List<CraftingObject> pattern = shaped.getRecipe();
+            List<RecipeIngredient> pattern = shaped.getRecipe();
             for (int i = 0; i < INPUT_SLOTS.length; i++) {
-                if (i >= pattern.size()) continue;
-                CraftingObject requiredIngredient = pattern.get(i);
+                if (i >= pattern.size()) break;
+                RecipeIngredient requiredIngredient = pattern.get(i);
                 if (requiredIngredient == null) continue;
 
                 ItemStack stack = inventory.getItem(INPUT_SLOTS[i]);
@@ -220,8 +221,7 @@ public final class CraftingTableMenu extends InteractiveMenu {
     }
 
     private BlightedRecipe getMatchingRecipe() {
-        Set<BlightedRecipe> matches = BlightedRecipe.findMatchingRecipes(getInputGrid());
-        return matches.isEmpty() ? null : matches.iterator().next();
+        return RecipeRegistry.findFirstMatching(getInputGrid()).orElse(null);
     }
 
     private void updateOutputSlot(BlightedRecipe recipe) {

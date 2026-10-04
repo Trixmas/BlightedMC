@@ -2,7 +2,7 @@ package fr.moussax.blightedSMP.engine.recipes.crafting.builder;
 
 import fr.moussax.blightedSMP.engine.items.BlightedItem;
 import fr.moussax.blightedSMP.engine.items.registry.ItemRegistry;
-import fr.moussax.blightedSMP.engine.recipes.CraftingObject;
+import fr.moussax.blightedSMP.engine.recipes.RecipeIngredient;
 import fr.moussax.blightedSMP.engine.recipes.crafting.BlightedShapelessRecipe;
 import org.bukkit.Material;
 
@@ -21,8 +21,8 @@ public final class ShapelessRecipeBuilder {
 
     private final BlightedItem result;
     private final int amount;
-    private final List<CraftingObject> ingredients = new ArrayList<>();
-    private CraftingObject attributeSource = null;
+    private final List<RecipeIngredient> ingredients = new ArrayList<>();
+    private RecipeIngredient attributeSource = null;
 
     private ShapelessRecipeBuilder(BlightedItem result, int amount) {
         this.result = Objects.requireNonNull(result, "result");
@@ -115,9 +115,9 @@ public final class ShapelessRecipeBuilder {
             int amount,
             boolean isAttributeSource
     ) {
-        CraftingObject craftingObject = new CraftingObject(material, amount);
-        ingredients.add(craftingObject);
-        if (isAttributeSource) this.attributeSource = craftingObject;
+        RecipeIngredient ingredient = RecipeIngredient.of(material, amount);
+        ingredients.add(ingredient);
+        if (isAttributeSource) this.attributeSource = ingredient;
         return this;
     }
 
@@ -158,9 +158,9 @@ public final class ShapelessRecipeBuilder {
             int amount,
             boolean isAttributeSource
     ) {
-        CraftingObject craftingObject = new CraftingObject(item, amount);
-        ingredients.add(craftingObject);
-        if (isAttributeSource) this.attributeSource = craftingObject;
+        RecipeIngredient ingredient = RecipeIngredient.of(item, amount);
+        ingredients.add(ingredient);
+        if (isAttributeSource) this.attributeSource = ingredient;
         return this;
     }
 
@@ -203,7 +203,7 @@ public final class ShapelessRecipeBuilder {
             int amount,
             boolean isAttributeSource
     ) {
-        return addIngredient(ItemRegistry.get(itemId), amount, isAttributeSource);
+        return addIngredient(ItemRegistry.getOrThrow(itemId), amount, isAttributeSource);
     }
 
     /**
@@ -216,7 +216,7 @@ public final class ShapelessRecipeBuilder {
      */
     public BlightedShapelessRecipe build() {
         BlightedShapelessRecipe recipe = new BlightedShapelessRecipe(result, amount);
-        for (CraftingObject ingredient : ingredients) {
+        for (RecipeIngredient ingredient : ingredients) {
             recipe.addIngredient(ingredient);
         }
 

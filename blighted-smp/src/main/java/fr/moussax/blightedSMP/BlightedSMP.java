@@ -70,6 +70,7 @@ public final class BlightedSMP extends JavaPlugin {
     @Override
     public void onDisable() {
         CustomFishingHook.cleanupAll();
+        BlightedPlayer.saveAllSync();
         if (database != null) {
             database.closeConnection();
         }

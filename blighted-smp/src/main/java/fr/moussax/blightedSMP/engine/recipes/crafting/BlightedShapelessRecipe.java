@@ -1,7 +1,7 @@
 package fr.moussax.blightedSMP.engine.recipes.crafting;
 
 import fr.moussax.blightedSMP.engine.items.BlightedItem;
-import fr.moussax.blightedSMP.engine.recipes.CraftingObject;
+import fr.moussax.blightedSMP.engine.recipes.RecipeIngredient;
 import fr.moussax.blightedSMP.utils.Utilities;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -15,7 +15,7 @@ import java.util.*;
  * a designated ingredient instance found in the crafting grid.
  */
 public final class BlightedShapelessRecipe extends BlightedRecipe {
-    private final List<CraftingObject> ingredientList = new ArrayList<>();
+    private final List<RecipeIngredient> ingredientList = new ArrayList<>();
     private final Map<String, Integer> ingredientCountMap = new HashMap<>();
     private final BlightedItem resultBlightedItem;
     private final int resultAmount;
@@ -24,7 +24,7 @@ public final class BlightedShapelessRecipe extends BlightedRecipe {
      * Ingredient acting as the attribute source.
      * {@code null} disables attribute transfer.
      */
-    private CraftingObject attributeSourceIngredient = null;
+    private RecipeIngredient attributeSourceIngredient = null;
 
     public BlightedShapelessRecipe(BlightedItem resultBlightedItem) {
         this(resultBlightedItem, 1);
@@ -78,17 +78,9 @@ public final class BlightedShapelessRecipe extends BlightedRecipe {
      *
      * @param ingredient recipe ingredient
      */
-    public void addIngredient(CraftingObject ingredient) {
+    public void addIngredient(RecipeIngredient ingredient) {
         ingredientList.add(ingredient);
-        String itemId;
-        if (ingredient.isCustom()) {
-            itemId = Objects.requireNonNull(ingredient.getManager()).getItemId();
-        } else if (ingredient.isVanilla()) {
-            itemId = Utilities.resolveItemId(Objects.requireNonNull(ingredient.getVanillaItem()), "vanilla:");
-        } else {
-            throw new IllegalArgumentException("Ingredient must be custom or vanilla");
-        }
-        ingredientCountMap.merge(itemId, ingredient.getAmount(), Integer::sum);
+        ingredientCountMap.merge(ingredient.getId(), ingredient.getAmount(), Integer::sum);
     }
 
     /**
@@ -96,7 +88,7 @@ public final class BlightedShapelessRecipe extends BlightedRecipe {
      *
      * @param ingredient registered ingredient
      */
-    public void setAttributeSource(CraftingObject ingredient) {
+    public void setAttributeSource(RecipeIngredient ingredient) {
         if (!ingredientList.contains(ingredient)) {
             throw new IllegalArgumentException("Attribute source must be a registered ingredient of this recipe");
         }
@@ -104,7 +96,7 @@ public final class BlightedShapelessRecipe extends BlightedRecipe {
     }
 
     /** @return immutable list of registered ingredients */
-    public List<CraftingObject> getIngredients() {
+    public List<RecipeIngredient> getIngredients() {
         return Collections.unmodifiableList(ingredientList);
     }
 

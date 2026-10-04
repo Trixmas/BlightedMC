@@ -1,7 +1,7 @@
 package fr.moussax.blightedSMP.engine.recipes.forging.menu;
 
 import fr.moussax.blightedSMP.content.sound.BlightedSounds;
-import fr.moussax.blightedSMP.engine.recipes.CraftingObject;
+import fr.moussax.blightedSMP.engine.recipes.RecipeIngredient;
 import fr.moussax.blightedSMP.engine.recipes.forging.ForgeFuel;
 import fr.moussax.blightedSMP.engine.recipes.forging.ForgeRecipe;
 import fr.moussax.bedrock.ui.menu.Menu;
@@ -140,7 +140,7 @@ public final class ForgeMenu extends Menu implements TickableMenu {
 
     private Map<String, Integer> aggregateRequirements() {
         Map<String, Integer> counts = new HashMap<>();
-        for (CraftingObject ingredient : recipe.getIngredients()) {
+        for (RecipeIngredient ingredient : recipe.getIngredients()) {
             String id = ingredient.getId();
             counts.put(id, counts.getOrDefault(id, 0) + ingredient.getAmount());
         }
@@ -149,18 +149,14 @@ public final class ForgeMenu extends Menu implements TickableMenu {
 
     private void displayRequiredIngredients() {
         for (int i = 0; i < recipe.getIngredients().size() && i < GRID_SLOTS.length; i++) {
-            CraftingObject ingredient = recipe.getIngredients().get(i);
+            RecipeIngredient ingredient = recipe.getIngredients().get(i);
             ItemStack displayItem = createDisplayItem(ingredient);
             setItem(GRID_SLOTS[i], displayItem);
         }
     }
 
-    private ItemStack createDisplayItem(CraftingObject ingredient) {
-        ItemStack displayItem = ingredient.isCustom()
-                ? Objects.requireNonNull(ingredient.getManager()).toItemStack().clone()
-                : Objects.requireNonNull(ingredient.getVanillaItem()).clone();
-        displayItem.setAmount(ingredient.getAmount());
-        return displayItem;
+    private ItemStack createDisplayItem(RecipeIngredient ingredient) {
+        return ingredient.toItemStack();
     }
 
     private void setupStatusPanes() {
@@ -202,7 +198,7 @@ public final class ForgeMenu extends Menu implements TickableMenu {
             builder.setDisplayName("§6Forging...");
         } else {
             builder.setDisplayName("§aConfirm process").addLore("", " §7Items required: ");
-            for (CraftingObject ingredient : recipe.getIngredients()) {
+            for (RecipeIngredient ingredient : recipe.getIngredients()) {
                 builder.addLore(" §8‣ " + Utilities.extractIngredientName(ingredient) + " §8x" + ingredient.getAmount());
             }
 
@@ -464,7 +460,7 @@ public final class ForgeMenu extends Menu implements TickableMenu {
     }
 
     private void consumeIngredients(Player player) {
-        for (CraftingObject ingredient : recipe.getIngredients()) {
+        for (RecipeIngredient ingredient : recipe.getIngredients()) {
             Utilities.consumeItemsFromInventory(player, ingredient);
         }
     }

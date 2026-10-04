@@ -2,7 +2,7 @@ package fr.moussax.blightedSMP.engine.recipes.forging.menu;
 
 import fr.moussax.blightedSMP.content.sound.BlightedSounds;
 import fr.moussax.blightedSMP.engine.items.BlightedItem;
-import fr.moussax.blightedSMP.engine.recipes.CraftingObject;
+import fr.moussax.blightedSMP.engine.recipes.RecipeIngredient;
 import fr.moussax.blightedSMP.engine.recipes.RecipePreviewManager;
 import fr.moussax.blightedSMP.engine.recipes.forging.ForgeRecipe;
 import fr.moussax.blightedSMP.engine.player.BlightedPlayer;
@@ -130,24 +130,20 @@ public final class ForgeRecipePreviewMenu extends Menu implements TickableMenu {
                 .addLore("§7This slot isn't used for", "§7the selected recipe.");
         fillSlots(GRID_SLOTS, emptySlotBuilder.toItemStack());
 
-        List<CraftingObject> ingredients = recipe.getIngredients();
+        List<RecipeIngredient> ingredients = recipe.getIngredients();
         for (int i = 0; i < ingredients.size() && i < GRID_SLOTS.length; i++) {
-            CraftingObject ingredient = ingredients.get(i);
+            RecipeIngredient ingredient = ingredients.get(i);
             ItemStack displayItem = createIngredientDisplay(ingredient);
 
             setItem(GRID_SLOTS[i], displayItem, (clickingPlayer, _) -> {
-                if (!ingredient.isCustom() || ingredient.getManager() == null) return;
-                RecipePreviewManager.openPreview(clickingPlayer, ingredient.getManager(), this);
+                if (!ingredient.isCustom() || ingredient.getItem() == null) return;
+                RecipePreviewManager.openPreview(clickingPlayer, ingredient.getItem(), this);
             });
         }
     }
 
-    private ItemStack createIngredientDisplay(CraftingObject ingredient) {
-        ItemStack displayItem = ingredient.isCustom()
-                ? Objects.requireNonNull(ingredient.getManager()).toItemStack().clone()
-                : Objects.requireNonNull(ingredient.getVanillaItem()).clone();
-        displayItem.setAmount(Math.max(1, ingredient.getAmount()));
-        return displayItem;
+    private ItemStack createIngredientDisplay(RecipeIngredient ingredient) {
+        return ingredient.toItemStack();
     }
 
     private void setupResultDisplay() {
@@ -241,9 +237,9 @@ public final class ForgeRecipePreviewMenu extends Menu implements TickableMenu {
         }
 
         for (IngredientInfo info : requirements.values()) {
-            CraftingObject consumeObject = info.ingredient.isCustom()
-                    ? new CraftingObject(Objects.requireNonNull(info.ingredient.getManager()), info.amount)
-                    : new CraftingObject(Objects.requireNonNull(info.ingredient.getVanillaItem()).getType(), info.amount);
+            RecipeIngredient consumeObject = info.ingredient.isCustom()
+                    ? RecipeIngredient.of(Objects.requireNonNull(info.ingredient.getItem()), info.amount)
+                    : RecipeIngredient.of(Objects.requireNonNull(info.ingredient.getMaterial()), info.amount);
             Utilities.consumeItemsFromInventory(player, consumeObject);
         }
 
@@ -265,7 +261,7 @@ public final class ForgeRecipePreviewMenu extends Menu implements TickableMenu {
 
     private Map<String, IngredientInfo> aggregateForgeIngredients(ForgeRecipe recipe) {
         Map<String, IngredientInfo> recipeIngredients = new LinkedHashMap<>();
-        for (CraftingObject ingredient : recipe.getIngredients()) {
+        for (RecipeIngredient ingredient : recipe.getIngredients()) {
             if (ingredient == null) continue;
             String ingredientId = ingredient.getId();
             if (ingredientId.isEmpty()) continue;
@@ -280,10 +276,10 @@ public final class ForgeRecipePreviewMenu extends Menu implements TickableMenu {
     }
 
     private static class IngredientInfo {
-        final CraftingObject ingredient;
+        final RecipeIngredient ingredient;
         int amount;
 
-        IngredientInfo(CraftingObject ingredient, int amount) {
+        IngredientInfo(RecipeIngredient ingredient, int amount) {
             this.ingredient = ingredient;
             this.amount = amount;
         }
