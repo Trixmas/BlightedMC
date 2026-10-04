@@ -4,8 +4,8 @@ import fr.moussax.blightedSMP.BlightedSMP;
 import fr.moussax.blightedSMP.engine.entities.attachment.AttachmentRole;
 import fr.moussax.blightedSMP.engine.entities.attachment.EntityAttachment;
 import fr.moussax.blightedSMP.engine.entities.attachment.EntityAttachmentManager;
-import fr.moussax.blightedSMP.engine.entities.boss.BossBarBuilder;
-import fr.moussax.blightedSMP.engine.entities.boss.EntityBossBarController;
+import fr.moussax.bedrock.ui.bossbar.Bossbar;
+import fr.moussax.bedrock.ui.bossbar.BossbarSection;
 import fr.moussax.blightedSMP.engine.entities.components.EntityComponent;
 import fr.moussax.blightedSMP.engine.entities.components.EntityComponentManager;
 import fr.moussax.blightedSMP.engine.entities.defense.DamageType;
@@ -32,6 +32,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Biome;
 import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarFlag;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -43,6 +44,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -75,8 +77,18 @@ public abstract class BlightedEntity {
     protected EntityPhaseManager phaseManager = new EntityPhaseManager(this, this::onPhaseTransition);
     @Getter
     protected EntityAttributeManager attributes = new EntityAttributeManager();
+    @Getter
+    protected BarColor bossBarColor = BarColor.RED;
+    @Getter
+    protected BarStyle bossBarStyle = BarStyle.SOLID;
+    @Getter
+    protected double bossBarRadius = 60.0;
+    @Getter
+    protected Set<BarFlag> bossBarFlags = EnumSet.noneOf(BarFlag.class);
     @Nullable
-    protected EntityBossBarController bossBarController;
+    protected Consumer<BossbarSection.Builder> bossBarConfigurator;
+    @Nullable
+    private String bossBarSectionId;
     @Getter
     private EntityDefenses defenses = EntityDefenses.fromClass(getClass());
 
@@ -134,24 +146,6 @@ public abstract class BlightedEntity {
     }
 
     /**
-     * Obtains or creates the boss bar controller for this entity.
-     *
-     * @return the boss bar controller
-     */
-    @NonNull
-    public EntityBossBarController getOrCreateBossBar() {
-        if (bossBarController == null) {
-            bossBarController = new EntityBossBarController(
-                    BlightedSMP.getInstance(),
-                    () -> entity,
-                    () -> name,
-                    () -> entityType
-            );
-        }
-        return bossBarController;
-    }
-
-    /**
      * Spawns and initializes the entity at the given location.
      *
      * @param location spawn location
@@ -172,7 +166,7 @@ public abstract class BlightedEntity {
         onConfigureAI(entity);
 
         if (isBoss) {
-            getOrCreateBossBar().create();
+            spawnBossBar();
         }
 
         EntityManager.registerEntity(entity, this);
@@ -197,7 +191,7 @@ public abstract class BlightedEntity {
         onConfigureAI(existing);
 
         if (isBoss) {
-            getOrCreateBossBar().create();
+            spawnBossBar();
         }
         EntityManager.registerEntity(existing, this);
 
@@ -624,15 +618,13 @@ public abstract class BlightedEntity {
     }
 
     /**
-     * Marks this entity as a boss and configures its boss bar appearance using a fluent consumer.
+     * Marks this entity as a boss and customizes its Bedrock {@link BossbarSection.Builder}.
      *
-     * @param consumer action configuring the boss bar builder
+     * @param configurator customizer consumer for the bossbar section builder
      */
-    public void boss(@NonNull Consumer<BossBarBuilder> consumer) {
+    public void boss(@NonNull Consumer<BossbarSection.Builder> configurator) {
         this.isBoss = true;
-        BossBarBuilder builder = new BossBarBuilder();
-        consumer.accept(builder);
-        getOrCreateBossBar().configure(builder);
+        this.bossBarConfigurator = Objects.requireNonNull(configurator, "configurator cannot be null");
     }
 
     /**
@@ -640,7 +632,30 @@ public abstract class BlightedEntity {
      */
     public void boss() {
         this.isBoss = true;
-        getOrCreateBossBar();
+    }
+
+    /**
+     * Marks this entity as a boss with specified color and style.
+     *
+     * @param color boss bar color
+     * @param style boss bar style
+     */
+    public void boss(@NonNull BarColor color, @NonNull BarStyle style) {
+        this.isBoss = true;
+        this.bossBarColor = Objects.requireNonNull(color, "color cannot be null");
+        this.bossBarStyle = Objects.requireNonNull(style, "style cannot be null");
+    }
+
+    /**
+     * Marks this entity as a boss with specified color, style, and viewer radius.
+     *
+     * @param color  boss bar color
+     * @param style  boss bar style
+     * @param radius player detection radius in blocks
+     */
+    public void boss(@NonNull BarColor color, @NonNull BarStyle style, double radius) {
+        boss(color, style);
+        this.bossBarRadius = Math.max(1.0, radius);
     }
 
     /**
@@ -1236,22 +1251,12 @@ public abstract class BlightedEntity {
     }
 
     /**
-     * Updates the boss bar progress to match the entity's health.
+     * Updates the boss bar for this entity if active.
      */
     public void updateBossBar() {
-        if (bossBarController == null || !bossBarController.isActive()) {
-            return;
-        }
         if (!isAlive()) {
             removeBossBar();
-            return;
         }
-        AttributeInstance maxHealthAttribute = entity.getAttribute(Attribute.MAX_HEALTH);
-        double maxHealth = (maxHealthAttribute != null && maxHealthAttribute.getValue() > 0)
-                ? maxHealthAttribute.getValue()
-                : Math.max(1, this.maxHealth);
-        double progress = entity.getHealth() / maxHealth;
-        bossBarController.updateProgress(progress);
     }
 
     /**
@@ -1260,16 +1265,73 @@ public abstract class BlightedEntity {
      * @param color bar color
      * @param style bar style
      */
-    public void setBossBarAppearance(BarColor color, BarStyle style) {
-        getOrCreateBossBar().setAppearance(color, style);
+    public void setBossBarAppearance(@NonNull BarColor color, @NonNull BarStyle style) {
+        this.bossBarColor = Objects.requireNonNull(color, "color cannot be null");
+        this.bossBarStyle = Objects.requireNonNull(style, "style cannot be null");
+        if (bossBarSectionId != null) {
+            spawnBossBar();
+        }
     }
 
     /**
-     * Removes the boss bar and all of its viewers.
+     * Registers the boss bar for this entity using Bedrock's Bossbar API.
+     */
+    public void spawnBossBar() {
+        if (!isBoss || entity == null || !entity.isValid()) {
+            return;
+        }
+
+        EntityType type = entityType;
+        if (type == EntityType.WITHER || type == EntityType.ENDER_DRAGON) {
+            return;
+        }
+
+        removeBossBar();
+
+        this.bossBarSectionId = "boss-" + entity.getUniqueId();
+
+        BossbarSection.Builder builder = BossbarSection.builder(bossBarSectionId)
+                .title(_ -> "§f§l" + name)
+                .progress(this::getHealthRatio)
+                .color(bossBarColor)
+                .style(bossBarStyle)
+                .visibleWhen(Bossbar.within(entity, bossBarRadius))
+                .expireWhen(() -> !isAlive());
+
+        if (!bossBarFlags.isEmpty()) {
+            builder.flags(bossBarFlags.toArray(BarFlag[]::new));
+        }
+
+        if (bossBarConfigurator != null) {
+            bossBarConfigurator.accept(builder);
+        }
+
+        Bossbar.register(BlightedSMP.getInstance(), builder.build());
+    }
+
+    /**
+     * Calculates the current health ratio of the entity in {@code [0.0, 1.0]}.
+     *
+     * @return current health divided by max health
+     */
+    public double getHealthRatio() {
+        if (entity == null || !entity.isValid() || entity.isDead()) {
+            return 0.0;
+        }
+        AttributeInstance maxHealthAttribute = entity.getAttribute(Attribute.MAX_HEALTH);
+        double maxHealthVal = (maxHealthAttribute != null && maxHealthAttribute.getValue() > 0)
+                ? maxHealthAttribute.getValue()
+                : Math.max(1.0, this.maxHealth);
+        return Math.clamp(entity.getHealth() / maxHealthVal, 0.0, 1.0);
+    }
+
+    /**
+     * Removes the boss bar associated with this entity.
      */
     public void removeBossBar() {
-        if (bossBarController != null) {
-            bossBarController.remove();
+        if (bossBarSectionId != null) {
+            Bossbar.unregister(bossBarSectionId);
+            bossBarSectionId = null;
         }
     }
 
