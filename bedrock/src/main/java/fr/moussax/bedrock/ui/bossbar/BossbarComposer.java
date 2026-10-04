@@ -146,11 +146,19 @@ public final class BossbarComposer {
             alerts = new ArrayList<>(modalAlerts);
         }
         alerts.sort(null);
-        playerSections.values().removeIf(BossbarSection::isExpired);
+        playerSections.values().removeIf(section -> {
+            try {
+                return section.isExpired();
+            } catch (Exception _) {
+                // Treat as expired to avoid repeated failures
+                return true;
+            }
+        });
 
         List<Entry> desired = new ArrayList<>();
         boolean exclusive = false;
 
+        // Process modal alerts first
         for (ActiveAlert alert : alerts) {
             String title = alert.title(player);
             if (title == null) {
@@ -161,26 +169,31 @@ public final class BossbarComposer {
             exclusive |= alert.alert().exclusive();
         }
 
+        // Render player sections only when no exclusive alert is active
         if (!exclusive) {
             for (BossbarSection section : orderedSections()) {
-                if (!section.visibility().test(player)) {
-                    continue;
+                try {
+                    if (!section.visibility().test(player)) {
+                        continue;
+                    }
+                    String title = section.titleSupplier().apply(player);
+                    if (title == null) {
+                        continue;
+                    }
+                    double prog = clamp(section.progressSupplier().applyAsDouble(player));
+                    BarColor color = section.colorSupplier().apply(player);
+                    desired.add(new Entry(
+                            section.id(),
+                            title,
+                            prog,
+                            color,
+                            section.style(),
+                            section.flags()
+                    ));
+                } catch (Exception _) {
                 }
-                String title = section.titleSupplier().apply(player);
-                if (title == null) {
-                    continue;
-                }
-                desired.add(new Entry(
-                        section.id(),
-                        title,
-                        clamp(section.progressSupplier().applyAsDouble(player)),
-                        section.colorSupplier().apply(player),
-                        section.style(),
-                        section.flags()
-                ));
             }
         }
-
         reconcile(player, desired);
     }
 
