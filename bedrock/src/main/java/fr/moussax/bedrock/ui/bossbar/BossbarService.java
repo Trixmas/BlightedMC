@@ -263,6 +263,11 @@ public final class BossbarService implements Listener {
      * @param player target player
      */
     public void renderPlayer(@NonNull Player player) {
+        if(!Bukkit.isPrimaryThread()) {
+            Bukkit.getScheduler().runTask(plugin, () -> renderPlayer(player));
+            return;
+        }
+
         if (!player.isOnline()) {
             return;
         }
