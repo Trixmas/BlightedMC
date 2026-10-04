@@ -34,7 +34,7 @@ public final class ItemLoreRenderer {
         if (!description.isEmpty()) {
             lore.add("");
             for (String line : description) {
-                lore.add("§7 " + line);
+                lore.add(line.isEmpty() ? "" : "§7 " + line);
             }
         }
 
@@ -44,7 +44,7 @@ public final class ItemLoreRenderer {
             lore.add("§5 Ability: " + ability.getName() + "  " + ability.getTrigger().getDisplayName());
 
             for (String line : ability.getDescription()) {
-                lore.add("§7 " + line);
+                lore.add(line.isEmpty() ? "" : "§7 " + line);
             }
 
             int mana = ability.getManaCost();

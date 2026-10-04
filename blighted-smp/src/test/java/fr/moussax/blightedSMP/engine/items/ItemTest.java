@@ -130,6 +130,23 @@ class ItemTest {
     }
 
     @Test
+    @DisplayName("Thermal Fuel items render flush header without leading blank line")
+    void testThermalFuelLoreRendering() {
+        ItemRegistry.clear();
+        new fr.moussax.blightedSMP.content.items.ThermalFuels().register(ItemRegistry::register);
+
+        BlightedItem enchantedCoal = ItemRegistry.getOrThrow("ENCHANTED_COAL");
+        List<String> lore = ItemLoreRenderer.render(enchantedCoal);
+
+        assertNotNull(lore);
+        assertFalse(lore.isEmpty());
+        assertEquals("§8Thermal Fuel", lore.getFirst(), "First lore line must be the flush subtitle header without empty line above");
+        assertEquals("", lore.get(1), "Second lore line should separate subtitle from body description");
+        assertTrue(lore.getLast().contains(ItemRarity.UNCOMMON.getName()), "Last line must be canonical rarity footer");
+        ItemRegistry.clear();
+    }
+
+    @Test
     @DisplayName("ItemRegistry safe get and getOrThrow contract")
     void testItemRegistryLookup() {
         ItemRegistry.clear();
