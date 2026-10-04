@@ -15,6 +15,7 @@ import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.IllegalPluginAccessException;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,6 +40,8 @@ public final class BlightedPlayer {
     private final UUID playerId;
     private final PlayerDataHandler dataHandler;
 
+    public record CooldownKey(String key, AbilityTrigger trigger) {}
+
     @Getter
     private int gems;
     @Getter
@@ -50,7 +53,7 @@ public final class BlightedPlayer {
     private double manaRegenerationRate;
 
     private final List<FullSetBonus> activeFullSetBonuses = new ArrayList<>();
-    private final List<CooldownEntry> cooldowns = new ArrayList<>();
+    private final Map<CooldownKey, CooldownEntry> cooldowns = new ConcurrentHashMap<>();
     private final EnumMap<ItemType, BlightedItem> armorPieces = new EnumMap<>(ItemType.class);
 
     private ItemStack[] lastKnownArmor = new ItemStack[4];
@@ -70,12 +73,16 @@ public final class BlightedPlayer {
         this.player = player;
         this.playerId = player.getUniqueId();
         this.dataHandler = new PlayerDataHandler(playerId, player.getName());
-        this.gems = dataHandler.getSavedGems();
+        PlayerDataHandler.PlayerData data = dataHandler.load();
+        this.gems = data.gems();
 
         this.maxMana = DEFAULT_MAX_MANA;
-        this.manaRegenerationRate = Optional.ofNullable(BlightedSMP.getInstance()).map(BlightedSMP::getSettings).map(PluginSettings::getDefaultManaRegenerationRate).orElse(DEFAULT_MANA_REGEN_RATE);
-        setCurrentMana(dataHandler.getSavedMana());
-        this.forgeFuel = dataHandler.getSavedForgeFuel();
+        this.manaRegenerationRate = Optional.ofNullable(BlightedSMP.getInstance())
+                .map(BlightedSMP::getSettings)
+                .map(PluginSettings::getDefaultManaRegenerationRate)
+                .orElse(DEFAULT_MANA_REGEN_RATE);
+        setCurrentMana(data.mana());
+        this.forgeFuel = data.forgeFuel();
 
         ArmorSetManager.updatePlayerArmor(this);
     }
@@ -95,7 +102,26 @@ public final class BlightedPlayer {
      */
     public static BlightedPlayer get(Player player) {
         if (player == null || !player.isOnline()) return null;
-        return players.computeIfAbsent(player.getUniqueId(), _ -> new BlightedPlayer(player));
+        return players.compute(player.getUniqueId(), (_, existing) -> {
+            if (existing == null || existing.getPlayer() != player) {
+                if (existing != null) {
+                    existing.cleanup();
+                }
+                return new BlightedPlayer(player);
+            }
+            return existing;
+        });
+    }
+
+    /**
+     * Retrieves the active player context associated with a player UUID.
+     *
+     * @param uuid unique identifier of the player
+     * @return registered player context, or {@code null} if not found
+     */
+    public static BlightedPlayer get(UUID uuid) {
+        if (uuid == null) return null;
+        return players.get(uuid);
     }
 
     /**
@@ -130,10 +156,12 @@ public final class BlightedPlayer {
     /**
      * Returns an unmodifiable list of active ability cooldown entries.
      *
-     * @return unmodifiable list of cooldown entries
+     * @return unmodifiable list of active cooldown entries
      */
     public List<CooldownEntry> getCooldowns() {
-        return Collections.unmodifiableList(cooldowns);
+        return cooldowns.values().stream()
+                .filter(entry -> !entry.isExpired())
+                .toList();
     }
 
     /**
@@ -142,7 +170,7 @@ public final class BlightedPlayer {
      * @param entry cooldown entry to add
      */
     public void addCooldown(CooldownEntry entry) {
-        cooldowns.add(entry);
+        cooldowns.put(new CooldownKey(entry.key(), entry.trigger()), entry);
     }
 
     /**
@@ -151,7 +179,7 @@ public final class BlightedPlayer {
      * @param entry cooldown entry to remove
      */
     public void removeCooldown(CooldownEntry entry) {
-        cooldowns.remove(entry);
+        cooldowns.remove(new CooldownKey(entry.key(), entry.trigger()));
     }
 
     /**
@@ -163,8 +191,7 @@ public final class BlightedPlayer {
      */
     public void setCooldown(String key, AbilityTrigger trigger, int seconds) {
         long expire = System.currentTimeMillis() + (seconds * 1000L);
-        cooldowns.removeIf(currentCooldown -> currentCooldown.key().equals(key) && currentCooldown.trigger() == trigger);
-        cooldowns.add(new CooldownEntry(key, trigger, expire));
+        cooldowns.put(new CooldownKey(key, trigger), new CooldownEntry(key, trigger, expire));
     }
 
     /**
@@ -182,27 +209,25 @@ public final class BlightedPlayer {
     /**
      * Returns the remaining cooldown duration in seconds for a string key and ability trigger.
      *
-     * <p>Expired cooldown entries are removed before performing the lookup.</p>
-     *
      * @param key     cooldown key or ability name
      * @param trigger ability trigger associated with the cooldown
      * @return remaining cooldown in seconds, or {@code 0} if no active cooldown exists
      */
     public double getRemainingCooldown(String key, AbilityTrigger trigger) {
-        cooldowns.removeIf(CooldownEntry::isExpired);
-
-        for (CooldownEntry entry : cooldowns) {
-            if (entry.key().equals(key) && entry.trigger() == trigger) {
-                return entry.getRemainingCooldownTimeInSeconds();
-            }
+        CooldownKey cooldownKey = new CooldownKey(key, trigger);
+        CooldownEntry entry = cooldowns.get(cooldownKey);
+        if (entry == null) {
+            return 0;
         }
-        return 0;
+        if (entry.isExpired()) {
+            cooldowns.remove(cooldownKey, entry);
+            return 0;
+        }
+        return entry.getRemainingCooldownTimeInSeconds();
     }
 
     /**
      * Returns the remaining cooldown duration in seconds for an ability class and ability trigger.
-     *
-     * <p>Expired cooldown entries are removed before performing the lookup.</p>
      *
      * @param abilityClass ability class associated with the cooldown
      * @param trigger      ability trigger associated with the cooldown
@@ -451,12 +476,38 @@ public final class BlightedPlayer {
 
     /**
      * Asynchronously persists resources and forge fuel to database storage.
+     * If the plugin is already disabled or shutting down, saves synchronously.
      */
     public void saveData() {
+        BlightedSMP instance = BlightedSMP.getInstance();
+        if (instance == null || !instance.isEnabled()) {
+            saveSync();
+            return;
+        }
         int gemsToSave = this.gems;
         double manaToSave = this.currentMana;
         int forgeFuelToSave = this.forgeFuel;
-        Bukkit.getScheduler().runTaskAsynchronously(BlightedSMP.getInstance(), () -> dataHandler.save(gemsToSave, manaToSave, forgeFuelToSave));
+        try {
+            Bukkit.getScheduler().runTaskAsynchronously(instance, () -> dataHandler.save(gemsToSave, manaToSave, forgeFuelToSave));
+        } catch (IllegalPluginAccessException _) {
+            saveSync();
+        }
+    }
+
+    /**
+     * Synchronously persists resources and forge fuel to database storage.
+     */
+    public void saveSync() {
+        dataHandler.save(this.gems, this.currentMana, this.forgeFuel);
+    }
+
+    /**
+     * Synchronously persists all active players to database storage.
+     */
+    public static void saveAllSync() {
+        for (BlightedPlayer player : players.values()) {
+            player.saveSync();
+        }
     }
 
     /**
