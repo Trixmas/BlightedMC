@@ -28,6 +28,7 @@ public final class RecipeIngredient {
     private final String id;
 
     public RecipeIngredient(@NonNull BlightedItem item, int amount) {
+        if (amount <= 0) throw new IllegalArgumentException("amount must be positive");
         this.item = Objects.requireNonNull(item, "item cannot be null");
         this.material = null;
         this.amount = amount;
@@ -35,6 +36,7 @@ public final class RecipeIngredient {
     }
 
     public RecipeIngredient(@NonNull Material material, int amount) {
+        if (amount <= 0) throw new IllegalArgumentException("amount must be positive");
         this.item = null;
         this.material = Objects.requireNonNull(material, "material cannot be null");
         this.amount = amount;
