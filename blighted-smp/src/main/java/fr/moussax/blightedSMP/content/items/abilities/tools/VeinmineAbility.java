@@ -1,7 +1,7 @@
 package fr.moussax.blightedSMP.content.items.abilities.tools;
 
-import fr.moussax.blightedSMP.engine.items.abilities.AbilityManager;
-import fr.moussax.blightedSMP.engine.items.abilities.AbilityType;
+import fr.moussax.blightedSMP.engine.items.abilities.ItemAbility;
+import fr.moussax.blightedSMP.engine.items.abilities.AbilityTrigger;
 import fr.moussax.blightedSMP.engine.player.BlightedPlayer;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -9,7 +9,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 
 import java.util.*;
 
-public class VeinmineAbility implements AbilityManager<BlockBreakEvent> {
+public class VeinmineAbility implements ItemAbility<BlockBreakEvent> {
 
     @Override
     public String getName() {
@@ -17,8 +17,15 @@ public class VeinmineAbility implements AbilityManager<BlockBreakEvent> {
     }
 
     @Override
-    public AbilityType getType() {
-        return AbilityType.PASSIVE;
+    public AbilityTrigger getTrigger() {
+        return AbilityTrigger.BLOCK_BREAK;
+    }
+
+    @Override
+    public String[] getDescription() {
+        return new String[]{
+                "Mines entire ore veins in a single strike."
+        };
     }
 
     private static final int MAX_BLOCK = 64;
@@ -105,28 +112,5 @@ public class VeinmineAbility implements AbilityManager<BlockBreakEvent> {
             }
         }
         return blocks;
-    }
-
-    @Override
-    public int getCooldownSeconds() {
-        return 0;
-    }
-
-    @Override
-    public int getManaCost() {
-        return 0;
-    }
-
-    @Override
-    public boolean canTrigger(BlightedPlayer player) {
-        return true;
-    }
-
-    @Override
-    public void start(BlightedPlayer player) {
-    }
-
-    @Override
-    public void stop(BlightedPlayer player) {
     }
 }

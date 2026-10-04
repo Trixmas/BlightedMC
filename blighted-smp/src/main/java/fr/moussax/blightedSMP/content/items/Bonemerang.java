@@ -5,8 +5,9 @@ import fr.moussax.blightedSMP.engine.items.BlightedItem;
 import fr.moussax.blightedSMP.engine.items.ItemRarity;
 import fr.moussax.blightedSMP.engine.items.ItemType;
 import fr.moussax.blightedSMP.registry.RegistryModule;
-import java.util.function.Consumer;
 import org.bukkit.Material;
+
+import java.util.function.Consumer;
 
 public class Bonemerang implements RegistryModule<Consumer<BlightedItem>> {
 
@@ -14,16 +15,7 @@ public class Bonemerang implements RegistryModule<Consumer<BlightedItem>> {
     public void register(Consumer<BlightedItem> registry) {
         BlightedItem bonemerang = new BlightedItem("BONEMERANG", ItemType.BOW, ItemRarity.EPIC, Material.BONE);
         bonemerang.setDisplayName("Bonemerang");
-        bonemerang.addLore(
-                "",
-                "§5 Ability: Swing  §d§lRIGHT CLICK",
-                "§7 Throw the bone forward, slicing",
-                "§7 through foes, dealing §c12 §7damage ",
-                "§7 before returning to you.",
-                "",
-                ItemRarity.EPIC.getName() + " BOW"
-        );
-        bonemerang.addAbility(new BonemerangAbility(), false);
+        bonemerang.addAbility(new BonemerangAbility());
         bonemerang.glow();
         bonemerang.unstackable();
 

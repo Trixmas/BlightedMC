@@ -45,6 +45,5 @@ public class HomodeusArmor implements RegistryModule<Consumer<BlightedItem>> {
         piece.hideAllFlags();
 
         piece.setFullSetBonus(bonus);
-        piece.addLore("", ItemRarity.LEGENDARY.getName());
     }
 }

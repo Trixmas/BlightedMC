@@ -15,27 +15,22 @@ public class BlightedTools implements RegistryModule<Consumer<BlightedItem>> {
     public void register(Consumer<BlightedItem> registry) {
         BlightedItem magmaRod = new BlightedItem("MAGMA_ROD", ItemType.LAVA_FISHING_ROD, ItemRarity.UNCOMMON, Material.FISHING_ROD);
         magmaRod.setDisplayName("Magma Rod");
-
-        magmaRod.addLore("",
-                " §7Impervious to the inferno,",
-                " §7this rod casts where others ",
-                " §7burn to dredge §6molten depths ",
-                " §7for treasures.",
-                ""
+        magmaRod.description(
+                "Impervious to the inferno,",
+                "this rod casts where others",
+                "burn to dredge §6molten depths",
+                "for treasures."
         );
-        magmaRod.addLore(ItemRarity.UNCOMMON.getName() + " ROD");
         magmaRod.setFireResistant(true);
 
         BlightedItem voidRod = new BlightedItem("VOID_ROD", ItemType.VOID_FISHING_ROD, ItemRarity.RARE, Material.FISHING_ROD);
         voidRod.setDisplayName("Void Rod");
-        voidRod.addLore("§8Demonstration tool");
-        voidRod.addLore("");
-        voidRod.addLore(ItemRarity.RARE.getName() + " ROD");
+        voidRod.description("Demonstration tool");
 
         BlightedItem demoPickaxe = new BlightedItem("DEMO_PICKAXE", ItemType.PICKAXE, ItemRarity.SPECIAL, Material.DIAMOND_PICKAXE);
         demoPickaxe.setDisplayName("Demo Pickaxe");
         demoPickaxe.addAbility(new VeinmineAbility());
-        demoPickaxe.addLore("§8Demonstration tool");
+        demoPickaxe.description("Demonstration tool");
 
         registry.accept(demoPickaxe);
         registry.accept(magmaRod);

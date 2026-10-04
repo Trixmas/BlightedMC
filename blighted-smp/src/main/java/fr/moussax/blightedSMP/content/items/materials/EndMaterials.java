@@ -4,38 +4,33 @@ import fr.moussax.blightedSMP.engine.items.BlightedItem;
 import fr.moussax.blightedSMP.engine.items.ItemRarity;
 import fr.moussax.blightedSMP.engine.items.ItemType;
 import fr.moussax.blightedSMP.registry.RegistryModule;
-import java.util.function.Consumer;
-import fr.moussax.blightedSMP.engine.items.rules.ItemRule;
 import org.bukkit.Material;
+
+import java.util.function.Consumer;
 
 public class EndMaterials implements RegistryModule<Consumer<BlightedItem>> {
     @Override
     public void register(Consumer<BlightedItem> registry) {
         BlightedItem enchantedEnderPearl = new BlightedItem("ENCHANTED_ENDER_PEARL", ItemType.MATERIAL, ItemRarity.UNCOMMON, Material.ENDER_PEARL);
         enchantedEnderPearl.setDisplayName("Enchanted Ender Pearl");
-        enchantedEnderPearl.addLore(ItemRarity.UNCOMMON.getName());
         enchantedEnderPearl.glow();
-        enchantedEnderPearl.addRule(ItemRule.PREVENT_PROJECTILE_LAUNCH);
+        enchantedEnderPearl.preventProjectileLaunch();
 
         BlightedItem enchantedEndstone = new BlightedItem("ENCHANTED_END_STONE", ItemType.MATERIAL, ItemRarity.UNCOMMON, Material.END_STONE);
         enchantedEndstone.setDisplayName("Enchanted End Stone");
-        enchantedEndstone.addLore(ItemRarity.UNCOMMON.getName());
         enchantedEndstone.glow();
-        enchantedEndstone.addRule(ItemRule.PREVENT_PLACEMENT);
+        enchantedEndstone.preventPlacement();
 
         BlightedItem enchantedChorusFruit = new BlightedItem("ENCHANTED_CHORUS_FRUIT", ItemType.MATERIAL, ItemRarity.UNCOMMON, Material.CHORUS_FRUIT);
         enchantedChorusFruit.setDisplayName("Enchanted Chorus Fruit");
-        enchantedChorusFruit.addLore(ItemRarity.UNCOMMON.getName());
         enchantedChorusFruit.glow();
 
         BlightedItem voidResidue = new BlightedItem("VOID_RESIDUE", ItemType.MATERIAL, ItemRarity.UNCOMMON, Material.PURPLE_DYE);
         voidResidue.setDisplayName("Voidling Residue");
-        voidResidue.addLore("",
-                " §7The tangible byproduct of entropy,",
-                " §7harvested from the §5Outer Islands",
-                " §7where reality begins to fray.",
-                "",
-                ItemRarity.UNCOMMON.getName()
+        voidResidue.description(
+                "The tangible byproduct of entropy,",
+                "harvested from the §5Outer Islands",
+                "where reality begins to fray."
         );
         voidResidue.glow();
 

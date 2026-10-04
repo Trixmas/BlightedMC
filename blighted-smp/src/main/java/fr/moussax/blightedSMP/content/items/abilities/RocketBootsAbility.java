@@ -1,7 +1,7 @@
 package fr.moussax.blightedSMP.content.items.abilities;
 
 import fr.moussax.blightedSMP.engine.items.abilities.AbstractFullSetBonus;
-import fr.moussax.blightedSMP.engine.items.abilities.ArmorManager;
+import fr.moussax.blightedSMP.engine.items.equipment.ArmorSetManager;
 import org.bukkit.GameMode;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -129,7 +129,7 @@ public class RocketBootsAbility extends AbstractFullSetBonus implements Listener
         if (durabilityDamage >= maxDurability) {
             player.getInventory().setBoots(null);
             player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 1f, 1f);
-            ArmorManager.updatePlayerArmor(getAbilityOwner());
+            ArmorSetManager.updatePlayerArmor(getAbilityOwner());
         } else {
             damageable.setDamage(durabilityDamage);
             boots.setItemMeta(meta);

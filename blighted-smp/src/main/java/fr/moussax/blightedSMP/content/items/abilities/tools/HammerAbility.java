@@ -1,19 +1,26 @@
 package fr.moussax.blightedSMP.content.items.abilities.tools;
 
-import fr.moussax.blightedSMP.engine.items.abilities.AbilityManager;
-import fr.moussax.blightedSMP.engine.items.abilities.AbilityType;
+import fr.moussax.blightedSMP.engine.items.abilities.ItemAbility;
+import fr.moussax.blightedSMP.engine.items.abilities.AbilityTrigger;
 import fr.moussax.blightedSMP.engine.player.BlightedPlayer;
 import org.bukkit.event.block.BlockBreakEvent;
 
-public class HammerAbility implements AbilityManager<BlockBreakEvent> {
+public class HammerAbility implements ItemAbility<BlockBreakEvent> {
     @Override
     public String getName() {
         return "Hammer";
     }
 
     @Override
-    public AbilityType getType() {
-        return AbilityType.PASSIVE;
+    public AbilityTrigger getTrigger() {
+        return AbilityTrigger.BLOCK_BREAK;
+    }
+
+    @Override
+    public String[] getDescription() {
+        return new String[]{
+                "Mines in a wide 3x3 area."
+        };
     }
     @Override
     public boolean triggerAbility(BlockBreakEvent event) {
@@ -21,27 +28,7 @@ public class HammerAbility implements AbilityManager<BlockBreakEvent> {
     }
 
     @Override
-    public int getCooldownSeconds() {
-        return 0;
-    }
-
-    @Override
-    public int getManaCost() {
-        return 0;
-    }
-
-    @Override
     public boolean canTrigger(BlightedPlayer player) {
         return false;
-    }
-
-    @Override
-    public void start(BlightedPlayer player) {
-
-    }
-
-    @Override
-    public void stop(BlightedPlayer player) {
-
     }
 }
