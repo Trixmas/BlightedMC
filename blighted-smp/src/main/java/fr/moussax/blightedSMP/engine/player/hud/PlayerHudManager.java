@@ -38,7 +38,7 @@ public final class PlayerHudManager {
                 .render(player -> {
                     int health = (int) player.getHealth();
                     int maxHealth = (int) Objects.requireNonNull(player.getAttribute(Attribute.MAX_HEALTH)).getValue();
-                    int absorption = (int) player.getAbsorptionAmount() / 2;
+                    int absorption = (int) player.getAbsorptionAmount();
                     String dynamicHealth = absorption > 0 ? "§6" + (absorption + health) : "§c" + health;
                     return dynamicHealth + "/" + maxHealth + "❤";
                 })
