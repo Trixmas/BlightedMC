@@ -3,9 +3,6 @@ package fr.moussax.blightedSMP.content.items;
 import fr.moussax.blightedSMP.engine.items.BlightedItem;
 import fr.moussax.blightedSMP.engine.items.ItemRarity;
 import fr.moussax.blightedSMP.engine.items.ItemType;
-
-import java.util.function.Consumer;
-import fr.moussax.blightedSMP.engine.items.rules.ItemRule;
 import fr.moussax.blightedSMP.registry.RegistryModule;
 import fr.moussax.blightedSMP.engine.loot.results.gems.GemsItem;
 import org.bukkit.DyeColor;
@@ -16,6 +13,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class BlightedItems implements RegistryModule<Consumer<BlightedItem>> {
 
@@ -25,15 +23,12 @@ public class BlightedItems implements RegistryModule<Consumer<BlightedItem>> {
         BlightedItem blightedBanner = new BlightedItem(
                 "BLIGHTED_BANNER", ItemType.UNCATEGORIZED, ItemRarity.EPIC, Material.BLACK_BANNER);
         blightedBanner.setDisplayName("Crown of the Blight");
-        blightedBanner.addLore(
-                "",
-                "§7 An ancient standard woven from",
-                "§5 shadow-silk§7. Its fabric beats with ",
-                "§7 a faint, living pulse, drawing the",
-                "§7 corruption of the Blight like",
-                "§7 a cosmic §5lightning rod§7.",
-                "",
-                ItemRarity.EPIC.getName()
+        blightedBanner.description(
+                "An ancient standard woven from",
+                "§5shadow-silk§7. Its fabric beats with ",
+                "a faint, living pulse, drawing the",
+                "corruption of the Blight like",
+                "a cosmic §5lightning rod§7."
         );
         blightedBanner.addBannerPatterns(List.of(
                 new Pattern(DyeColor.PURPLE, PatternType.CURLY_BORDER),
@@ -44,18 +39,19 @@ public class BlightedItems implements RegistryModule<Consumer<BlightedItem>> {
                 new Pattern(DyeColor.BLACK, PatternType.FLOW)
         ));
         blightedBanner.addItemFlag(ItemFlag.HIDE_BANNER_PATTERNS);
-        blightedBanner.addRule(ItemRule.PREVENT_PLACEMENT);
+        blightedBanner.preventPlacement();
         blightedBanner.editEquippable(equippable -> equippable.setSlot(EquipmentSlot.HEAD));
         blightedBanner.fireResistant();
         blightedBanner.unstackable();
 
         BlightedItem blightedCodex = new BlightedItem("BLIGHTED_CODEX", ItemType.UNCATEGORIZED, ItemRarity.EPIC, Material.ENCHANTED_BOOK);
         blightedCodex.setDisplayName("Blighted Codex");
+        blightedCodex.description(
+                "A forbidden ledger bound in cracked",
+                "leather. Its pages remain blank until",
+                "they absorb the essence of the Blight."
+        );
         blightedCodex.addLore(
-                "",
-                "§7 A forbidden ledger bound in cracked",
-                "§7 leather. Its pages remain blank until",
-                "§7 they absorb the essence of the Blight.",
                 "",
                 " &#D2A5FF§lSEALED RIDDLE!",
                 "&#D2A5FF Wear the woven shadow as your crown,",
@@ -65,33 +61,28 @@ public class BlightedItems implements RegistryModule<Consumer<BlightedItem>> {
                 "&#D2A5FF Lay your hand upon the ancient seal,",
                 "&#D2A5FF and the hidden path shall awaken.",
                 "",
-                "§8 Souls trapped: §d0 ☠",
-                "",
-                ItemRarity.EPIC.getName()
+                "§8 Souls trapped: §d0 ☠"
         );
         blightedCodex.fireResistant();
 
         BlightedItem blightedGemstone = new BlightedItem("BLIGHTED_GEMSTONE", ItemType.UNCATEGORIZED, ItemRarity.SPECIAL, Material.PLAYER_HEAD);
         blightedGemstone.setCustomSkullTexture("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDM2MjM1MjFjODExMWFkMjllOWRjZjdhY2M1NjA4NWE5YWIwN2RhNzMyZDE1MTg5NzZhZWU2MWQwYjNlM2JkNiJ9fX0=");
         blightedGemstone.setDisplayName("Blighted Gemstone");
+        blightedGemstone.description(
+                "A gemstone §5corrupted§7 by shadow,",
+                "stolen from the heart of a §5fallen",
+                "§5abomination§7. Within its core lie §dGems ",
+                "sealed and waiting for a daring",
+                "hand to claim them."
+        );
         blightedGemstone.addLore(
-                "",
-                "§7 A gemstone §5corrupted§7 by shadow,",
-                "§7 stolen from the heart of a §5fallen",
-                "§5 abomination§7. Within its core lie §dGems ",
-                "§7 sealed and waiting for a daring",
-                "§7 hand to claim them.",
-                "§8 Ges: §d1✵",
-                "",
-                "§d Right click to consume!",
-                "",
-                ItemRarity.SPECIAL.getName()
+                "§8 Gems: §d1✵"
         );
 
         blightedGemstone.preventEquipping();
         blightedGemstone.unstackable();
-        blightedGemstone.addRule(ItemRule.PREVENT_PLACEMENT);
-        blightedGemstone.addAbility(new GemsItem.BlightedGemstoneAbility(), false);
+        blightedGemstone.preventPlacement();
+        blightedGemstone.addAbility(new GemsItem.BlightedGemstoneAbility());
 
         registry.accept(blightedBanner);
         registry.accept(blightedCodex);

@@ -1,8 +1,8 @@
 package fr.moussax.blightedSMP.content.items.abilities;
 
 import fr.moussax.blightedSMP.BlightedSMP;
-import fr.moussax.blightedSMP.engine.items.abilities.AbilityManager;
-import fr.moussax.blightedSMP.engine.items.abilities.AbilityType;
+import fr.moussax.blightedSMP.engine.items.abilities.ItemAbility;
+import fr.moussax.blightedSMP.engine.items.abilities.AbilityTrigger;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
@@ -25,9 +25,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-public class BonemerangAbility implements AbilityManager<PlayerInteractEvent> {
+public class BonemerangAbility implements ItemAbility<PlayerInteractEvent> {
 
-    private static final NamespacedKey THROWN_KEY = new NamespacedKey(BlightedSMP.getInstance(), "thrown_bonemerang");
+    private static final NamespacedKey THROWN_KEY = BlightedSMP.getInstance() != null
+            ? new NamespacedKey(BlightedSMP.getInstance(), "thrown_bonemerang")
+            : NamespacedKey.fromString("blightedsmp:thrown_bonemerang");
     private static final int OUTBOUND_TICKS = 13;
     private static final int RETURN_TICKS = 13;
     private static final double PROJECTILE_SPEED = 1.16;
@@ -42,8 +44,17 @@ public class BonemerangAbility implements AbilityManager<PlayerInteractEvent> {
     }
 
     @Override
-    public AbilityType getType() {
-        return AbilityType.RIGHT_CLICK;
+    public AbilityTrigger getTrigger() {
+        return AbilityTrigger.RIGHT_CLICK;
+    }
+
+    @Override
+    public String[] getDescription() {
+        return new String[]{
+                "Throw the bone forward, slicing",
+                "through foes, dealing §c12 §7damage ",
+                "before returning to you."
+        };
     }
 
     @Override

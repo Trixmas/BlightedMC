@@ -22,7 +22,6 @@ public class RocketBoots implements RegistryModule<Consumer<BlightedItem>> {
         rocketBoots.addItemFlag(ItemFlag.HIDE_DYE, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ARMOR_TRIM);
 
         rocketBoots.setFullSetBonus(new RocketBootsAbility());
-        rocketBoots.addLore("", ItemRarity.UNCOMMON.getName() + " BOOTS");
         rocketBoots.setMaxDurability(140);
 
         registry.accept(rocketBoots);

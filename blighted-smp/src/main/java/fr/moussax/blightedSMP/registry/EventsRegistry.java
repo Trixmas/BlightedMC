@@ -1,17 +1,16 @@
 package fr.moussax.blightedSMP.registry;
 
 import fr.moussax.blightedSMP.BlightedSMP;
-import fr.moussax.blightedSMP.content.items.abilities.WitherImpactAbility;
 import fr.moussax.blightedSMP.engine.entities.listeners.BlightedEntitiesListener;
 import fr.moussax.blightedSMP.engine.entities.listeners.EntityComponentListener;
 import fr.moussax.blightedSMP.engine.entities.listeners.SpawnableEntitiesListener;
 import fr.moussax.blightedSMP.engine.entities.registry.EntitiesRegistry;
 import fr.moussax.blightedSMP.engine.fishing.FishingListener;
-import fr.moussax.blightedSMP.engine.items.abilities.AbilityListener;
-import fr.moussax.blightedSMP.engine.items.blocks.BlightedBlockListener;
+import fr.moussax.blightedSMP.engine.blocks.BlightedBlockListener;
+import fr.moussax.blightedSMP.engine.items.listeners.ItemAbilityListener;
+import fr.moussax.blightedSMP.engine.items.listeners.ItemRestrictionListener;
 import fr.moussax.blightedSMP.engine.items.listeners.UnsafeAnvilListener;
 import fr.moussax.blightedSMP.engine.items.listeners.VanillaRecipeProtectionListener;
-import fr.moussax.blightedSMP.engine.items.rules.ItemRuleListener;
 import fr.moussax.blightedSMP.engine.player.BlightedPlayer;
 import fr.moussax.blightedSMP.engine.player.PlayerListener;
 import fr.moussax.blightedSMP.engine.player.hud.PlayerHudManager;
@@ -69,12 +68,11 @@ public final class EventsRegistry {
         pluginManager.registerEvents(spawnableEntitiesListener, instance);
         pluginManager.registerEvents(new BlightedBlockListener(), instance);
         pluginManager.registerEvents(new PlayerListener(), instance);
-        pluginManager.registerEvents(new ItemRuleListener(), instance);
-        pluginManager.registerEvents(new AbilityListener(), instance);
+        pluginManager.registerEvents(new ItemRestrictionListener(), instance);
+        pluginManager.registerEvents(new ItemAbilityListener(), instance);
         pluginManager.registerEvents(new FishingListener(), instance);
         pluginManager.registerEvents(new UnsafeAnvilListener(), instance);
         pluginManager.registerEvents(new VanillaRecipeProtectionListener(), instance);
-        pluginManager.registerEvents(new WitherImpactAbility(), instance);
         pluginManager.registerEvents(new BlightedQuestListener(), instance);
     }
 

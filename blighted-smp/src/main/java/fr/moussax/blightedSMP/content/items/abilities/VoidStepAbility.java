@@ -1,7 +1,7 @@
 package fr.moussax.blightedSMP.content.items.abilities;
 
-import fr.moussax.blightedSMP.engine.items.abilities.AbilityManager;
-import fr.moussax.blightedSMP.engine.items.abilities.AbilityType;
+import fr.moussax.blightedSMP.engine.items.abilities.ItemAbility;
+import fr.moussax.blightedSMP.engine.items.abilities.AbilityTrigger;
 import fr.moussax.blightedSMP.engine.player.BlightedPlayer;
 import fr.moussax.bedrock.text.Messenger;
 import org.bukkit.*;
@@ -12,7 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
-public class VoidStepAbility implements AbilityManager<PlayerInteractEvent> {
+public class VoidStepAbility implements ItemAbility<PlayerInteractEvent> {
     private static final int MAX_DISTANCE = 40;
 
     @Override
@@ -21,8 +21,8 @@ public class VoidStepAbility implements AbilityManager<PlayerInteractEvent> {
     }
 
     @Override
-    public AbilityType getType() {
-        return AbilityType.RIGHT_CLICK;
+    public AbilityTrigger getTrigger() {
+        return AbilityTrigger.RIGHT_CLICK;
     }
 
     @Override

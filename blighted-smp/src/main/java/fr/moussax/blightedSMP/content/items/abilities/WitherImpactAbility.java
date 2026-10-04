@@ -1,12 +1,10 @@
 package fr.moussax.blightedSMP.content.items.abilities;
 
-import fr.moussax.blightedSMP.BlightedSMP;
-import fr.moussax.blightedSMP.engine.items.BlightedItem;
-import fr.moussax.blightedSMP.engine.items.abilities.AbilityManager;
-import fr.moussax.blightedSMP.engine.items.abilities.AbilityType;
-import fr.moussax.blightedSMP.engine.player.BlightedPlayer;
 import fr.moussax.bedrock.text.Formatter;
 import fr.moussax.bedrock.text.Messenger;
+import fr.moussax.blightedSMP.engine.items.abilities.AbilityTrigger;
+import fr.moussax.blightedSMP.engine.items.abilities.ItemAbility;
+import fr.moussax.blightedSMP.engine.player.BlightedPlayer;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -14,27 +12,19 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-public class WitherImpactAbility implements AbilityManager<PlayerInteractEvent>, Listener {
-    private final Map<UUID, Long> cooldowns = new HashMap<>();
-    private final double TELEPORT_DISTANCE = 10.0;
-    private final double TELEPORT_STEP = 0.5;
-    private final double MIN_DAMAGE = 15000.0;
-    private final double MAX_DAMAGE = 150000.0;
-    private final double DAMAGE_RANGE = 5.0;
-    private final long HEALING_COOLDOWN = 5000L;
+public class WitherImpactAbility implements ItemAbility<PlayerInteractEvent> {
+    private static final String WITHER_SHIELD_COOLDOWN = "wither_shield";
+    private static final double TELEPORT_DISTANCE = 10.0;
+    private static final double TELEPORT_STEP = 0.5;
+    private static final double MIN_DAMAGE = 15000.0;
+    private static final double MAX_DAMAGE = 150000.0;
+    private static final double DAMAGE_RANGE = 5.0;
 
     @Override
     public String getName() {
@@ -42,8 +32,23 @@ public class WitherImpactAbility implements AbilityManager<PlayerInteractEvent>,
     }
 
     @Override
-    public AbilityType getType() {
-        return AbilityType.RIGHT_CLICK;
+    public AbilityTrigger getTrigger() {
+        return AbilityTrigger.RIGHT_CLICK;
+    }
+
+    @Override
+    public String[] getDescription() {
+        return new String[]{
+                "Teleport §a10 §7blocks ahead of you, dealing §c15,000 ",
+                "damage to nearby enemies. Also applies the wither",
+                "shield scroll reducing damage taken and granting",
+                "an §6absorption §7shield for §e5 §7seconds."
+        };
+    }
+
+    @Override
+    public int getManaCost() {
+        return 50;
     }
 
     @Override
@@ -53,21 +58,17 @@ public class WitherImpactAbility implements AbilityManager<PlayerInteractEvent>,
         }
 
         Player player = event.getPlayer();
+        BlightedPlayer blightedPlayer = BlightedPlayer.get(player);
+        if (blightedPlayer == null) return false;
 
-        if (!isHoldingHyperion(player)) return false;
         teleport(player);
         damageNearbyEntities(player);
 
-        if (canUseHealingAbility(player)) {
+        if (blightedPlayer.getRemainingCooldown(WITHER_SHIELD_COOLDOWN, getTrigger()) <= 0) {
             applyHealingEffect(player);
-            setHealingCooldown(player);
+            blightedPlayer.setCooldown(WITHER_SHIELD_COOLDOWN, getTrigger(), 5);
         }
         return true;
-    }
-
-    private boolean isHoldingHyperion(Player player) {
-        BlightedItem blightedItem = BlightedItem.fromItemStack(player.getInventory().getItemInMainHand());
-        return blightedItem != null && "HYPERION".equals(blightedItem.getItemId());
     }
 
     private void teleport(Player player) {
@@ -75,7 +76,7 @@ public class WitherImpactAbility implements AbilityManager<PlayerInteractEvent>,
         Location teleportDestination = findTeleportDestination(player, direction);
         player.teleport(teleportDestination);
         World world = player.getWorld();
-        world.playSound(player.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 100.0F, 1.0F);
+        world.playSound(player.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1.0F, 1.0F);
         world.spawnParticle(Particle.EXPLOSION, player.getLocation(), 5);
     }
 
@@ -111,11 +112,6 @@ public class WitherImpactAbility implements AbilityManager<PlayerInteractEvent>,
         }
     }
 
-    private boolean canUseHealingAbility(Player player) {
-        Long lastUsed = cooldowns.get(player.getUniqueId());
-        return lastUsed == null || System.currentTimeMillis() >= lastUsed;
-    }
-
     private void applyHealingEffect(Player player) {
         player.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, 100, 5));
         player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 100, 10));
@@ -124,15 +120,5 @@ public class WitherImpactAbility implements AbilityManager<PlayerInteractEvent>,
         Location playerLocation = player.getLocation();
         world.playSound(playerLocation, Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 1.0F, 1.0F);
         world.spawnParticle(Particle.EXPLOSION, playerLocation, 1);
-    }
-
-    private void setHealingCooldown(Player player) {
-        cooldowns.put(player.getUniqueId(), System.currentTimeMillis() + 5000L);
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                cooldowns.remove(player.getUniqueId());
-            }
-        }.runTaskLater(BlightedSMP.getInstance(), 100L);
     }
 }

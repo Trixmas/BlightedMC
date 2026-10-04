@@ -1,8 +1,8 @@
 package fr.moussax.blightedSMP.content.items.abilities;
 
 import fr.moussax.blightedSMP.BlightedSMP;
-import fr.moussax.blightedSMP.engine.items.abilities.AbilityManager;
-import fr.moussax.blightedSMP.engine.items.abilities.AbilityType;
+import fr.moussax.blightedSMP.engine.items.abilities.ItemAbility;
+import fr.moussax.blightedSMP.engine.items.abilities.AbilityTrigger;
 import fr.moussax.blightedSMP.engine.player.BlightedPlayer;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -19,15 +19,23 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.List;
 import java.util.Objects;
 
-public class KnightsSlamAbility implements AbilityManager<PlayerInteractEvent> {
+public class KnightsSlamAbility implements ItemAbility<PlayerInteractEvent> {
     @Override
     public String getName() {
         return "Knight's Slam";
     }
 
     @Override
-    public AbilityType getType() {
-        return AbilityType.RIGHT_CLICK;
+    public AbilityTrigger getTrigger() {
+        return AbilityTrigger.RIGHT_CLICK;
+    }
+
+    @Override
+    public String[] getDescription() {
+        return new String[]{
+                "Slam your sword into the ground dealing ",
+                "§c50 §7damage to nearby enemies."
+        };
     }
 
     @Override

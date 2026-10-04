@@ -5,7 +5,6 @@ import fr.moussax.blightedSMP.engine.items.ItemRarity;
 import fr.moussax.blightedSMP.engine.items.ItemType;
 import fr.moussax.blightedSMP.registry.RegistryModule;
 import java.util.function.Consumer;
-import fr.moussax.blightedSMP.engine.items.rules.ItemRule;
 import org.bukkit.Material;
 
 public class BlightedMaterials implements RegistryModule<Consumer<BlightedItem>> {
@@ -150,15 +149,14 @@ public class BlightedMaterials implements RegistryModule<Consumer<BlightedItem>>
     ) {
         BlightedItem item = new BlightedItem(id, type, rarity, material);
         item.setDisplayName(displayName);
-        item.addLore(rarity.getName());
         item.glow();
 
         if (preventPlacement) {
-            item.addRule(ItemRule.PREVENT_PLACEMENT);
+            item.preventPlacement();
         }
 
         if (preventConsume) {
-            item.addRule(ItemRule.PREVENT_CONSUME);
+            item.preventConsume();
         }
 
         return item;

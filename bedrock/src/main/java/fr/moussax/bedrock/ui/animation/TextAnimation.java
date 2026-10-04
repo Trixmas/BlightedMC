@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
  * Titles, Subtitles, and custom UI consumers. Eliminates visual stutter and client opacity resets
  * through in-place packet updates and automatic background HUD suspension during playback.</p>
  */
-public class TextAnimation {
+public final class TextAnimation {
 
     private static final Pattern COLOR_PATTERN = Pattern.compile("§[0-9a-fk-orA-FK-OR]");
 

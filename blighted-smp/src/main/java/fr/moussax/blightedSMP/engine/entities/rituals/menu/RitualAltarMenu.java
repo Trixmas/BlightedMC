@@ -11,7 +11,7 @@ import fr.moussax.blightedSMP.content.sound.BlightedSounds;
 import fr.moussax.blightedSMP.engine.entities.rituals.AncientCreature;
 import fr.moussax.blightedSMP.engine.entities.rituals.AncientRitual;
 import fr.moussax.blightedSMP.engine.entities.rituals.RitualAnimations;
-import fr.moussax.blightedSMP.engine.items.recipes.CraftingObject;
+import fr.moussax.blightedSMP.engine.recipes.CraftingObject;
 import fr.moussax.blightedSMP.engine.player.BlightedPlayer;
 import fr.moussax.blightedSMP.utils.Utilities;
 import org.bukkit.Bukkit;

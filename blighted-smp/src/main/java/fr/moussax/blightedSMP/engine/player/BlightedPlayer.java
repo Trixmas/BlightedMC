@@ -3,7 +3,11 @@ package fr.moussax.blightedSMP.engine.player;
 import fr.moussax.blightedSMP.BlightedSMP;
 import fr.moussax.blightedSMP.engine.items.BlightedItem;
 import fr.moussax.blightedSMP.engine.items.ItemType;
-import fr.moussax.blightedSMP.engine.items.abilities.*;
+import fr.moussax.blightedSMP.engine.items.abilities.AbilityTrigger;
+import fr.moussax.blightedSMP.engine.items.abilities.CooldownEntry;
+import fr.moussax.blightedSMP.engine.items.abilities.FullSetBonus;
+import fr.moussax.blightedSMP.engine.items.abilities.ItemAbility;
+import fr.moussax.blightedSMP.engine.items.equipment.ArmorSetManager;
 import fr.moussax.blightedSMP.server.PluginSettings;
 import fr.moussax.blightedSMP.server.database.PlayerDataHandler;
 import lombok.Getter;
@@ -69,14 +73,11 @@ public final class BlightedPlayer {
         this.gems = dataHandler.getSavedGems();
 
         this.maxMana = DEFAULT_MAX_MANA;
-        this.manaRegenerationRate = Optional.ofNullable(BlightedSMP.getInstance())
-                .map(BlightedSMP::getSettings)
-                .map(PluginSettings::getDefaultManaRegenerationRate)
-                .orElse(DEFAULT_MANA_REGEN_RATE);
+        this.manaRegenerationRate = Optional.ofNullable(BlightedSMP.getInstance()).map(BlightedSMP::getSettings).map(PluginSettings::getDefaultManaRegenerationRate).orElse(DEFAULT_MANA_REGEN_RATE);
         setCurrentMana(dataHandler.getSavedMana());
         this.forgeFuel = dataHandler.getSavedForgeFuel();
 
-        ArmorManager.updatePlayerArmor(this);
+        ArmorSetManager.updatePlayerArmor(this);
     }
 
     /**
@@ -154,45 +155,44 @@ public final class BlightedPlayer {
     }
 
     /**
-     * Sets or replaces the cooldown duration for a string key and ability type.
+     * Sets or replaces the cooldown duration for a string key and ability trigger.
      *
      * @param key     cooldown key or ability name
-     * @param type    ability type associated with the cooldown
+     * @param trigger ability trigger associated with the cooldown
      * @param seconds cooldown duration in seconds
      */
-    public void setCooldown(String key, AbilityType type, int seconds) {
+    public void setCooldown(String key, AbilityTrigger trigger, int seconds) {
         long expire = System.currentTimeMillis() + (seconds * 1000L);
-        cooldowns.removeIf(currentCooldown ->
-                currentCooldown.key().equals(key) && currentCooldown.abilityType() == type);
-        cooldowns.add(new CooldownEntry(key, type, expire));
+        cooldowns.removeIf(currentCooldown -> currentCooldown.key().equals(key) && currentCooldown.trigger() == trigger);
+        cooldowns.add(new CooldownEntry(key, trigger, expire));
     }
 
     /**
-     * Sets or replaces the cooldown duration for an ability manager and ability type.
+     * Sets or replaces the cooldown duration for an ability class and ability trigger.
      *
-     * @param managerClass ability manager class associated with the cooldown
-     * @param type         ability type associated with the cooldown
+     * @param abilityClass ability class associated with the cooldown
+     * @param trigger      ability trigger associated with the cooldown
      * @param seconds      cooldown duration in seconds
      */
     @SuppressWarnings("rawtypes")
-    public void setCooldown(Class<? extends AbilityManager> managerClass, AbilityType type, int seconds) {
-        setCooldown(managerClass != null ? managerClass.getName() : "", type, seconds);
+    public void setCooldown(Class<? extends ItemAbility> abilityClass, AbilityTrigger trigger, int seconds) {
+        setCooldown(abilityClass != null ? abilityClass.getName() : "", trigger, seconds);
     }
 
     /**
-     * Returns the remaining cooldown duration in seconds for a string key and ability type.
+     * Returns the remaining cooldown duration in seconds for a string key and ability trigger.
      *
      * <p>Expired cooldown entries are removed before performing the lookup.</p>
      *
-     * @param key  cooldown key or ability name
-     * @param type ability type associated with the cooldown
+     * @param key     cooldown key or ability name
+     * @param trigger ability trigger associated with the cooldown
      * @return remaining cooldown in seconds, or {@code 0} if no active cooldown exists
      */
-    public double getRemainingCooldown(String key, AbilityType type) {
+    public double getRemainingCooldown(String key, AbilityTrigger trigger) {
         cooldowns.removeIf(CooldownEntry::isExpired);
 
         for (CooldownEntry entry : cooldowns) {
-            if (entry.key().equals(key) && entry.abilityType() == type) {
+            if (entry.key().equals(key) && entry.trigger() == trigger) {
                 return entry.getRemainingCooldownTimeInSeconds();
             }
         }
@@ -200,17 +200,17 @@ public final class BlightedPlayer {
     }
 
     /**
-     * Returns the remaining cooldown duration in seconds for an ability manager and ability type.
+     * Returns the remaining cooldown duration in seconds for an ability class and ability trigger.
      *
      * <p>Expired cooldown entries are removed before performing the lookup.</p>
      *
-     * @param managerClass ability manager class associated with the cooldown
-     * @param type         ability type associated with the cooldown
+     * @param abilityClass ability class associated with the cooldown
+     * @param trigger      ability trigger associated with the cooldown
      * @return remaining cooldown in seconds, or {@code 0} if no active cooldown exists
      */
     @SuppressWarnings("rawtypes")
-    public double getRemainingCooldown(Class<? extends AbilityManager> managerClass, AbilityType type) {
-        return getRemainingCooldown(managerClass != null ? managerClass.getName() : "", type);
+    public double getRemainingCooldown(Class<? extends ItemAbility> abilityClass, AbilityTrigger trigger) {
+        return getRemainingCooldown(abilityClass != null ? abilityClass.getName() : "", trigger);
     }
 
     /**
@@ -225,7 +225,7 @@ public final class BlightedPlayer {
      *
      * @return custom item held in main hand, or {@code null} if non-custom or empty
      */
-    public BlightedItem getEquippedItemManager() {
+    public BlightedItem getEquippedItem() {
         ItemStack mainHandItem = player.getInventory().getItemInMainHand();
         return BlightedItem.fromItemStack(mainHandItem);
     }
@@ -456,10 +456,7 @@ public final class BlightedPlayer {
         int gemsToSave = this.gems;
         double manaToSave = this.currentMana;
         int forgeFuelToSave = this.forgeFuel;
-        Bukkit.getScheduler().runTaskAsynchronously(
-                BlightedSMP.getInstance(),
-                () -> dataHandler.save(gemsToSave, manaToSave, forgeFuelToSave)
-        );
+        Bukkit.getScheduler().runTaskAsynchronously(BlightedSMP.getInstance(), () -> dataHandler.save(gemsToSave, manaToSave, forgeFuelToSave));
     }
 
     /**

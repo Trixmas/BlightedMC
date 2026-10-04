@@ -1,7 +1,7 @@
 package fr.moussax.blightedSMP.engine.items.listeners;
 
 import fr.moussax.blightedSMP.engine.items.BlightedItem;
-import fr.moussax.blightedSMP.engine.items.recipes.crafting.BlightedRecipe;
+import fr.moussax.blightedSMP.engine.recipes.crafting.BlightedRecipe;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;

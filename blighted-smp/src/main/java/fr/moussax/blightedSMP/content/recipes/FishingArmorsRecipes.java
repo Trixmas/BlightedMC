@@ -1,12 +1,12 @@
 package fr.moussax.blightedSMP.content.recipes;
 
-import fr.moussax.blightedSMP.engine.items.recipes.crafting.BlightedRecipe;
+import fr.moussax.blightedSMP.engine.recipes.crafting.BlightedRecipe;
 import fr.moussax.blightedSMP.registry.RegistryModule;
 import org.bukkit.Material;
 
 import java.util.function.Consumer;
 
-import static fr.moussax.blightedSMP.engine.items.recipes.crafting.registry.RecipeRegistry.shapedRecipe;
+import static fr.moussax.blightedSMP.engine.recipes.crafting.registry.RecipeRegistry.shapedRecipe;
 
 public final class FishingArmorsRecipes implements RegistryModule<Consumer<BlightedRecipe>> {
 

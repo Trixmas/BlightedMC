@@ -4,9 +4,9 @@ import fr.moussax.blightedSMP.content.ContentRegistrar;
 import fr.moussax.blightedSMP.engine.entities.registry.EntitiesRegistry;
 import fr.moussax.blightedSMP.engine.entities.rituals.registry.RitualRegistry;
 import fr.moussax.blightedSMP.engine.fishing.registry.FishingLootRegistry;
-import fr.moussax.blightedSMP.engine.items.blocks.registry.BlockRegistry;
-import fr.moussax.blightedSMP.engine.items.recipes.crafting.registry.RecipeRegistry;
-import fr.moussax.blightedSMP.engine.items.recipes.forging.registry.ForgeRegistry;
+import fr.moussax.blightedSMP.engine.blocks.registry.BlockRegistry;
+import fr.moussax.blightedSMP.engine.recipes.crafting.registry.RecipeRegistry;
+import fr.moussax.blightedSMP.engine.recipes.forging.registry.ForgeRegistry;
 import fr.moussax.blightedSMP.engine.items.registry.ItemRegistry;
 
 /**

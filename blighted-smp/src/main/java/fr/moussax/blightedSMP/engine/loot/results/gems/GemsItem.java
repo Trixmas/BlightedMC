@@ -3,8 +3,8 @@ package fr.moussax.blightedSMP.engine.loot.results.gems;
 import fr.moussax.blightedSMP.BlightedSMP;
 import fr.moussax.blightedSMP.content.sound.BlightedSounds;
 import fr.moussax.blightedSMP.engine.items.BlightedItem;
-import fr.moussax.blightedSMP.engine.items.abilities.AbilityManager;
-import fr.moussax.blightedSMP.engine.items.abilities.AbilityType;
+import fr.moussax.blightedSMP.engine.items.abilities.ItemAbility;
+import fr.moussax.blightedSMP.engine.items.abilities.AbilityTrigger;
 import fr.moussax.blightedSMP.engine.items.registry.ItemRegistry;
 import fr.moussax.blightedSMP.engine.player.BlightedPlayer;
 import fr.moussax.bedrock.text.Messenger;
@@ -24,6 +24,10 @@ import java.util.function.Supplier;
  */
 public record GemsItem(int amount) implements Supplier<ItemStack> {
 
+    private static final NamespacedKey GEMS_KEY = BlightedSMP.getInstance() != null
+            ? new NamespacedKey(BlightedSMP.getInstance(), "gems")
+            : NamespacedKey.fromString("blightedsmp:gems");
+
     /**
      * Constructs a GemsItem by reading the gem quantity from an existing item stack's persistent data.
      *
@@ -32,8 +36,7 @@ public record GemsItem(int amount) implements Supplier<ItemStack> {
     public GemsItem(ItemStack itemStack) {
         ItemMeta meta = Objects.requireNonNull(itemStack.getItemMeta(), "itemMeta cannot be null");
 
-        Integer value = meta.getPersistentDataContainer().get(
-                new NamespacedKey(BlightedSMP.getInstance(), "gems"), PersistentDataType.INTEGER);
+        Integer value = meta.getPersistentDataContainer().get(GEMS_KEY, PersistentDataType.INTEGER);
         this(value != null ? value : 1);
     }
 
@@ -49,7 +52,7 @@ public record GemsItem(int amount) implements Supplier<ItemStack> {
     /**
      * Ability handler for consuming Blighted Gemstone items on player interaction.
      */
-    public static class BlightedGemstoneAbility implements AbilityManager<PlayerInteractEvent> {
+    public static class BlightedGemstoneAbility implements ItemAbility<PlayerInteractEvent> {
 
         @Override
         public String getName() {
@@ -57,8 +60,15 @@ public record GemsItem(int amount) implements Supplier<ItemStack> {
         }
 
         @Override
-        public AbilityType getType() {
-            return AbilityType.RIGHT_CLICK;
+        public AbilityTrigger getTrigger() {
+            return AbilityTrigger.RIGHT_CLICK;
+        }
+
+        @Override
+        public String[] getDescription() {
+            return new String[]{
+                    "Right click to consume."
+            };
         }
 
         @Override
@@ -88,15 +98,19 @@ public record GemsItem(int amount) implements Supplier<ItemStack> {
      */
     @Override
     public ItemStack get() {
-        BlightedItem blightedItem = ItemRegistry.get("BLIGHTED_GEMSTONE");
-
-        blightedItem.setLore(6, "§8 Gems: §d" + this.amount + "✵");
-        ItemStack itemStack = blightedItem.toItemStack();
+        BlightedItem prototype = ItemRegistry.getOrThrow("BLIGHTED_GEMSTONE");
+        ItemStack itemStack = prototype.toItemStack();
 
         ItemMeta meta = Objects.requireNonNull(itemStack.getItemMeta(), "itemMeta cannot be null");
-        meta.getPersistentDataContainer().set(new NamespacedKey(BlightedSMP.getInstance(), "gems"), PersistentDataType.INTEGER, amount);
-        itemStack.setItemMeta(meta);
+        meta.getPersistentDataContainer().set(GEMS_KEY, PersistentDataType.INTEGER, amount);
 
+        java.util.List<String> lore = meta.getLore();
+        if (lore != null) {
+            lore.replaceAll(line -> line.contains("Gems:") ? "§8 Gems: §d" + this.amount + "✵" : line);
+            meta.setLore(lore);
+        }
+
+        itemStack.setItemMeta(meta);
         return itemStack;
     }
 }
