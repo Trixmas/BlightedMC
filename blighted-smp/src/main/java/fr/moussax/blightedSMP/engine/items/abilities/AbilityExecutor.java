@@ -24,16 +24,16 @@ public final class AbilityExecutor {
      * Evaluates active cooldowns, verifies mana sufficiency, and executes an ability.
      *
      * @param <T>     event type
-     * @param ability ability manager to execute
+     * @param ability ability to execute
      * @param player  player context triggering the ability
      * @param event   triggering Bukkit event
      */
-    public static <T extends Event> void execute(AbilityManager<T> ability, BlightedPlayer player, T event) {
+    public static <T extends Event> void execute(ItemAbility<T> ability, BlightedPlayer player, T event) {
         String cooldownKey = ability.getName() != null && !ability.getName().isBlank()
                 ? ability.getName()
                 : ability.getClass().getName();
 
-        double remaining = player.getRemainingCooldown(cooldownKey, ability.getType());
+        double remaining = player.getRemainingCooldown(cooldownKey, ability.getTrigger());
         if (remaining > 0) {
             warn(player.getPlayer(), "§c⌚ Your §f" + ability.getName() + " §cability is on cooldown for §d" + (int) Math.ceil(remaining) + "s§c!");
             cancel(event);
@@ -70,7 +70,7 @@ public final class AbilityExecutor {
             ability.start(player);
 
             if (ability.getCooldownSeconds() > 0) {
-                player.setCooldown(cooldownKey, ability.getType(), ability.getCooldownSeconds());
+                player.setCooldown(cooldownKey, ability.getTrigger(), ability.getCooldownSeconds());
             }
         } catch (Exception exception) {
             Log.error("AbilityExecutor", "Ability execution failed: " + exception.getClass().getSimpleName());

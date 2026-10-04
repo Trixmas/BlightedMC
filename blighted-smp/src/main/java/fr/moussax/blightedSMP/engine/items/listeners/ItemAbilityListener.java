@@ -1,10 +1,12 @@
-package fr.moussax.blightedSMP.engine.items.abilities;
+package fr.moussax.blightedSMP.engine.items.listeners;
 
 import fr.moussax.blightedSMP.BlightedSMP;
 import fr.moussax.blightedSMP.engine.items.BlightedItem;
+import fr.moussax.blightedSMP.engine.items.abilities.AbilityExecutor;
+import fr.moussax.blightedSMP.engine.items.abilities.ItemAbility;
+import fr.moussax.blightedSMP.engine.items.equipment.ArmorSetManager;
 import fr.moussax.blightedSMP.engine.player.BlightedPlayer;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -13,6 +15,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDispenseArmorEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -29,7 +32,7 @@ import java.util.UUID;
 /**
  * Listens for Bukkit interaction, block break, and inventory events to trigger item abilities and schedule armor updates.
  */
-public final class AbilityListener implements Listener {
+public final class ItemAbilityListener implements Listener {
     private final Set<UUID> dirtyArmorPlayers = new HashSet<>();
     private boolean updateTaskScheduled = false;
 
@@ -54,7 +57,7 @@ public final class AbilityListener implements Listener {
             BlightedPlayer blightedPlayer = BlightedPlayer.get(player);
             if (blightedPlayer == null) continue;
 
-            ArmorManager.updatePlayerArmor(blightedPlayer);
+            ArmorSetManager.updatePlayerArmor(blightedPlayer);
         }
         dirtyArmorPlayers.clear();
     }
@@ -120,7 +123,7 @@ public final class AbilityListener implements Listener {
     public void onSneakToggle(PlayerToggleSneakEvent event) {
         BlightedPlayer blightedPlayer = BlightedPlayer.get(event.getPlayer());
         if (blightedPlayer != null) {
-            ArmorManager.handleSneakUpdate(blightedPlayer, event.isSneaking());
+            ArmorSetManager.handleSneakUpdate(blightedPlayer, event.isSneaking());
         }
     }
 
@@ -154,6 +157,18 @@ public final class AbilityListener implements Listener {
         trigger(event.getPlayer(), event);
     }
 
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onBlockDropItem(org.bukkit.event.block.BlockDropItemEvent event) {
+        trigger(event.getPlayer(), event);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onEntityDamage(EntityDamageByEntityEvent event) {
+        if (event.getDamager() instanceof Player player) {
+            trigger(player, event);
+        }
+    }
+
     private boolean isArmorMaterial(String name) {
         return name.endsWith("_HELMET") || name.endsWith("_CHESTPLATE")
                 || name.endsWith("_LEGGINGS") || name.endsWith("_BOOTS") || name.equals("ELYTRA");
@@ -170,34 +185,24 @@ public final class AbilityListener implements Listener {
             if (interactEvent.getItem() != null) {
                 blightedItem = BlightedItem.fromItemStack(interactEvent.getItem());
             }
-        } else if (event instanceof BlockBreakEvent) {
+        } else if (event instanceof BlockBreakEvent || event instanceof org.bukkit.event.block.BlockDropItemEvent || event instanceof EntityDamageByEntityEvent) {
             ItemStack mainHand = player.getInventory().getItemInMainHand();
-            if (mainHand.getType() != Material.AIR) {
+            if (!mainHand.getType().isAir()) {
                 blightedItem = BlightedItem.fromItemStack(mainHand);
             }
         } else {
-            blightedItem = blightedPlayer.getEquippedItemManager();
+            blightedItem = blightedPlayer.getEquippedItem();
         }
 
         if (blightedItem == null) return;
 
-        List<AbilityManager<? extends Event>> abilities = blightedItem.getAbilities();
+        List<ItemAbility<? extends Event>> abilities = blightedItem.getAbilities();
         if (abilities.isEmpty()) return;
 
-        AbilityManager<? extends Event> bestMatch = null;
-        for (AbilityManager<? extends Event> ability : abilities) {
-            if (!ability.getType().matches(event)) continue;
-            if (bestMatch == null || isMoreSpecific(ability.getType(), bestMatch.getType())) {
-                bestMatch = ability;
+        for (ItemAbility<? extends Event> ability : abilities) {
+            if (ability.getTrigger().matches(event)) {
+                AbilityExecutor.execute((ItemAbility) ability, blightedPlayer, event);
             }
         }
-
-        if (bestMatch != null) {
-            AbilityExecutor.execute((AbilityManager) bestMatch, blightedPlayer, event);
-        }
-    }
-
-    private boolean isMoreSpecific(AbilityType candidate, AbilityType current) {
-        return candidate.name().startsWith("SNEAK_") && !current.name().startsWith("SNEAK_");
     }
 }

@@ -3,15 +3,12 @@ package fr.moussax.blightedSMP.engine.items.abilities;
 import fr.moussax.blightedSMP.engine.player.BlightedPlayer;
 import org.bukkit.event.Event;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Defines execution logic, lifecycle hooks, and resource requirements for an item ability.
  *
  * @param <T> Bukkit event type that triggers this ability
  */
-public interface AbilityManager<T extends Event> {
+public interface ItemAbility<T extends Event> {
 
     /**
      * Gets the display name of this ability.
@@ -21,11 +18,11 @@ public interface AbilityManager<T extends Event> {
     String getName();
 
     /**
-     * Gets the trigger condition type for this ability.
+     * Gets the trigger condition for this ability.
      *
-     * @return ability trigger type
+     * @return ability trigger
      */
-    AbilityType getType();
+    AbilityTrigger getTrigger();
 
     /**
      * Executes the ability logic when triggered by an event.
@@ -96,32 +93,5 @@ public interface AbilityManager<T extends Event> {
      */
     default String[] getDescription() {
         return new String[0];
-    }
-
-    /**
-     * Formats lore lines displaying the ability name, trigger type, description, and resource costs.
-     *
-     * @return formatted list of item lore lines
-     */
-    default List<String> getAbilityLore() {
-        List<String> lore = new ArrayList<>();
-
-        lore.add("");
-        lore.add("§5 Ability: " + getName() + "  " + getType().getDisplayName());
-
-        for (String line : getDescription()) {
-            lore.add("§7 " + line);
-        }
-
-        int mana = getManaCost();
-        int cooldown = getCooldownSeconds();
-
-        if (mana > 0) {
-            lore.add("§8 Mana Cost: §3" + mana);
-        }
-        if (cooldown > 0) {
-            lore.add("§8 Cooldown: §a" + cooldown + "s");
-        }
-        return lore;
     }
 }

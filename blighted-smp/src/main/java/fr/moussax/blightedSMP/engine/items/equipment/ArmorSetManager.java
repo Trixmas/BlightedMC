@@ -1,7 +1,8 @@
-package fr.moussax.blightedSMP.engine.items.abilities;
+package fr.moussax.blightedSMP.engine.items.equipment;
 
 import fr.moussax.bedrock.utils.debug.Log;
 import fr.moussax.blightedSMP.engine.items.BlightedItem;
+import fr.moussax.blightedSMP.engine.items.abilities.FullSetBonus;
 import fr.moussax.blightedSMP.engine.player.BlightedPlayer;
 import org.bukkit.inventory.ItemStack;
 
@@ -13,9 +14,9 @@ import java.util.Map;
 /**
  * Manages player armor evaluation, set bonus activation, and sneak state updates.
  */
-public final class ArmorManager {
+public final class ArmorSetManager {
 
-    private ArmorManager() {
+    private ArmorSetManager() {
     }
 
     /**
@@ -28,6 +29,7 @@ public final class ArmorManager {
         player.clearArmorPieces();
 
         Map<Class<? extends FullSetBonus>, Integer> bonusCount = new HashMap<>();
+        Map<Class<? extends FullSetBonus>, FullSetBonus> bonusPrototypes = new HashMap<>();
 
         for (ItemStack item : armorContents) {
             if (item == null || item.getType().isAir()) continue;
@@ -40,6 +42,7 @@ public final class ArmorManager {
             FullSetBonus bonus = blightedItem.getFullSetBonus();
             if (bonus != null) {
                 bonusCount.merge(bonus.getClass(), 1, Integer::sum);
+                bonusPrototypes.putIfAbsent(bonus.getClass(), bonus);
             }
         }
 
@@ -59,14 +62,14 @@ public final class ArmorManager {
 
             if (isRunning) return;
 
-            try {
-                FullSetBonus newBonus = bonusClass.getDeclaredConstructor().newInstance();
-                if (count < newBonus.getMaxPieces()) return;
+            FullSetBonus prototype = bonusPrototypes.get(bonusClass);
+            if (prototype == null || count < prototype.getMaxPieces()) return;
 
-                newBonus.setPlayer(player);
+            try {
+                FullSetBonus newBonus = prototype.createNew(player);
                 player.addActiveBonus(newBonus);
             } catch (Exception exception) {
-                Log.error("ArmorManager", "Failed to activate bonus " + bonusClass.getSimpleName());
+                Log.error("ArmorSetManager", "Failed to activate bonus " + bonusClass.getSimpleName());
             }
         });
     }

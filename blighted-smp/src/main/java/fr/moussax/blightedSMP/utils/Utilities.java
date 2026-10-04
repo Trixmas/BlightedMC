@@ -1,6 +1,6 @@
 package fr.moussax.blightedSMP.utils;
 
-import fr.moussax.blightedSMP.engine.items.recipes.CraftingObject;
+import fr.moussax.blightedSMP.engine.recipes.CraftingObject;
 import fr.moussax.bedrock.text.Formatter;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
