@@ -13,7 +13,7 @@ public class BlightedTools implements RegistryModule<Consumer<BlightedItem>> {
 
     @Override
     public void register(Consumer<BlightedItem> registry) {
-        BlightedItem magmaRod = new BlightedItem("MAGMA_ROD", ItemType.LAVA_FISHING_ROD, ItemRarity.UNCOMMON, Material.FISHING_ROD);
+        BlightedItem magmaRod = new BlightedItem("MAGMA_ROD", ItemType.LAVA_FISHING_ROD, ItemRarity.RARE, Material.FISHING_ROD);
         magmaRod.setDisplayName("Magma Rod");
         magmaRod.description(
                 "Impervious to the inferno,",

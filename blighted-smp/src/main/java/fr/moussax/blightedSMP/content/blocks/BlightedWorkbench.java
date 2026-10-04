@@ -1,9 +1,8 @@
 package fr.moussax.blightedSMP.content.blocks;
 
 import fr.moussax.blightedSMP.engine.blocks.BlightedBlock;
-import fr.moussax.blightedSMP.engine.recipes.crafting.menu.CraftingTableMenu;
 import fr.moussax.blightedSMP.engine.items.registry.ItemRegistry;
-import fr.moussax.bedrock.text.Messenger;
+import fr.moussax.blightedSMP.engine.recipes.crafting.menu.CraftingTableMenu;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -11,16 +10,17 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
+import java.util.Objects;
+
 public class BlightedWorkbench extends BlightedBlock {
 
     public BlightedWorkbench() {
-        super(Material.ENCHANTING_TABLE, ItemRegistry.get("BLIGHTED_WORKBENCH"));
+        super(Material.SCULK_CATALYST, Objects.requireNonNull(ItemRegistry.get("BLIGHTED_WORKBENCH")));
     }
 
     @Override
     public void onPlace(BlockPlaceEvent event) {
-        event.getPlayer().playSound(event.getBlockPlaced().getLocation(), Sound.BLOCK_TRIAL_SPAWNER_OMINOUS_ACTIVATE, 100.0F, 0.85F);
-        Messenger.inform(event.getPlayer(), "You have placed a §dBlighted Workbench§7!");
+        event.getPlayer().playSound(event.getBlockPlaced().getLocation(), Sound.ENTITY_WARDEN_AGITATED, 100.0F, 0.85F);
     }
 
     @Override

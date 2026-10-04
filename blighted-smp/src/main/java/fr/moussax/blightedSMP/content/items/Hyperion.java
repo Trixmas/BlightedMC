@@ -14,7 +14,7 @@ public class Hyperion implements RegistryModule<Consumer<BlightedItem>> {
 
     @Override
     public void register(Consumer<BlightedItem> registry) {
-        BlightedItem hyperion = new BlightedItem("HYPERION", ItemType.SWORD, ItemRarity.LEGENDARY, Material.IRON_SWORD);
+        BlightedItem hyperion = new BlightedItem("HYPERION", ItemType.SWORD, ItemRarity.UNIQUE, Material.IRON_SWORD);
         hyperion.setDisplayName("Hyperion");
         hyperion.setUnbreakable(true);
         hyperion.addItemFlag(ItemFlag.HIDE_UNBREAKABLE);

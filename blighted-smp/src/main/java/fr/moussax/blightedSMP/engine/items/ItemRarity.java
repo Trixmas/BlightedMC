@@ -5,29 +5,31 @@ import lombok.Getter;
 /**
  * Defines the rarity tier of a BlightedMC item.
  *
- * <p>Each rarity provides a formatted display name and a color prefix used
- * when presenting the item in-game.</p>
+ * <p>Uses a lean structure inspired by Minecraft Dungeons with a Special tier:
+ * Common, Rare, Unique, and Special.</p>
  */
 @Getter
 public enum ItemRarity {
 
-    /** Common items. */
+    /**
+     * Standard gear, baseline crafting ingredients, and utility items.
+     */
     COMMON("§f§lCOMMON", "§f"),
 
-    /** Uncommon items. */
-    UNCOMMON("§e§lUNCOMMON", "§e"),
-
-    /** Rare items. */
+    /**
+     * Infused items possessing custom abilities, perks, or stat enhancements.
+     */
     RARE("§b§lRARE", "§b"),
 
-    /** Epic items. */
-    EPIC("§d§lEPIC", "§d"),
+    /**
+     * Distinctive, build-defining artifacts and boss relics with innate powers.
+     */
+    UNIQUE("§6§lUNIQUE", "§6"),
 
-    /** Legendary items. */
-    LEGENDARY("§c§lLEGENDARY", "§c"),
-
-    /** Special items reserved for unique or exceptional content. */
-    SPECIAL("§5§lSPECIAL", "§5");
+    /**
+     * Reserved for one-of-a-kind relics, seasonal events, or administrative items.
+     */
+    SPECIAL("§c§lSPECIAL", "§c");
 
     private final String name;
     private final String colorPrefix;

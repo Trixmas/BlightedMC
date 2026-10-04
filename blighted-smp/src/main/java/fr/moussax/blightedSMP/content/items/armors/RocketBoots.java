@@ -15,7 +15,7 @@ public class RocketBoots implements RegistryModule<Consumer<BlightedItem>> {
 
     @Override
     public void register(Consumer<BlightedItem> registry) {
-        BlightedItem rocketBoots = new BlightedItem("ROCKET_BOOTS", ItemType.BOOTS, ItemRarity.UNCOMMON, Material.LEATHER_BOOTS);
+        BlightedItem rocketBoots = new BlightedItem("ROCKET_BOOTS", ItemType.BOOTS, ItemRarity.RARE, Material.LEATHER_BOOTS);
         rocketBoots.setDisplayName("Rocket Boots");
 
         rocketBoots.setLeatherColor("#B02E26").setArmorTrim(TrimMaterial.QUARTZ, TrimPattern.BOLT);

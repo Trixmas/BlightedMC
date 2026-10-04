@@ -110,7 +110,7 @@ public final class FishingArmors implements RegistryModule<Consumer<BlightedItem
 
         FullSetBonus magmaWeaveSetBonus = new MagmaweaveSetBonus();
 
-        BlightedItem ashfangHelmet = new BlightedItem("ASHFANG_HELMET", ItemType.HELMET, ItemRarity.EPIC, Material.PLAYER_HEAD);
+        BlightedItem ashfangHelmet = new BlightedItem("ASHFANG_HELMET", ItemType.HELMET, ItemRarity.UNIQUE, Material.PLAYER_HEAD);
         ashfangHelmet.setDisplayName("Ashfang Helmet");
         ashfangHelmet.addAttributeModifier(Attribute.ARMOR, 3.0, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.HEAD);
         ashfangHelmet.addAttributeModifier(Attribute.ARMOR_TOUGHNESS, 2.0, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.HEAD);
@@ -120,7 +120,7 @@ public final class FishingArmors implements RegistryModule<Consumer<BlightedItem
         ashfangHelmet.setFireResistant(true);
         ashfangHelmet.setFullSetBonus(magmaWeaveSetBonus);
 
-        BlightedItem ashfangChestplate = new BlightedItem("ASHFANG_CHESTPLATE", ItemType.CHESTPLATE, ItemRarity.EPIC, Material.LEATHER_CHESTPLATE);
+        BlightedItem ashfangChestplate = new BlightedItem("ASHFANG_CHESTPLATE", ItemType.CHESTPLATE, ItemRarity.UNIQUE, Material.LEATHER_CHESTPLATE);
         ashfangChestplate.setDisplayName("Ashfang Chestplate");
         ashfangChestplate.setLeatherColor("#420905");
         ashfangChestplate.addAttributeModifier(Attribute.ARMOR, 8.0, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.CHEST);
@@ -131,7 +131,7 @@ public final class FishingArmors implements RegistryModule<Consumer<BlightedItem
         ashfangChestplate.setMaxDurability(528);
         ashfangChestplate.setFullSetBonus(magmaWeaveSetBonus);
 
-        BlightedItem ashfangLeggins = new BlightedItem("ASHFANG_LEGGINS", ItemType.LEGGINGS, ItemRarity.EPIC, Material.LEATHER_LEGGINGS);
+        BlightedItem ashfangLeggins = new BlightedItem("ASHFANG_LEGGINS", ItemType.LEGGINGS, ItemRarity.UNIQUE, Material.LEATHER_LEGGINGS);
         ashfangLeggins.setDisplayName("Ashfang Leggings");
         ashfangLeggins.addAttributeModifier(Attribute.ARMOR, 6.0, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.LEGS);
         ashfangLeggins.addAttributeModifier(Attribute.ARMOR_TOUGHNESS, 2.0, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.LEGS);
@@ -142,7 +142,7 @@ public final class FishingArmors implements RegistryModule<Consumer<BlightedItem
         ashfangLeggins.setMaxDurability(495);
         ashfangLeggins.setFullSetBonus(magmaWeaveSetBonus);
 
-        BlightedItem ashfangBoots = new BlightedItem("ASHFANG_BOOTS", ItemType.BOOTS, ItemRarity.EPIC, Material.LEATHER_BOOTS);
+        BlightedItem ashfangBoots = new BlightedItem("ASHFANG_BOOTS", ItemType.BOOTS, ItemRarity.UNIQUE, Material.LEATHER_BOOTS);
         ashfangBoots.setDisplayName("Ashfang Boots");
         ashfangBoots.addAttributeModifier(Attribute.ARMOR, 3.0, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.FEET);
         ashfangBoots.addAttributeModifier(Attribute.ARMOR_TOUGHNESS, 2.0, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.FEET);

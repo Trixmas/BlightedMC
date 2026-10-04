@@ -13,7 +13,7 @@ public class KnightsSword implements RegistryModule<Consumer<BlightedItem>> {
 
     @Override
     public void register(Consumer<BlightedItem> registry) {
-        BlightedItem knightSword = new BlightedItem("ANCIENT_KNIGHT_SWORD", ItemType.LONGSWORD, ItemRarity.LEGENDARY, Material.NETHERITE_SWORD);
+        BlightedItem knightSword = new BlightedItem("ANCIENT_KNIGHT_SWORD", ItemType.LONGSWORD, ItemRarity.UNIQUE, Material.NETHERITE_SWORD);
         knightSword.setDisplayName("Knight's Sword");
         knightSword.setAttackDamage(10);
         knightSword.setAttackSpeed(1.2);

@@ -17,47 +17,47 @@ public enum AbilityTrigger {
     /**
      * Ability triggered by right-clicking.
      */
-    RIGHT_CLICK("§d§lRIGHT CLICK"),
+    RIGHT_CLICK("§b§lRIGHT CLICK"),
 
     /**
      * Ability triggered by left-clicking.
      */
-    LEFT_CLICK("§d§lLEFT CLICK"),
+    LEFT_CLICK("§b§lLEFT CLICK"),
 
     /**
      * Ability triggered by clicking.
      */
-    CLICK("§d§lCLICK"),
+    CLICK("§b§lCLICK"),
 
     /**
      * Ability triggered by sneaking and right-clicking.
      */
-    SNEAK_RIGHT_CLICK("§d§lSNEAK RIGHT CLICK"),
+    SNEAK_RIGHT_CLICK("§b§lSNEAK RIGHT CLICK"),
 
     /**
      * Ability triggered by sneaking and left-clicking.
      */
-    SNEAK_LEFT_CLICK("§d§lSNEAK LEFT CLICK"),
+    SNEAK_LEFT_CLICK("§b§lSNEAK LEFT CLICK"),
 
     /**
      * Ability triggered by sneaking and clicking.
      */
-    SNEAK_CLICK("§d§lSNEAK CLICK"),
+    SNEAK_CLICK("§b§lSNEAK CLICK"),
 
     /**
      * Ability triggered on attacking an entity.
      */
-    ENTITY_HIT("§d§lON HIT"),
+    ENTITY_HIT("§b§lON HIT"),
 
     /**
      * Ability triggered when breaking a block.
      */
-    BLOCK_BREAK("§d§lON BREAK"),
+    BLOCK_BREAK("§b§lON BREAK"),
 
     /**
      * Ability triggered when block drops are generated.
      */
-    BLOCK_DROP("§d§lPASSIVE");
+    BLOCK_DROP("§b§lPASSIVE");
 
     private final String displayName;
 

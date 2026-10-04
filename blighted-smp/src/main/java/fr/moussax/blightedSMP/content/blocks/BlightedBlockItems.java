@@ -13,10 +13,9 @@ public class BlightedBlockItems implements RegistryModule<Consumer<BlightedItem>
     @Override
     public void register(Consumer<BlightedItem> registry) {
 
-        BlightedItem blightedWorkbench = new BlightedItem("BLIGHTED_WORKBENCH", ItemType.BLOCK, ItemRarity.UNCOMMON, Material.ENCHANTING_TABLE);
-        blightedWorkbench.setDisplayName("Blighted Workbench");
+        BlightedItem blightedWorkbench = new BlightedItem("BLIGHTED_WORKBENCH", ItemType.BLOCK, ItemRarity.COMMON, Material.SCULK_CATALYST);
+        blightedWorkbench.setDisplayName("Blighted Crafting Table");
         blightedWorkbench.addLore(
-                "§8Placeable Block",
                 "",
                 " §7A crafting table infused with ",
                 " §5blighted energy §7capable",

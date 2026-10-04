@@ -16,7 +16,7 @@ public class FishingMaterials implements RegistryModule<Consumer<BlightedItem>> 
     @Override
     public void register(Consumer<BlightedItem> registry) {
 
-        BlightedItem blightedAlgae = new BlightedItem("BLIGHTED_ALGAE", ItemType.MATERIAL, ItemRarity.UNCOMMON, Material.KELP);
+        BlightedItem blightedAlgae = new BlightedItem("BLIGHTED_ALGAE", ItemType.MATERIAL, ItemRarity.COMMON, Material.KELP);
         blightedAlgae.setDisplayName("Blighted Algae");
         blightedAlgae.description(
                 "A thick, dark strand of kelp",
@@ -27,7 +27,7 @@ public class FishingMaterials implements RegistryModule<Consumer<BlightedItem>> 
         blightedAlgae.preventPlacement();
         blightedAlgae.glow();
 
-        BlightedItem smokedSalmonPlate = new BlightedItem("SMOKED_SALMON_PLATE", ItemType.UNCATEGORIZED, ItemRarity.UNCOMMON, Material.COOKED_SALMON);
+        BlightedItem smokedSalmonPlate = new BlightedItem("SMOKED_SALMON_PLATE", ItemType.UNCATEGORIZED, ItemRarity.COMMON, Material.COOKED_SALMON);
         smokedSalmonPlate.setDisplayName("Smoked Salmon Plate");
         smokedSalmonPlate.description(
                 "A seasoned, perfectly smoked",
@@ -40,7 +40,7 @@ public class FishingMaterials implements RegistryModule<Consumer<BlightedItem>> 
             food.setCanAlwaysEat(true);
         });
 
-        BlightedItem saltedCod = new BlightedItem("SALTED_COD", ItemType.UNCATEGORIZED, ItemRarity.UNCOMMON, Material.COOKED_COD);
+        BlightedItem saltedCod = new BlightedItem("SALTED_COD", ItemType.UNCATEGORIZED, ItemRarity.COMMON, Material.COOKED_COD);
         saltedCod.setDisplayName("Salted Cod");
         saltedCod.description(
                 "Sun-dried cod heavily encrusted in",
@@ -53,7 +53,7 @@ public class FishingMaterials implements RegistryModule<Consumer<BlightedItem>> 
             food.setCanAlwaysEat(true);
         });
 
-        BlightedItem fishermansBait = new BlightedItem("FISHERMANS_BAIT", ItemType.UNCATEGORIZED, ItemRarity.UNCOMMON, Material.HONEY_BOTTLE);
+        BlightedItem fishermansBait = new BlightedItem("FISHERMANS_BAIT", ItemType.UNCATEGORIZED, ItemRarity.COMMON, Material.HONEY_BOTTLE);
         fishermansBait.setDisplayName("Fisherman's Bait");
         fishermansBait.description(
                 "A sweet, pungent mixture of",
@@ -62,7 +62,7 @@ public class FishingMaterials implements RegistryModule<Consumer<BlightedItem>> 
         );
         fishermansBait.preventConsume();
 
-        BlightedItem fishermansStew = new BlightedItem("FISHERMANS_STEW", ItemType.UNCATEGORIZED, ItemRarity.UNCOMMON, Material.RABBIT_STEW);
+        BlightedItem fishermansStew = new BlightedItem("FISHERMANS_STEW", ItemType.UNCATEGORIZED, ItemRarity.COMMON, Material.RABBIT_STEW);
         fishermansStew.setDisplayName("Fisherman's Stew");
         fishermansStew.description(
                 "A hearty stew prepared from",
@@ -139,7 +139,7 @@ public class FishingMaterials implements RegistryModule<Consumer<BlightedItem>> 
         });
         blightedSushi.glow();
 
-        BlightedItem abyssalPearl = new BlightedItem("ABYSSAL_PEARL", ItemType.MATERIAL, ItemRarity.EPIC, Material.ENDER_PEARL);
+        BlightedItem abyssalPearl = new BlightedItem("ABYSSAL_PEARL", ItemType.MATERIAL, ItemRarity.RARE, Material.ENDER_PEARL);
         abyssalPearl.setDisplayName("Abyssal Pearl");
         abyssalPearl.description(
                 "A dark, swirling orb pulled from",
@@ -149,7 +149,7 @@ public class FishingMaterials implements RegistryModule<Consumer<BlightedItem>> 
         abyssalPearl.preventProjectileLaunch();
         abyssalPearl.glow();
 
-        BlightedItem drownedResearchCodex = new BlightedItem("DROWNED_RESEARCH_CODEX", ItemType.UNCATEGORIZED, ItemRarity.EPIC, Material.KNOWLEDGE_BOOK);
+        BlightedItem drownedResearchCodex = new BlightedItem("DROWNED_RESEARCH_CODEX", ItemType.UNCATEGORIZED, ItemRarity.RARE, Material.KNOWLEDGE_BOOK);
         drownedResearchCodex.setDisplayName("Drowned Research Codex");
         drownedResearchCodex.description(
                 "A preserved collection of research",
