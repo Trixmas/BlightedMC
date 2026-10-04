@@ -36,12 +36,12 @@ public final class AbilityExecutor {
         double remaining = player.getRemainingCooldown(cooldownKey, ability.getTrigger());
         if (remaining > 0) {
             warn(player.getPlayer(), "§c⌚ Your §f" + ability.getName() + " §cability is on cooldown for §d" + (int) Math.ceil(remaining) + "s§c!");
-            cancel(event);
+            if (ability.cancelEvent(false)) cancel(event);
             return;
         }
 
         if (!ability.canTrigger(player)) {
-            cancel(event);
+            if (ability.cancelEvent(false)) cancel(event);
             return;
         }
 
@@ -49,7 +49,7 @@ public final class AbilityExecutor {
         if (!player.hasMana(manaCost)) {
             player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 100f, 0.5f);
             Actionbar.sendSlotAlert(player.getPlayer(), PlayerHudManager.SECTION_MANA, "§c§lNOT ENOUGH MANA", Duration.ofSeconds(2));
-            cancel(event);
+            if (ability.cancelEvent(false)) cancel(event);
             return;
         }
 
@@ -74,7 +74,7 @@ public final class AbilityExecutor {
             }
         } catch (Exception exception) {
             Log.error("AbilityExecutor", "Ability execution failed: " + exception.getClass().getSimpleName());
-            cancel(event);
+            if (ability.cancelEvent(false)) cancel(event);
         }
     }
 

@@ -31,4 +31,9 @@ public class HammerAbility implements ItemAbility<BlockBreakEvent> {
     public boolean canTrigger(BlightedPlayer player) {
         return false;
     }
+
+    @Override
+    public boolean cancelEvent(boolean success) {
+        return false;
+    }
 }

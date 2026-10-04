@@ -117,4 +117,8 @@ public class TimberAbility implements ItemAbility<BlockBreakEvent> {
         return 2;
     }
 
+    @Override
+    public boolean cancelEvent(boolean success) {
+        return false;
+    }
 }

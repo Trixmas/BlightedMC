@@ -82,4 +82,9 @@ public class AutosmeltAbility implements ItemAbility<BlockDropItemEvent> {
 
         return true;
     }
+
+    @Override
+    public boolean cancelEvent(boolean success) {
+        return false;
+    }
 }

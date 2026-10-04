@@ -154,4 +154,34 @@ class ItemTest {
         assertEquals("§d§lSNEAK RIGHT CLICK", AbilityTrigger.SNEAK_RIGHT_CLICK.getDisplayName());
         assertEquals("§d§lSNEAK LEFT CLICK", AbilityTrigger.SNEAK_LEFT_CLICK.getDisplayName());
     }
+
+    @Test
+    @DisplayName("Tool abilities preserve block break/drop events while interactive abilities cancel them")
+    void testAbilityEventCancellation() {
+        fr.moussax.blightedSMP.content.items.abilities.tools.AutosmeltAbility autosmelt =
+                new fr.moussax.blightedSMP.content.items.abilities.tools.AutosmeltAbility();
+        fr.moussax.blightedSMP.content.items.abilities.tools.TimberAbility timber =
+                new fr.moussax.blightedSMP.content.items.abilities.tools.TimberAbility();
+        fr.moussax.blightedSMP.content.items.abilities.tools.VeinmineAbility veinmine =
+                new fr.moussax.blightedSMP.content.items.abilities.tools.VeinmineAbility();
+        fr.moussax.blightedSMP.content.items.abilities.tools.HammerAbility hammer =
+                new fr.moussax.blightedSMP.content.items.abilities.tools.HammerAbility();
+
+        assertFalse(autosmelt.cancelEvent(false), "Autosmelt should not cancel unhandled drops");
+        assertFalse(autosmelt.cancelEvent(true), "Autosmelt should not cancel handled drops");
+
+        assertFalse(timber.cancelEvent(false), "Timber should not cancel unhandled block breaks");
+        assertFalse(timber.cancelEvent(true), "Timber should not cancel handled block breaks");
+
+        assertFalse(veinmine.cancelEvent(false), "Veinmine should not cancel unhandled block breaks");
+        assertFalse(veinmine.cancelEvent(true), "Veinmine should not cancel handled block breaks");
+
+        assertFalse(hammer.cancelEvent(false), "Hammer should not cancel unhandled block breaks");
+        assertFalse(hammer.cancelEvent(true), "Hammer should not cancel handled block breaks");
+
+        fr.moussax.blightedSMP.content.items.abilities.BonemerangAbility bonemerang =
+                new fr.moussax.blightedSMP.content.items.abilities.BonemerangAbility();
+        assertTrue(bonemerang.cancelEvent(false), "Interactive abilities cancel on failure by default");
+        assertTrue(bonemerang.cancelEvent(true), "Interactive abilities cancel on success by default");
+    }
 }
