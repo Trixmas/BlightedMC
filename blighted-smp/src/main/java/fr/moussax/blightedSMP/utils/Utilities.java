@@ -1,6 +1,6 @@
 package fr.moussax.blightedSMP.utils;
 
-import fr.moussax.blightedSMP.engine.recipes.CraftingObject;
+import fr.moussax.blightedSMP.engine.recipes.RecipeIngredient;
 import fr.moussax.bedrock.text.Formatter;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -44,11 +44,11 @@ public final class Utilities {
      * @param ingredient the ingredient to get the name from
      * @return display the name of the ingredient
      */
-    public static String extractIngredientName(CraftingObject ingredient) {
-        if (ingredient.isCustom()) {
-            return Objects.requireNonNull(ingredient.getManager().toItemStack().getItemMeta()).getDisplayName();
+    public static String extractIngredientName(RecipeIngredient ingredient) {
+        if (ingredient.isCustom() && ingredient.getItem() != null) {
+            return Objects.requireNonNull(ingredient.getItem().toItemStack().getItemMeta()).getDisplayName();
         }
-        return "§f" + Formatter.formatEnumName(Objects.requireNonNull(ingredient.getVanillaItem()).getType().name());
+        return "§f" + Formatter.formatEnumName(Objects.requireNonNull(ingredient.getMaterial()).name());
     }
 
     /**
@@ -57,7 +57,7 @@ public final class Utilities {
      * @param player     the player whose inventory to modify
      * @param ingredient the ingredient and amount to consume
      */
-    public static void consumeItemsFromInventory(Player player, CraftingObject ingredient) {
+    public static void consumeItemsFromInventory(Player player, RecipeIngredient ingredient) {
         String requiredId = ingredient.getId();
         int remainingToRemove = ingredient.getAmount();
         ItemStack[] contents = player.getInventory().getContents();

@@ -1,8 +1,7 @@
 package fr.moussax.blightedSMP.engine.recipes.crafting;
 
 import fr.moussax.blightedSMP.engine.items.BlightedItem;
-import fr.moussax.blightedSMP.engine.recipes.CraftingObject;
-import fr.moussax.blightedSMP.utils.Utilities;
+import fr.moussax.blightedSMP.engine.recipes.RecipeIngredient;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
@@ -16,7 +15,7 @@ import java.util.*;
 public final class BlightedShapedRecipe extends BlightedRecipe {
     private final BlightedItem resultBlightedItem;
     private final int resultAmount;
-    private final List<CraftingObject> recipePattern = new ArrayList<>();
+    private final List<RecipeIngredient> recipePattern = new ArrayList<>();
 
     /**
      * Index of the slot used as the attribute source.
@@ -60,18 +59,18 @@ public final class BlightedShapedRecipe extends BlightedRecipe {
     }
 
     /** @return immutable view of the recipe pattern */
-    public List<CraftingObject> getRecipe() {
+    public List<RecipeIngredient> getRecipe() {
         return Collections.unmodifiableList(recipePattern);
     }
 
     /** Replaces the entire recipe pattern. */
-    public void setRecipe(List<CraftingObject> recipePattern) {
+    public void setRecipe(List<RecipeIngredient> recipePattern) {
         this.recipePattern.clear();
         this.recipePattern.addAll(recipePattern);
     }
 
     /** Appends a single ingredient to the recipe pattern. */
-    public void addIngredient(CraftingObject ingredient) {
+    public void addIngredient(RecipeIngredient ingredient) {
         this.recipePattern.add(ingredient);
     }
 
@@ -94,17 +93,9 @@ public final class BlightedShapedRecipe extends BlightedRecipe {
      */
     public Map<String, Integer> getIngredientCountMap() {
         var ingredientCountMap = new HashMap<String, Integer>();
-        for (CraftingObject ingredient : recipePattern) {
+        for (RecipeIngredient ingredient : recipePattern) {
             if (ingredient == null) continue;
-            String itemId;
-            if (ingredient.isCustom()) {
-                itemId = Objects.requireNonNull(ingredient.getManager()).getItemId();
-            } else if (ingredient.isVanilla()) {
-                itemId = Utilities.resolveItemId(Objects.requireNonNull(ingredient.getVanillaItem()), "vanilla:");
-            } else {
-                throw new IllegalArgumentException("Ingredient must be custom or vanilla");
-            }
-            ingredientCountMap.merge(itemId, ingredient.getAmount(), Integer::sum);
+            ingredientCountMap.merge(ingredient.getId(), ingredient.getAmount(), Integer::sum);
         }
         return Collections.unmodifiableMap(ingredientCountMap);
     }

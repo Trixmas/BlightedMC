@@ -1,7 +1,8 @@
 package fr.moussax.blightedSMP.engine.recipes.crafting;
 
 import fr.moussax.blightedSMP.engine.items.BlightedItem;
-import fr.moussax.blightedSMP.engine.recipes.CraftingObject;
+import fr.moussax.blightedSMP.engine.recipes.RecipeIngredient;
+import fr.moussax.blightedSMP.engine.recipes.crafting.registry.RecipeRegistry;
 import fr.moussax.blightedSMP.utils.Utilities;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -18,11 +19,6 @@ import java.util.*;
  * (e.g., enchantments, durability, repair cost) during item assembly.
  */
 public sealed abstract class BlightedRecipe permits BlightedShapedRecipe, BlightedShapelessRecipe {
-
-    /**
-     * Global registry of all registered Blighted recipes.
-     */
-    public static final Set<BlightedRecipe> REGISTERED_RECIPES = new HashSet<>();
 
     /**
      * @return the logical result definition of this recipe
@@ -44,10 +40,10 @@ public sealed abstract class BlightedRecipe permits BlightedShapedRecipe, Blight
     public abstract ItemStack assemble(List<ItemStack> craftingGrid);
 
     /**
-     * Registers this recipe in the global registry.
+     * Registers this recipe in the central {@link RecipeRegistry}.
      */
     public void addRecipe() {
-        REGISTERED_RECIPES.add(this);
+        RecipeRegistry.register(this);
     }
 
     /**
@@ -57,33 +53,13 @@ public sealed abstract class BlightedRecipe permits BlightedShapedRecipe, Blight
      * @return matching recipes, or empty if none match
      */
     public static Set<BlightedRecipe> findMatchingRecipes(List<ItemStack> craftingGrid) {
-        boolean isEmpty = craftingGrid.stream()
-                .allMatch(item -> item == null || item.getType() == Material.AIR);
-        if (isEmpty) return Collections.emptySet();
-
-        List<String> craftingGridItemIds = resolveItemIdsFromGrid(craftingGrid);
-        Set<BlightedRecipe> matchingRecipes = new HashSet<>();
-
-        for (BlightedRecipe recipe : REGISTERED_RECIPES) {
-            if (recipe.getResult() == null) continue;
-
-            boolean isMatch = switch (recipe) {
-                case BlightedShapedRecipe shapedRecipe ->
-                        matchesShapedRecipe(shapedRecipe, craftingGrid, craftingGridItemIds);
-                case BlightedShapelessRecipe shapelessRecipe ->
-                        matchesShapelessRecipe(shapelessRecipe, craftingGrid, craftingGridItemIds);
-            };
-
-            if (isMatch) matchingRecipes.add(recipe);
-        }
-
-        return matchingRecipes;
+        return RecipeRegistry.findMatchingRecipes(craftingGrid);
     }
 
     /**
      * Resolves custom or vanilla item IDs for each grid slot.
      */
-    private static List<String> resolveItemIdsFromGrid(List<ItemStack> craftingGrid) {
+    public static List<String> resolveItemIdsFromGrid(List<ItemStack> craftingGrid) {
         List<String> itemIdsInGrid = new ArrayList<>(craftingGrid.size());
 
         for (ItemStack stack : craftingGrid) {
@@ -99,32 +75,23 @@ public sealed abstract class BlightedRecipe permits BlightedShapedRecipe, Blight
     /**
      * Checks whether a shaped recipe matches the crafting grid exactly.
      */
-    private static boolean matchesShapedRecipe(BlightedShapedRecipe recipe,
-                                               List<ItemStack> craftingGrid,
-                                               List<String> craftingGridItemIds) {
+    public static boolean matchesShapedRecipe(BlightedShapedRecipe recipe,
+                                              List<ItemStack> craftingGrid,
+                                              List<String> craftingGridItemIds) {
 
-        List<CraftingObject> expectedPattern = recipe.getRecipe();
+        List<RecipeIngredient> expectedPattern = recipe.getRecipe();
         if (expectedPattern.size() != craftingGrid.size()) return false;
 
         for (int slotIndex = 0; slotIndex < expectedPattern.size(); slotIndex++) {
-            CraftingObject expectedSlot = expectedPattern.get(slotIndex);
+            RecipeIngredient expectedSlot = expectedPattern.get(slotIndex);
             String currentItemId = craftingGridItemIds.get(slotIndex);
 
-            if (expectedSlot == null || (expectedSlot.getManager() == null && !expectedSlot.isVanilla())) {
+            if (expectedSlot == null) {
                 if (!currentItemId.isEmpty()) return false;
                 continue;
             }
 
-            String expectedItemId;
-            if (expectedSlot.isCustom()) {
-                expectedItemId = Objects.requireNonNull(expectedSlot.getManager()).getItemId();
-            } else if (expectedSlot.isVanilla()) {
-                expectedItemId = "vanilla:" + Objects.requireNonNull(expectedSlot.getVanillaItem()).getType().name();
-            } else {
-                return false;
-            }
-
-            if (!currentItemId.equals(expectedItemId)) return false;
+            if (!currentItemId.equals(expectedSlot.getId())) return false;
 
             ItemStack currentStack = craftingGrid.get(slotIndex);
             if (currentStack == null || currentStack.getAmount() < expectedSlot.getAmount()) return false;
@@ -136,7 +103,7 @@ public sealed abstract class BlightedRecipe permits BlightedShapedRecipe, Blight
     /**
      * Checks whether a shapeless recipe matches the crafting grid.
      */
-    private static boolean matchesShapelessRecipe(BlightedShapelessRecipe recipe, List<ItemStack> craftingGrid, List<String> craftingGridItemIds) {
+    public static boolean matchesShapelessRecipe(BlightedShapelessRecipe recipe, List<ItemStack> craftingGrid, List<String> craftingGridItemIds) {
         Map<String, Integer> remainingRequiredCounts = new HashMap<>(recipe.getIngredientCountMap());
 
         for (int slotIndex = 0; slotIndex < craftingGrid.size(); slotIndex++) {

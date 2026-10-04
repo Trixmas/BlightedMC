@@ -7,10 +7,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Encodes a 3x3 shaped crafting recipe into a list of {@link CraftingObject}s.
+ * Encodes a 3x3 shaped crafting recipe into a list of {@link RecipeIngredient}s.
  * <p>
  * Each recipe shape is defined by three lines of three characters each,
- * where each character represents a crafting ingredient bound to a {@link CraftingObject}.
+ * where each character represents a crafting ingredient bound to a {@link RecipeIngredient}.
  * Spaces or unbound characters are treated as empty slots.
  */
 public final class ShapeEncoder {
@@ -18,7 +18,7 @@ public final class ShapeEncoder {
     private final String line2;
     private final String line3;
 
-    private final HashMap<Character, CraftingObject> keys = new HashMap<>();
+    private final HashMap<Character, RecipeIngredient> keys = new HashMap<>();
 
     /**
      * Constructs a shape encoder for a 3x3 crafting recipe.
@@ -38,24 +38,24 @@ public final class ShapeEncoder {
     }
 
     /**
-     * Binds a shape character to a {@link CraftingObject}.
+     * Binds a shape character to a {@link RecipeIngredient}.
      *
-     * @param key    the character representing the ingredient in the recipe shape
-     * @param object the crafting object to associate with this key
+     * @param key        the character representing the ingredient in the recipe shape
+     * @param ingredient the recipe ingredient to associate with this key
      */
-    public void bindKey(char key, CraftingObject object) {
-        keys.put(key, object);
+    public void bindKey(char key, RecipeIngredient ingredient) {
+        keys.put(key, ingredient);
     }
 
     /**
      * Binds a shape character to a custom item managed by {@link BlightedItem}.
      *
-     * @param key     the character representing the ingredient
-     * @param manager the item manager for the custom item
-     * @param amount  the quantity required
+     * @param key    the character representing the ingredient
+     * @param item   the custom item
+     * @param amount the quantity required
      */
-    public void bindKey(char key, BlightedItem manager, int amount) {
-        keys.put(key, new CraftingObject(manager, amount));
+    public void bindKey(char key, BlightedItem item, int amount) {
+        keys.put(key, new RecipeIngredient(item, amount));
     }
 
     /**
@@ -66,11 +66,11 @@ public final class ShapeEncoder {
      * @param amount   the quantity required
      */
     public void bindKey(char key, Material material, int amount) {
-        keys.put(key, new CraftingObject(material, amount));
+        keys.put(key, new RecipeIngredient(material, amount));
     }
 
     /**
-     * Converts the 3x3 shape and bound keys into a list of 9 crafting objects,
+     * Converts the 3x3 shape and bound keys into a list of 9 recipe ingredients,
      * corresponding to the recipe's slots in row-major order.
      * <p>
      * Empty or unbound characters produce {@code null} entries.
@@ -78,8 +78,8 @@ public final class ShapeEncoder {
      * @return a list of 9 elements representing the recipe
      * @throws RuntimeException if the encoded list does not contain exactly 9 elements
      */
-    public ArrayList<CraftingObject> encodeCraftingRecipe() {
-        ArrayList<CraftingObject> objects = new ArrayList<>();
+    public ArrayList<RecipeIngredient> encodeCraftingRecipe() {
+        ArrayList<RecipeIngredient> objects = new ArrayList<>();
         String[] lines = {line1, line2, line3};
 
         for (String line : lines) {

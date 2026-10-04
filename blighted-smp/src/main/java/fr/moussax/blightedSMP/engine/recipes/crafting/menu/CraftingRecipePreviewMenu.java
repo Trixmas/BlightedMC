@@ -1,7 +1,7 @@
 package fr.moussax.blightedSMP.engine.recipes.crafting.menu;
 
 import fr.moussax.blightedSMP.engine.items.BlightedItem;
-import fr.moussax.blightedSMP.engine.recipes.CraftingObject;
+import fr.moussax.blightedSMP.engine.recipes.RecipeIngredient;
 import fr.moussax.blightedSMP.engine.recipes.RecipePreviewManager;
 import fr.moussax.blightedSMP.engine.recipes.crafting.BlightedRecipe;
 import fr.moussax.blightedSMP.engine.recipes.crafting.BlightedShapedRecipe;
@@ -99,35 +99,35 @@ public final class CraftingRecipePreviewMenu extends Menu implements TickableMen
     }
 
     private void setupShapedRecipeGrid(BlightedShapedRecipe shapedRecipe) {
-        List<CraftingObject> pattern = shapedRecipe.getRecipe();
+        List<RecipeIngredient> pattern = shapedRecipe.getRecipe();
 
         for (int i = 0; i < pattern.size() && i < CRAFTING_GRID_SLOTS.length; i++) {
-            CraftingObject craftingObject = pattern.get(i);
+            RecipeIngredient ingredient = pattern.get(i);
 
-            if (craftingObject == null) {
+            if (ingredient == null) {
                 setItem(CRAFTING_GRID_SLOTS[i], new ItemStack(Material.AIR));
                 continue;
             }
 
-            ItemStack ingredientItem = createIngredientDisplay(craftingObject);
+            ItemStack ingredientItem = createIngredientDisplay(ingredient);
             setItem(CRAFTING_GRID_SLOTS[i], ingredientItem, (clickingPlayer, _) -> {
-                if (!craftingObject.isCustom() || craftingObject.getManager() == null) return;
-                RecipePreviewManager.openPreview(clickingPlayer, craftingObject.getManager(), this);
+                if (!ingredient.isCustom() || ingredient.getItem() == null) return;
+                RecipePreviewManager.openPreview(clickingPlayer, ingredient.getItem(), this);
             });
         }
     }
 
     private void setupShapelessRecipeGrid(BlightedShapelessRecipe shapelessRecipe) {
-        List<CraftingObject> ingredients = shapelessRecipe.getIngredients();
+        List<RecipeIngredient> ingredients = shapelessRecipe.getIngredients();
 
         for (int i = 0; i < CRAFTING_GRID_SLOTS.length; i++) {
             if (i < ingredients.size()) {
-                CraftingObject ingredient = ingredients.get(i);
+                RecipeIngredient ingredient = ingredients.get(i);
                 ItemStack ingredientItem = createIngredientDisplay(ingredient);
 
                 setItem(CRAFTING_GRID_SLOTS[i], ingredientItem, (clickingPlayer, _) -> {
-                    if (!ingredient.isCustom() || ingredient.getManager() == null) return;
-                    RecipePreviewManager.openPreview(clickingPlayer, ingredient.getManager(), this);
+                    if (!ingredient.isCustom() || ingredient.getItem() == null) return;
+                    RecipePreviewManager.openPreview(clickingPlayer, ingredient.getItem(), this);
                 });
             } else {
                 setItem(CRAFTING_GRID_SLOTS[i], new ItemStack(Material.AIR));
@@ -192,9 +192,9 @@ public final class CraftingRecipePreviewMenu extends Menu implements TickableMen
         }
 
         for (IngredientInfo info : requirements.values()) {
-            CraftingObject consumeObject = info.ingredient.isCustom()
-                    ? new CraftingObject(Objects.requireNonNull(info.ingredient.getManager()), info.amount)
-                    : new CraftingObject(Objects.requireNonNull(info.ingredient.getVanillaItem()).getType(), info.amount);
+            RecipeIngredient consumeObject = info.ingredient.isCustom()
+                    ? RecipeIngredient.of(Objects.requireNonNull(info.ingredient.getItem()), info.amount)
+                    : RecipeIngredient.of(Objects.requireNonNull(info.ingredient.getMaterial()), info.amount);
             Utilities.consumeItemsFromInventory(player, consumeObject);
         }
 
@@ -216,12 +216,12 @@ public final class CraftingRecipePreviewMenu extends Menu implements TickableMen
     private List<ItemStack> createVirtualCraftingGrid() {
         if (recipe instanceof BlightedShapedRecipe shapedRecipe) {
             return shapedRecipe.getRecipe().stream()
-                    .map(object -> object != null ? getCraftingObjectItem(object) : null)
+                    .map(ingredient -> ingredient != null ? ingredient.toItemStack() : null)
                     .toList();
         }
         if (recipe instanceof BlightedShapelessRecipe shapelessRecipe) {
             return shapelessRecipe.getIngredients().stream()
-                    .map(object -> object != null ? getCraftingObjectItem(object) : null)
+                    .map(ingredient -> ingredient != null ? ingredient.toItemStack() : null)
                     .toList();
         }
         return List.of();
@@ -229,7 +229,7 @@ public final class CraftingRecipePreviewMenu extends Menu implements TickableMen
 
     private Map<String, IngredientInfo> aggregateRecipeIngredients(BlightedRecipe recipe) {
         Map<String, IngredientInfo> map = new LinkedHashMap<>();
-        List<CraftingObject> rawList;
+        List<RecipeIngredient> rawList;
         if (recipe instanceof BlightedShapedRecipe shapedRecipe) {
             rawList = shapedRecipe.getRecipe().stream().filter(Objects::nonNull).toList();
         } else if (recipe instanceof BlightedShapelessRecipe shapelessRecipe) {
@@ -238,7 +238,7 @@ public final class CraftingRecipePreviewMenu extends Menu implements TickableMen
             rawList = List.of();
         }
 
-        for (CraftingObject ingredient : rawList) {
+        for (RecipeIngredient ingredient : rawList) {
             String ingredientId = ingredient.getId();
             if (ingredientId.isEmpty()) continue;
             if (!map.containsKey(ingredientId)) {
@@ -252,29 +252,19 @@ public final class CraftingRecipePreviewMenu extends Menu implements TickableMen
     }
 
     private static class IngredientInfo {
-        final CraftingObject ingredient;
+        final RecipeIngredient ingredient;
         int amount;
 
-        IngredientInfo(CraftingObject ingredient, int amount) {
+        IngredientInfo(RecipeIngredient ingredient, int amount) {
             this.ingredient = ingredient;
             this.amount = amount;
         }
     }
 
-    private ItemStack createIngredientDisplay(CraftingObject craftingObject) {
-        ItemStack ingredientItem = getCraftingObjectItem(craftingObject);
-        ingredientItem.setAmount(Math.max(1, craftingObject.getAmount()));
+    private ItemStack createIngredientDisplay(RecipeIngredient ingredient) {
+        ItemStack ingredientItem = ingredient.toItemStack();
+        ingredientItem.setAmount(Math.max(1, ingredient.getAmount()));
         return ingredientItem;
-    }
-
-    private ItemStack getCraftingObjectItem(CraftingObject craftingObject) {
-        if (craftingObject.isCustom() && craftingObject.getManager() != null) {
-            return craftingObject.getManager().toItemStack().clone();
-        }
-        if (craftingObject.isVanilla() && craftingObject.getVanillaItem() != null) {
-            return craftingObject.getVanillaItem().clone();
-        }
-        return new ItemStack(Material.AIR);
     }
 
     private void setupNavigation() {

@@ -1,6 +1,6 @@
 package fr.moussax.blightedSMP.engine.recipes.forging.menu;
 
-import fr.moussax.blightedSMP.engine.recipes.CraftingObject;
+import fr.moussax.blightedSMP.engine.recipes.RecipeIngredient;
 import fr.moussax.blightedSMP.engine.recipes.forging.ForgeRecipe;
 import fr.moussax.blightedSMP.engine.recipes.forging.registry.ForgeRegistry;
 import fr.moussax.bedrock.text.Formatter;
@@ -73,7 +73,7 @@ public final class ForgeRecipesMenu extends PaginatedMenu {
         builder.setAmount(recipe.getForgedAmount());
 
         builder.addLore("", " §7Items required:");
-        for (CraftingObject ingredient : recipe.getIngredients()) {
+        for (RecipeIngredient ingredient : recipe.getIngredients()) {
             builder.addLore(" §8‣ " + Utilities.extractIngredientName(ingredient) + " §8x" + ingredient.getAmount());
         }
 

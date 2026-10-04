@@ -6,7 +6,7 @@ import fr.moussax.bedrock.ui.menu.interaction.MenuElementPreset;
 import fr.moussax.bedrock.utils.ItemBuilder;
 import fr.moussax.blightedSMP.engine.entities.rituals.AncientRitual;
 import fr.moussax.blightedSMP.engine.entities.rituals.registry.RitualRegistry;
-import fr.moussax.blightedSMP.engine.recipes.CraftingObject;
+import fr.moussax.blightedSMP.engine.recipes.RecipeIngredient;
 import fr.moussax.blightedSMP.utils.Utilities;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -88,7 +88,7 @@ public final class AncientRitualsMenu extends Menu {
         }
 
         builder.addLore(" §7Offerings required: ");
-        for (CraftingObject offering : ritual.getOfferings()) {
+        for (RecipeIngredient offering : ritual.getOfferings()) {
             builder.addLore(" §8‣ " + Utilities.extractIngredientName(offering) + " §8x" + offering.getAmount());
         }
 

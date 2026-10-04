@@ -1,6 +1,7 @@
 package fr.moussax.blightedSMP.engine.recipes.crafting.menu;
 
 import fr.moussax.blightedSMP.engine.recipes.crafting.BlightedRecipe;
+import fr.moussax.blightedSMP.engine.recipes.crafting.registry.RecipeRegistry;
 import fr.moussax.bedrock.ui.menu.Menu;
 import fr.moussax.bedrock.ui.menu.types.PaginatedMenu;
 import org.bukkit.Material;
@@ -18,7 +19,7 @@ public final class RecipeBookMenu extends PaginatedMenu {
 
     public RecipeBookMenu(@org.jspecify.annotations.Nullable Menu previousMenu) {
         super("Recipes", 54, previousMenu != null ? previousMenu : new CraftingTableMenu());
-        this.cachedRecipes = new ArrayList<>(BlightedRecipe.REGISTERED_RECIPES);
+        this.cachedRecipes = new ArrayList<>(RecipeRegistry.getAll());
         this.cachedRecipes.sort((firstRecipe, secondRecipe) -> {
             String firstName = firstRecipe.getResult().getDisplayName();
             String secondName = secondRecipe.getResult().getDisplayName();

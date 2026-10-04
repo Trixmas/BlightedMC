@@ -2,7 +2,7 @@ package fr.moussax.blightedSMP.engine.entities.rituals;
 
 import fr.moussax.bedrock.utils.ItemBuilder;
 import fr.moussax.blightedSMP.engine.items.BlightedItem;
-import fr.moussax.blightedSMP.engine.recipes.CraftingObject;
+import fr.moussax.blightedSMP.engine.recipes.RecipeIngredient;
 import fr.moussax.blightedSMP.engine.items.registry.ItemRegistry;
 import lombok.Getter;
 import org.bukkit.Material;
@@ -23,14 +23,14 @@ import java.util.function.Consumer;
 public final class AncientRitual {
 
     private final AncientCreature summonedCreature;
-    private final List<CraftingObject> offerings;
+    private final List<RecipeIngredient> offerings;
     private final ItemStack displayedItem;
     private final int gemsCost;
     private final int levelCost;
 
     private AncientRitual(
             AncientCreature summonedCreature,
-            List<CraftingObject> offerings,
+            List<RecipeIngredient> offerings,
             ItemStack displayedItem,
             int gemsCost,
             int levelCost
@@ -51,7 +51,7 @@ public final class AncientRitual {
     public static final class Builder {
 
         private final AncientCreature summonedCreature;
-        private final List<CraftingObject> offerings = new ArrayList<>();
+        private final List<RecipeIngredient> offerings = new ArrayList<>();
         private ItemStack displayedItem;
         private int gemsCost;
         private int levelCost;
@@ -96,7 +96,7 @@ public final class AncientRitual {
          * @param offering required offering
          * @return this builder
          */
-        public Builder addOffering(CraftingObject offering) {
+        public Builder addOffering(RecipeIngredient offering) {
             this.offerings.add(offering);
             return this;
         }
@@ -109,7 +109,7 @@ public final class AncientRitual {
          * @return this builder
          */
         public Builder addOffering(Material material, int amount) {
-            return addOffering(new CraftingObject(material, amount));
+            return addOffering(RecipeIngredient.of(material, amount));
         }
 
         /**
@@ -120,7 +120,7 @@ public final class AncientRitual {
          * @return this builder
          */
         public Builder addOffering(BlightedItem item, int amount) {
-            return addOffering(new CraftingObject(item, amount));
+            return addOffering(RecipeIngredient.of(item, amount));
         }
 
         /**
@@ -131,7 +131,7 @@ public final class AncientRitual {
          * @return this builder
          */
         public Builder addOffering(String itemId, int amount) {
-            return addOffering(ItemRegistry.get(itemId), amount);
+            return addOffering(RecipeIngredient.of(itemId, amount));
         }
 
         /**
@@ -140,7 +140,7 @@ public final class AncientRitual {
          * @param offerings offerings required by the ritual
          * @return this builder
          */
-        public Builder offerings(CraftingObject... offerings) {
+        public Builder offerings(RecipeIngredient... offerings) {
             this.offerings.addAll(List.of(offerings));
             return this;
         }

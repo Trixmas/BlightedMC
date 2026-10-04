@@ -1,7 +1,7 @@
 package fr.moussax.blightedSMP.engine.recipes.forging;
 
 import fr.moussax.blightedSMP.engine.items.BlightedItem;
-import fr.moussax.blightedSMP.engine.recipes.CraftingObject;
+import fr.moussax.blightedSMP.engine.recipes.RecipeIngredient;
 import fr.moussax.blightedSMP.engine.items.registry.ItemRegistry;
 import lombok.Getter;
 import org.bukkit.Material;
@@ -22,16 +22,14 @@ public final class ForgeRecipe {
 
     private final BlightedItem forgedItem;
     private final int forgedAmount;
-    private final List<CraftingObject> ingredients;
+    private final List<RecipeIngredient> ingredients;
     private final int fuelCost;
 
     private ForgeRecipe(
             BlightedItem forgedItem,
             int forgedAmount,
-            List<CraftingObject> ingredients,
-            int fuelCost,
-            int gemsCost,
-            int levelCost
+            List<RecipeIngredient> ingredients,
+            int fuelCost
     ) {
         this.forgedItem = forgedItem;
         this.forgedAmount = forgedAmount;
@@ -43,16 +41,14 @@ public final class ForgeRecipe {
      * Fluent builder for constructing a {@link ForgeRecipe}.
      *
      * <p>The builder supports vanilla materials, registered custom items,
-     * and complete {@link CraftingObject} instances as ingredients.</p>
+     * and complete {@link RecipeIngredient} instances as ingredients.</p>
      */
     public static final class Builder {
 
         private final BlightedItem forgedItem;
         private final int forgedAmount;
-        private final List<CraftingObject> ingredients = new ArrayList<>();
+        private final List<RecipeIngredient> ingredients = new ArrayList<>();
         private int fuelCost;
-        private int gemsCost;
-        private int levelCost;
 
         private Builder(BlightedItem forgedItem, int forgedAmount) {
             if (forgedItem == null) {
@@ -94,7 +90,7 @@ public final class ForgeRecipe {
          * @param ingredient required ingredient
          * @return this builder
          */
-        public Builder addIngredient(CraftingObject ingredient) {
+        public Builder addIngredient(RecipeIngredient ingredient) {
             this.ingredients.add(ingredient);
             return this;
         }
@@ -107,7 +103,7 @@ public final class ForgeRecipe {
          * @return this builder
          */
         public Builder addIngredient(Material material, int amount) {
-            return addIngredient(new CraftingObject(material, amount));
+            return addIngredient(RecipeIngredient.of(material, amount));
         }
 
         /**
@@ -118,7 +114,7 @@ public final class ForgeRecipe {
          * @return this builder
          */
         public Builder addIngredient(BlightedItem item, int amount) {
-            return addIngredient(new CraftingObject(item, amount));
+            return addIngredient(RecipeIngredient.of(item, amount));
         }
 
         /**
@@ -129,7 +125,7 @@ public final class ForgeRecipe {
          * @return this builder
          */
         public Builder addIngredient(String itemId, int amount) {
-            return addIngredient(ItemRegistry.get(itemId), amount);
+            return addIngredient(RecipeIngredient.of(itemId, amount));
         }
 
         /**
@@ -138,7 +134,7 @@ public final class ForgeRecipe {
          * @param ingredients ingredients required by the recipe
          * @return this builder
          */
-        public Builder ingredients(CraftingObject... ingredients) {
+        public Builder ingredients(RecipeIngredient... ingredients) {
             this.ingredients.addAll(List.of(ingredients));
             return this;
         }
@@ -168,9 +164,7 @@ public final class ForgeRecipe {
                     forgedItem,
                     forgedAmount,
                     ingredients,
-                    fuelCost,
-                    gemsCost,
-                    levelCost
+                    fuelCost
             );
         }
     }
