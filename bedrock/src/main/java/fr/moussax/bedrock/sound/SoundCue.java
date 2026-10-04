@@ -23,6 +23,35 @@ import java.util.Objects;
 public record SoundCue(Sound sound, float volume, float pitch, long delay) {
 
     /**
+     * Creates an immediate sound cue without delay.
+     *
+     * @param sound  Bukkit sound type
+     * @param volume sound volume
+     * @param pitch  sound pitch
+     * @return sound cue
+     */
+    @NonNull
+    public static SoundCue of(@NonNull Sound sound, float volume, float pitch) {
+        Objects.requireNonNull(sound, "sound cannot be null");
+        return new SoundCue(sound, volume, pitch, 0L);
+    }
+
+    /**
+     * Creates a sound cue with a configured delay in ticks.
+     *
+     * @param sound  Bukkit sound type
+     * @param volume sound volume
+     * @param pitch  sound pitch
+     * @param delay  delay in ticks
+     * @return sound cue
+     */
+    @NonNull
+    public static SoundCue of(@NonNull Sound sound, float volume, float pitch, long delay) {
+        Objects.requireNonNull(sound, "sound cannot be null");
+        return new SoundCue(sound, volume, pitch, delay);
+    }
+
+    /**
      * Plays this sound at the specified location after the configured delay.
      *
      * <p>If {@code delay <= 0}, plays immediately on the current thread.</p>
