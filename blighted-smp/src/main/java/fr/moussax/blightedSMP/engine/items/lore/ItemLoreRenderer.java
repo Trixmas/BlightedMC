@@ -76,7 +76,6 @@ public final class ItemLoreRenderer {
         ItemType type = item.getItemType();
         String typeSuffix = (type != null && type != ItemType.UNCATEGORIZED) ? " " + type.name() : "";
 
-        lore.add("");
         lore.add(rarity.getName() + typeSuffix);
 
         return lore;
