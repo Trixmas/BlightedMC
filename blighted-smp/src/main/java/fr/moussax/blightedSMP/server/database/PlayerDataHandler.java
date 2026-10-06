@@ -16,11 +16,11 @@ public final class PlayerDataHandler {
     /**
      * Immutable data carrier representing loaded player state from the database.
      *
-     * @param gems      current gem balance
+     * @param blight    current Blight balance
      * @param mana      current mana pool
      * @param forgeFuel current thermal forge fuel in millibuckets
      */
-    public record PlayerData(int gems, double mana, int forgeFuel) {
+    public record PlayerData(int blight, double mana, int forgeFuel) {
         public static final PlayerData DEFAULT = new PlayerData(0, 100.0, 0);
     }
 
@@ -41,19 +41,19 @@ public final class PlayerDataHandler {
     }
 
     /**
-     * Persists player gems, mana, and forge fuel state to the database.
+     * Persists player blight, mana, and forge fuel state to the database.
      *
-     * @param gems      current gems balance to save
+     * @param blight    current Blight balance to save
      * @param mana      current mana level to save
      * @param forgeFuel current forge fuel amount to save
      */
-    public void save(int gems, double mana, int forgeFuel) {
+    public void save(int blight, double mana, int forgeFuel) {
         String query = """
-                INSERT INTO players (uuid, name, gems, mana, forge_fuel)
+                INSERT INTO players (uuid, name, blight, mana, forge_fuel)
                 VALUES (?, ?, ?, ?, ?)
                 ON CONFLICT(uuid) DO UPDATE SET
                   name = excluded.name,
-                  gems = excluded.gems,
+                  blight = excluded.blight,
                   mana = excluded.mana,
                   forge_fuel = excluded.forge_fuel
                 """;
@@ -62,7 +62,7 @@ public final class PlayerDataHandler {
             try (PreparedStatement statement = connection.prepareStatement(query)) {
                 statement.setString(1, playerId.toString());
                 statement.setString(2, playerName);
-                statement.setInt(3, gems);
+                statement.setInt(3, blight);
                 statement.setDouble(4, mana);
                 statement.setInt(5, forgeFuel);
                 statement.executeUpdate();
@@ -79,7 +79,7 @@ public final class PlayerDataHandler {
      * @return loaded player data
      */
     public PlayerData load() {
-        String query = "SELECT name, gems, mana, forge_fuel FROM players WHERE uuid = ?";
+        String query = "SELECT name, blight, mana, forge_fuel FROM players WHERE uuid = ?";
 
         synchronized (connection) {
             try (PreparedStatement statement = connection.prepareStatement(query)) {
@@ -87,17 +87,17 @@ public final class PlayerDataHandler {
 
                 try (ResultSet resultSet = statement.executeQuery()) {
                     if (resultSet.next()) {
-                        int gems = resultSet.getInt("gems");
+                        int blight = resultSet.getInt("blight");
                         double mana = resultSet.getDouble("mana");
                         int forgeFuel = resultSet.getInt("forge_fuel");
 
                         String storedName = resultSet.getString("name");
                         if (!storedName.equals(playerName)) {
-                            save(gems, mana, forgeFuel);
+                            save(blight, mana, forgeFuel);
                         }
-                        return new PlayerData(gems, mana, forgeFuel);
+                        return new PlayerData(blight, mana, forgeFuel);
                     } else {
-                        save(PlayerData.DEFAULT.gems(), PlayerData.DEFAULT.mana(), PlayerData.DEFAULT.forgeFuel());
+                        save(PlayerData.DEFAULT.blight(), PlayerData.DEFAULT.mana(), PlayerData.DEFAULT.forgeFuel());
                         return PlayerData.DEFAULT;
                     }
                 }

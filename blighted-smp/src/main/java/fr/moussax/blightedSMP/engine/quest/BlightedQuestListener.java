@@ -1,11 +1,11 @@
 package fr.moussax.blightedSMP.engine.quest;
 
+import fr.moussax.bedrock.text.Messenger;
 import fr.moussax.blightedSMP.BlightedSMP;
-import fr.moussax.blightedSMP.engine.items.BlightedItem;
+import fr.moussax.blightedSMP.content.entities.factions.blightsworn.BlightswornCreature;
 import fr.moussax.blightedSMP.engine.entities.BlightedEntity;
 import fr.moussax.blightedSMP.engine.entities.EntityManager;
-import fr.moussax.blightedSMP.content.entities.factions.blightsworn.BlightswornCreature;
-import fr.moussax.bedrock.text.Messenger;
+import fr.moussax.blightedSMP.engine.items.BlightedItem;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -94,7 +94,7 @@ public final class BlightedQuestListener implements Listener {
         codexItem.setItemMeta(meta);
 
         player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 0.5f);
-        player.sendMessage("§d ⚚ §fThe §dBlighted Codex§f has absorbed a §5Blighted soul§f!");
+        player.sendMessage("§d ⚚ §fThe §dBlighted Codex§f has absorbed a §3Blighted soul§f!");
     }
 
     @EventHandler
@@ -132,7 +132,7 @@ public final class BlightedQuestListener implements Listener {
             event.setCancelled(true);
 
             if (!hasClearWorkspace(clickedBlock)) {
-                Messenger.warn(player,"The ritual requires a clear space of 5 blocks on all sides and 5 blocks above the table.");
+                Messenger.warn(player, "The ritual requires a clear space of 5 blocks on all sides and 5 blocks above the table.");
                 return;
             }
 
@@ -140,8 +140,8 @@ public final class BlightedQuestListener implements Listener {
                 consumeRitualItems(player);
 
                 player.sendMessage("§d ⚚ §fYou have solved the §dCodex Riddle§f. The ritual begins...");
-                for(Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                    if(!onlinePlayer.equals(player)) {
+                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                    if (!onlinePlayer.equals(player)) {
                         onlinePlayer.sendMessage("§d ⚚ §7" + player.getName() + " §fhas solved the §dCodex Riddle§f.");
                     }
                 }
@@ -194,7 +194,7 @@ public final class BlightedQuestListener implements Listener {
         ItemStack helmetItem = player.getInventory().getHelmet();
         if (helmetItem == null || helmetItem.getType() == Material.AIR) return false;
         BlightedItem blightedItem = BlightedItem.fromItemStack(helmetItem);
-        return blightedItem != null && "BLIGHTED_BANNER".equals(blightedItem.getItemId());
+        return blightedItem != null && "TWISTED_BANNER".equals(blightedItem.getItemId());
     }
 
     private void consumeRitualItems(Player player) {

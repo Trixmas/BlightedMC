@@ -24,7 +24,7 @@ public final class BlightswornZombie extends BlightswornBruteArchetype {
                 .drop(Material.POTATO, 0.025)
                 .drop(Material.CARROT, 0.025)
                 .drop(Material.IRON_INGOT, 0.02, RARE)
-                .gems(2, 0.01, VERY_RARE)
+                .blight(2, 0.01, VERY_RARE)
         );
     }
 

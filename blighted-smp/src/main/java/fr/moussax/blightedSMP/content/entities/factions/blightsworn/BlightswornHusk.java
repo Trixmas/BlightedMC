@@ -26,7 +26,7 @@ public final class BlightswornHusk extends BlightswornBruteArchetype {
                 .drop(Material.ROTTEN_FLESH, 2, 5, 1.0)
                 .drop(Material.SAND, 1, 3, 0.3)
                 .drop(Material.IRON_INGOT, 1, 2, 0.1, RARE)
-                .gems(5, 0.04, VERY_RARE)
+                .blight(5, 0.04, VERY_RARE)
         );
     }
 

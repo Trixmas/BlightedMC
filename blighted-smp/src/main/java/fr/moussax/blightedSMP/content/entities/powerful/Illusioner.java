@@ -26,7 +26,7 @@ public class Illusioner extends AncientCreature {
                 .drop(Material.GLASS_BOTTLE, 1, 2, 0.4)
                 .drop(Material.TOTEM_OF_UNDYING, 0.02, EntityLootRarity.VERY_RARE)
                 .drop(Material.OMINOUS_BOTTLE, 0.15)
-                .gems(12, 0.25)
+                .blight(12, 0.25)
                 .enchantedBook(
                         List.of(Enchantment.QUICK_CHARGE, Enchantment.PIERCING, Enchantment.POWER),
                         1, 7, 0.07, EntityLootRarity.RARE

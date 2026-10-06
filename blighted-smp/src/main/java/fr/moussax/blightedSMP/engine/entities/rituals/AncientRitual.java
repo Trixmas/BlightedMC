@@ -25,20 +25,20 @@ public final class AncientRitual {
     private final AncientCreature summonedCreature;
     private final List<RecipeIngredient> offerings;
     private final ItemStack displayedItem;
-    private final int gemsCost;
+    private final int blightCost;
     private final int levelCost;
 
     private AncientRitual(
             AncientCreature summonedCreature,
             List<RecipeIngredient> offerings,
             ItemStack displayedItem,
-            int gemsCost,
+            int blightCost,
             int levelCost
     ) {
         this.summonedCreature = summonedCreature;
         this.offerings = List.copyOf(offerings);
         this.displayedItem = displayedItem;
-        this.gemsCost = gemsCost;
+        this.blightCost = blightCost;
         this.levelCost = levelCost;
     }
 
@@ -53,7 +53,7 @@ public final class AncientRitual {
         private final AncientCreature summonedCreature;
         private final List<RecipeIngredient> offerings = new ArrayList<>();
         private ItemStack displayedItem;
-        private int gemsCost;
+        private int blightCost;
         private int levelCost;
 
         private Builder(AncientCreature summonedCreature) {
@@ -146,17 +146,17 @@ public final class AncientRitual {
         }
 
         /**
-         * Sets the number of gems required to perform the ritual.
+         * Sets the amount of Blight required to perform the ritual.
          *
-         * @param amount required gem amount
+         * @param amount required Blight amount
          * @return this builder
          * @throws IllegalArgumentException if the amount is negative
          */
-        public Builder gemsCost(int amount) {
+        public Builder blightCost(int amount) {
             if (amount < 0) {
-                throw new IllegalArgumentException("Gems cost cannot be negative");
+                throw new IllegalArgumentException("Blight cost cannot be negative");
             }
-            this.gemsCost = amount;
+            this.blightCost = amount;
             return this;
         }
 
@@ -190,7 +190,7 @@ public final class AncientRitual {
                     summonedCreature,
                     offerings,
                     displayedItem,
-                    gemsCost,
+                    blightCost,
                     levelCost
             );
         }

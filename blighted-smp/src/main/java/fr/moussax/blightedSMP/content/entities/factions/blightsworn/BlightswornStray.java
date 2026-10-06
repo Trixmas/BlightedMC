@@ -42,7 +42,7 @@ public final class BlightswornStray extends BlightswornArcherArchetype {
                         3,
                         0.4
                 )
-                .gems(5, 0.04, VERY_RARE)
+                .blight(5, 0.04, VERY_RARE)
         );
     }
 

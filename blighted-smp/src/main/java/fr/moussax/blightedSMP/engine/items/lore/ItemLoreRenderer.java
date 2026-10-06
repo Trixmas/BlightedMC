@@ -40,6 +40,10 @@ public final class ItemLoreRenderer {
 
         // 2. Abilities
         for (ItemAbility<?> ability : item.getAbilities()) {
+            if (!ability.hasLore()) {
+                continue;
+            }
+
             lore.add("");
             lore.add("§3 Ability: " + ability.getName() + "  " + ability.getTrigger().getDisplayName());
 

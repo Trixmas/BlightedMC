@@ -39,7 +39,7 @@ public final class BlightswornDrowned extends BlightswornCreature {
                 .drop(Material.COPPER_INGOT, 1, 3, 0.4)
                 .drop(Material.NAUTILUS_SHELL, 0.08, RARE)
                 .damagedItem(Material.TRIDENT, 0.05, 0.80, 0.02, VERY_RARE)
-                .gems(5, 0.04, VERY_RARE)
+                .blight(5, 0.04, VERY_RARE)
         );
 
         equipment(eq -> eq.mainHand(new ItemBuilder(Material.TRIDENT).unbreakable().toItemStack()));

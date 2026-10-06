@@ -18,7 +18,7 @@ public class BlightedBlockItems implements RegistryModule<Consumer<BlightedItem>
         blightedWorkbench.addLore(
                 "",
                 " §7A crafting table infused with ",
-                " §5blighted energy §7capable",
+                " §3Blight energy §7capable",
                 " §7of weaving forbidden magic",
                 " §7into physical form."
         );
@@ -30,7 +30,7 @@ public class BlightedBlockItems implements RegistryModule<Consumer<BlightedItem>
                 "§8Placeable Machine",
                 "",
                 " §7An industrial crucible powered by ",
-                " §5blighted energy§7, designed to fuse ",
+                " §3Blight energy§7, designed to fuse ",
                 " §7magic and metal under heat",
                 " §7intolerable to mortal craft."
         );

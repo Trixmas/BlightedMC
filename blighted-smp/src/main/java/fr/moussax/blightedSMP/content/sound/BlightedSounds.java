@@ -75,17 +75,19 @@ public final class BlightedSounds {
             new SoundCue(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1.4f, 18L)
     );
 
-    public static final SoundSequence BLIGHTED_GEMSTONE_CONSUME = new SoundSequence(
-            new SoundCue(Sound.BLOCK_POINTED_DRIPSTONE_HIT, 1.0f, 0.5f, 0L),
-            new SoundCue(Sound.BLOCK_POINTED_DRIPSTONE_HIT, 1.0f, 0.7f, 3L),
-            new SoundCue(Sound.BLOCK_POINTED_DRIPSTONE_HIT, 1.0f, 1.0f, 6L),
-            new SoundCue(Sound.BLOCK_POINTED_DRIPSTONE_HIT, 1.0f, 1.4f, 9L),
-            new SoundCue(Sound.BLOCK_POINTED_DRIPSTONE_HIT, 1.0f, 1.8f, 12L),
-            new SoundCue(Sound.BLOCK_VAULT_OPEN_SHUTTER, 1.0f, 1.2f, 14L),
-            new SoundCue(Sound.BLOCK_TRIAL_SPAWNER_BREAK, 1.0f, 0.9f, 18L),
-            new SoundCue(Sound.BLOCK_AMETHYST_CLUSTER_BREAK, 1.5f, 1.2f, 18L),
-            new SoundCue(Sound.ENTITY_GLOW_ITEM_FRAME_ADD_ITEM, 1.0f, 1.5f, 20L),
-            new SoundCue(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 2.0f, 22L)
+    public static final SoundSequence RESONANT_BLIGHTSTONE_CONSUME = new SoundSequence(
+            new SoundCue(Sound.BLOCK_POINTED_DRIPSTONE_HIT, 1.0f, 0.6f, 0L),
+            new SoundCue(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.8f, 0.8f, 0L),
+            new SoundCue(Sound.BLOCK_POINTED_DRIPSTONE_HIT, 1.0f, 0.9f, 3L),
+            new SoundCue(Sound.BLOCK_POINTED_DRIPSTONE_HIT, 1.0f, 1.3f, 6L),
+            new SoundCue(Sound.BLOCK_POINTED_DRIPSTONE_HIT, 1.0f, 1.7f, 8L),
+            new SoundCue(Sound.BLOCK_SCULK_CATALYST_BLOOM, 0.9f, 1.3f, 8L),
+            new SoundCue(Sound.PARTICLE_SOUL_ESCAPE, 0.9f, 1.1f, 9L),
+            new SoundCue(Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 0.9f, 1.4f, 13L),
+            new SoundCue(Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.7f, 1.7f, 16L),
+            new SoundCue(Sound.BLOCK_AMETHYST_CLUSTER_BREAK, 1.2f, 1.3f, 18L),
+            new SoundCue(Sound.BLOCK_VAULT_OPEN_SHUTTER, 0.8f, 1.2f, 18L),
+            new SoundCue(Sound.BLOCK_RESPAWN_ANCHOR_DEPLETE, 0.7f, 1.8f, 20L)
     );
 
     public static final SoundSequence FORGE_ITEM = new SoundSequence(

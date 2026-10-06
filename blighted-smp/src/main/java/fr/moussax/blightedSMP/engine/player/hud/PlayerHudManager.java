@@ -18,7 +18,7 @@ public final class PlayerHudManager {
     private final Plugin plugin;
 
     /**
-     * Constructs a HUD manager and registers default gems and mana display sections for the plugin.
+     * Constructs a HUD manager and registers default blight and mana display sections for the plugin.
      *
      * @param plugin owning plugin instance
      */
@@ -29,12 +29,12 @@ public final class PlayerHudManager {
 
     private void initializeDefaultSections() {
 
-        ActionbarSection gemsSection = ActionbarSection.builder(SECTION_BLIGHT)
+        ActionbarSection blightSection = ActionbarSection.builder(SECTION_BLIGHT)
                 .order(0)
                 .render(player -> {
                     BlightedPlayer blightedPlayer = BlightedPlayer.get(player);
                     if (blightedPlayer == null) return null;
-                    return "§3" + Formatter.formatDecimalWithCommas(blightedPlayer.getGems()) + "❖ Blight";
+                    return "§3" + Formatter.formatDecimalWithCommas(blightedPlayer.getBlight()) + "❖ Blight";
                 })
                 .build();
 
@@ -48,7 +48,7 @@ public final class PlayerHudManager {
                 })
                 .build();
 
-        Actionbar.register(plugin, gemsSection);
+        Actionbar.register(plugin, blightSection);
         Actionbar.register(plugin, manaSection);
     }
 

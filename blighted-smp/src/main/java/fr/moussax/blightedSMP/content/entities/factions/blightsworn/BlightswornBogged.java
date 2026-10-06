@@ -39,7 +39,7 @@ public final class BlightswornBogged extends BlightswornArcherArchetype {
                         0.4
                 )
                 .damagedItem(Material.BOW, 0.10, 0.75, 0.15, RARE)
-                .gems(5, 0.04, VERY_RARE)
+                .blight(5, 0.04, VERY_RARE)
         );
     }
 

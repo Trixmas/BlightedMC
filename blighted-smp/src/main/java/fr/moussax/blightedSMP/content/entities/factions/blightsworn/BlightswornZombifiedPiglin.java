@@ -37,7 +37,7 @@ public final class BlightswornZombifiedPiglin extends BlightswornEliteArchetype 
                 .drop(Material.ROTTEN_FLESH, 2, 6, 1.0)
                 .drop(Material.GOLD_NUGGET, 2, 6, 1.0)
                 .drop(Material.GOLD_INGOT, 1, 2, 0.15, RARE)
-                .gems(5, 0.04, VERY_RARE)
+                .blight(5, 0.04, VERY_RARE)
         );
     }
 

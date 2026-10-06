@@ -10,7 +10,7 @@ import fr.moussax.blightedSMP.engine.loot.decorators.GenericFeedbackDecorator;
 import fr.moussax.blightedSMP.engine.loot.providers.AmountProvider;
 import fr.moussax.blightedSMP.engine.loot.results.EntityResult;
 import fr.moussax.blightedSMP.engine.loot.results.ItemResult;
-import fr.moussax.blightedSMP.engine.loot.results.gems.GemsResult;
+import fr.moussax.blightedSMP.engine.loot.results.blightstone.ResonantBlightstoneResult;
 import fr.moussax.blightedSMP.engine.loot.strategies.WeightedSelectionStrategy;
 import fr.moussax.blightedSMP.engine.player.BlightedPlayer;
 import lombok.Getter;
@@ -980,73 +980,73 @@ public final class FishingLootTable {
         }
 
         /**
-         * Adds a fixed gem reward drop with common catch quality.
+         * Adds a fixed Blight reward drop with common catch quality.
          *
-         * @param gems   gem quantity
+         * @param blight Blight quantity
          * @param weight selection weight
          * @return this builder
          */
-        public Builder gems(int gems, double weight) {
-            return gems(gems, gems, weight, FishingCatchQuality.COMMON, LootCondition.alwaysTrue());
+        public Builder blight(int blight, double weight) {
+            return blight(blight, blight, weight, FishingCatchQuality.COMMON, LootCondition.alwaysTrue());
         }
 
         /**
-         * Adds a fixed gem reward drop with custom catch quality feedback.
+         * Adds a fixed Blight reward drop with custom catch quality feedback.
          *
-         * @param gems    gem quantity
+         * @param blight  Blight quantity
          * @param weight  selection weight
          * @param quality catch quality tier for feedback
          * @return this builder
          */
-        public Builder gems(int gems, double weight, @NonNull FishingCatchQuality quality) {
-            return gems(gems, gems, weight, quality, LootCondition.alwaysTrue());
+        public Builder blight(int blight, double weight, @NonNull FishingCatchQuality quality) {
+            return blight(blight, blight, weight, quality, LootCondition.alwaysTrue());
         }
 
         /**
-         * Adds a variable gem reward drop with common catch quality.
+         * Adds a variable Blight reward drop with common catch quality.
          *
-         * @param minGems minimum gem quantity
-         * @param maxGems maximum gem quantity
-         * @param weight  selection weight
+         * @param minBlight minimum Blight quantity
+         * @param maxBlight maximum Blight quantity
+         * @param weight    selection weight
          * @return this builder
          */
-        public Builder gems(int minGems, int maxGems, double weight) {
-            return gems(minGems, maxGems, weight, FishingCatchQuality.COMMON, LootCondition.alwaysTrue());
+        public Builder blight(int minBlight, int maxBlight, double weight) {
+            return blight(minBlight, maxBlight, weight, FishingCatchQuality.COMMON, LootCondition.alwaysTrue());
         }
 
         /**
-         * Adds a variable gem reward drop with custom catch quality feedback.
+         * Adds a variable Blight reward drop with custom catch quality feedback.
          *
-         * @param minGems minimum gem quantity
-         * @param maxGems maximum gem quantity
-         * @param weight  selection weight
-         * @param quality catch quality tier for feedback
+         * @param minBlight minimum Blight quantity
+         * @param maxBlight maximum Blight quantity
+         * @param weight    selection weight
+         * @param quality   catch quality tier for feedback
          * @return this builder
          */
-        public Builder gems(int minGems, int maxGems, double weight, @NonNull FishingCatchQuality quality) {
-            return gems(minGems, maxGems, weight, quality, LootCondition.alwaysTrue());
+        public Builder blight(int minBlight, int maxBlight, double weight, @NonNull FishingCatchQuality quality) {
+            return blight(minBlight, maxBlight, weight, quality, LootCondition.alwaysTrue());
         }
 
         /**
-         * Adds a variable gem reward drop with custom catch quality feedback and selection condition.
+         * Adds a variable Blight reward drop with custom catch quality feedback and selection condition.
          *
-         * @param minGems   minimum gem quantity
-         * @param maxGems   maximum gem quantity
+         * @param minBlight minimum Blight quantity
+         * @param maxBlight maximum Blight quantity
          * @param weight    selection weight
          * @param quality   catch quality tier for feedback
          * @param condition condition required for eligibility
          * @return this builder
          */
-        public Builder gems(
-                int minGems,
-                int maxGems,
+        public Builder blight(
+                int minBlight,
+                int maxBlight,
                 double weight,
                 @NonNull FishingCatchQuality quality,
                 @NonNull LootCondition condition
         ) {
             Objects.requireNonNull(quality, "quality cannot be null");
             Objects.requireNonNull(condition, "condition cannot be null");
-            return registerItemEntry(new GemsResult(), minGems, maxGems, weight, quality, condition);
+            return registerItemEntry(new ResonantBlightstoneResult(), minBlight, maxBlight, weight, quality, condition);
         }
 
         /**

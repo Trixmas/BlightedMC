@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Server-side domain context for a connected {@link Player}.
  *
- * <p>Tracks persistent player resources (gems, mana pool, forge fuel), equipment state,
+ * <p>Tracks persistent player resources (Blight, mana pool, forge fuel), equipment state,
  * active armor set bonuses, and ability cooldowns. Context instances are keyed by player
  * {@link UUID} and retrieved via {@link #get(Player)}.</p>
  */
@@ -43,7 +43,7 @@ public final class BlightedPlayer {
     public record CooldownKey(String key, AbilityTrigger trigger) {}
 
     @Getter
-    private int gems;
+    private int blight;
     @Getter
     private double currentMana;
     @Getter
@@ -74,7 +74,7 @@ public final class BlightedPlayer {
         this.playerId = player.getUniqueId();
         this.dataHandler = new PlayerDataHandler(playerId, player.getName());
         PlayerDataHandler.PlayerData data = dataHandler.load();
-        this.gems = data.gems();
+        this.blight = data.blight();
 
         this.maxMana = DEFAULT_MAX_MANA;
         this.manaRegenerationRate = Optional.ofNullable(BlightedSMP.getInstance())
@@ -404,46 +404,46 @@ public final class BlightedPlayer {
     }
 
     /**
-     * Evaluates whether the player has at least the required gem balance.
+     * Evaluates whether the player has at least the required Blight balance.
      *
-     * @param amount required gem amount
-     * @return {@code true} if sufficient gems are available, {@code false} otherwise
+     * @param amount required Blight amount
+     * @return {@code true} if sufficient Blight is available, {@code false} otherwise
      */
-    public boolean hasGems(int amount) {
-        return gems >= amount;
+    public boolean hasBlight(int amount) {
+        return blight >= amount;
     }
 
     /**
-     * Adds gems to the player's balance.
+     * Adds Blight to the player's balance.
      *
-     * @param value gem amount to add
+     * @param value Blight amount to add
      */
-    public void addGems(int value) {
+    public void addBlight(int value) {
         if (value <= 0) return;
-        this.gems += value;
+        this.blight += value;
     }
 
     /**
-     * Removes gems from the player's balance if sufficient funds exist.
+     * Removes Blight from the player's balance if sufficient funds exist.
      *
-     * @param value gem amount to remove
+     * @param value Blight amount to remove
      */
-    public void removeGems(int value) {
-        if (value <= 0 || gems < value) return;
-        this.gems -= value;
+    public void removeBlight(int value) {
+        if (value <= 0 || blight < value) return;
+        this.blight -= value;
     }
 
     /**
-     * Sets the gem balance.
+     * Sets the Blight balance.
      *
-     * @param value new gem balance; must be non-negative
+     * @param value new Blight balance; must be non-negative
      * @throws IllegalArgumentException if {@code value} is negative
      */
-    public void setGems(int value) {
+    public void setBlight(int value) {
         if (value < 0) {
-            throw new IllegalArgumentException("Gems value cannot be negative");
+            throw new IllegalArgumentException("Blight value cannot be negative");
         }
-        this.gems = value;
+        this.blight = value;
     }
 
     /**
@@ -484,11 +484,11 @@ public final class BlightedPlayer {
             saveSync();
             return;
         }
-        int gemsToSave = this.gems;
+        int blightToSave = this.blight;
         double manaToSave = this.currentMana;
         int forgeFuelToSave = this.forgeFuel;
         try {
-            Bukkit.getScheduler().runTaskAsynchronously(instance, () -> dataHandler.save(gemsToSave, manaToSave, forgeFuelToSave));
+            Bukkit.getScheduler().runTaskAsynchronously(instance, () -> dataHandler.save(blightToSave, manaToSave, forgeFuelToSave));
         } catch (IllegalPluginAccessException _) {
             saveSync();
         }
@@ -498,7 +498,7 @@ public final class BlightedPlayer {
      * Synchronously persists resources and forge fuel to database storage.
      */
     public void saveSync() {
-        dataHandler.save(this.gems, this.currentMana, this.forgeFuel);
+        dataHandler.save(this.blight, this.currentMana, this.forgeFuel);
     }
 
     /**

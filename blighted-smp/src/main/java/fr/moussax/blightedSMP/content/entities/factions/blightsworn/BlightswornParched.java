@@ -30,7 +30,7 @@ public final class BlightswornParched extends BlightswornArcherArchetype {
                 .drop(Material.BONE, 2, 5, 1.0)
                 .drop(Material.ARROW, 2, 5, 1.0)
                 .damagedItem(Material.BOW, 0.10, 0.75, 0.15, RARE)
-                .gems(5, 0.04, VERY_RARE)
+                .blight(5, 0.04, VERY_RARE)
         );
     }
 

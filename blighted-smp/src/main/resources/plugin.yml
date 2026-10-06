@@ -13,8 +13,10 @@ commands:
       - scm
   test:
     description: General testing command
-  gems:
-    description: Manage the gems currency system
+  blight:
+    description: Manage the Blight currency system
+    aliases:
+      - b
   craft:
     description: Open the BlightedMC custom crafting table
   loop:

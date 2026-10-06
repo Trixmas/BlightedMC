@@ -26,7 +26,7 @@ public final class BlightswornPiglin extends BlightswornEliteArchetype {
                 .drop(Material.GOLD_NUGGET, 2, 6, 1.0)
                 .drop(Material.GOLD_INGOT, 1, 3, 0.4)
                 .damagedItem(Material.CROSSBOW, 0.10, 0.80, 0.1, RARE)
-                .gems(5, 0.04, VERY_RARE)
+                .blight(5, 0.04, VERY_RARE)
         );
         setDamage(8);
         setDroppedExp(16);

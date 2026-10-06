@@ -10,6 +10,7 @@ import fr.moussax.blightedSMP.engine.items.abilities.AbilityTrigger;
 import fr.moussax.blightedSMP.engine.items.abilities.ItemAbility;
 import fr.moussax.blightedSMP.engine.items.lore.ItemLoreRenderer;
 import fr.moussax.blightedSMP.engine.items.registry.ItemRegistry;
+import fr.moussax.blightedSMP.engine.loot.results.blightstone.ResonantBlightstoneItem;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Server;
@@ -271,5 +272,30 @@ class ItemTest {
         BonemerangAbility bonemerang = new BonemerangAbility();
         assertTrue(bonemerang.cancelEvent(false), "Interactive abilities cancel on failure by default");
         assertTrue(bonemerang.cancelEvent(true), "Interactive abilities cancel on success by default");
+    }
+
+    @Test
+    @DisplayName("Abilities with hasLore false do not inject ability lore into item tooltip")
+    void testAbilityLoreSuppression() {
+        BlightedItem item = new BlightedItem("test_blightstone", ItemType.UNCATEGORIZED, ItemRarity.RARE, Material.PLAYER_HEAD)
+                .description("A rare blightstone.")
+                .addAbility(new ResonantBlightstoneItem.ResonantBlightstoneAbility());
+
+        List<String> lore = ItemLoreRenderer.render(item);
+
+        assertNotNull(lore);
+        assertTrue(lore.stream().anyMatch(l -> l.contains("A rare blightstone.")));
+        assertFalse(lore.stream().anyMatch(l -> l.contains("Ability:")), "Lore must not contain ability header when hasLore is false");
+        assertFalse(lore.stream().anyMatch(l -> l.contains("Consume Blightstone")), "Lore must not contain ability name when hasLore is false");
+        assertEquals(ItemRarity.RARE.getName(), lore.getLast());
+    }
+
+    @Test
+    @DisplayName("ResonantBlightstoneAbility has expected trigger and name")
+    void testBlightstoneAbilityMetadata() {
+        ResonantBlightstoneItem.ResonantBlightstoneAbility ability = new ResonantBlightstoneItem.ResonantBlightstoneAbility();
+        assertEquals("Consume Blightstone", ability.getName());
+        assertEquals(AbilityTrigger.RIGHT_CLICK, ability.getTrigger());
+        assertFalse(ability.hasLore());
     }
 }

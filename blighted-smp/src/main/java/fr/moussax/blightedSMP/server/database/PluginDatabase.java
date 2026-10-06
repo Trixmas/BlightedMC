@@ -48,7 +48,7 @@ public final class PluginDatabase {
                         CREATE TABLE IF NOT EXISTS players (
                             uuid TEXT PRIMARY KEY,
                             name TEXT NOT NULL,
-                            gems INTEGER NOT NULL DEFAULT 0,
+                            blight INTEGER NOT NULL DEFAULT 0,
                             mana REAL NOT NULL DEFAULT 0,
                             forge_fuel INTEGER NOT NULL DEFAULT 0
                         )

@@ -11,7 +11,7 @@ import fr.moussax.blightedSMP.engine.loot.decorators.FeedbackSpecification;
 import fr.moussax.blightedSMP.engine.loot.decorators.GenericFeedbackDecorator;
 import fr.moussax.blightedSMP.engine.loot.providers.AmountProvider;
 import fr.moussax.blightedSMP.engine.loot.results.ItemResult;
-import fr.moussax.blightedSMP.engine.loot.results.gems.GemsResult;
+import fr.moussax.blightedSMP.engine.loot.results.blightstone.ResonantBlightstoneResult;
 import fr.moussax.blightedSMP.engine.loot.strategies.LootingAwareProbabilisticStrategy;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -199,13 +199,21 @@ public final class EntityLootTableBuilder {
         return drop(item.getItemId(), minAmount, maxAmount, dropChance, rarity, condition);
     }
 
-    public EntityLootTableBuilder gems(int gems, double dropChance) {
-        return gems(gems, dropChance, EntityLootRarity.COMMON);
+    public EntityLootTableBuilder blight(int blight, double dropChance) {
+        return blight(blight, dropChance, EntityLootRarity.COMMON);
     }
 
-    public EntityLootTableBuilder gems(int gems, double dropChance, @NonNull EntityLootRarity rarity) {
+    public EntityLootTableBuilder blight(int blight, double dropChance, @NonNull EntityLootRarity rarity) {
         Objects.requireNonNull(rarity, "rarity cannot be null");
-        return registerEntry(new GemsResult(), gems, gems, dropChance, rarity, LootCondition.alwaysTrue());
+        return registerEntry(new ResonantBlightstoneResult(), blight, blight, dropChance, rarity, LootCondition.alwaysTrue());
+    }
+
+    public EntityLootTableBuilder blightstone(int amount, double dropChance) {
+        return blight(amount, dropChance);
+    }
+
+    public EntityLootTableBuilder blightstone(int amount, double dropChance, @NonNull EntityLootRarity rarity) {
+        return blight(amount, dropChance, rarity);
     }
 
     public EntityLootTableBuilder damagedItem(

@@ -50,7 +50,7 @@ public class Endersent extends SpawnableEntity {
                 .drop(Material.ENDER_PEARL, 4, 8, 1.0)
                 .drop(Material.ENDER_EYE, 1, 3, 0.31)
                 .drop("ENCHANTED_ENDER_PEARL", 1, 4, 0.11, RARE)
-                .gems(30, 0.03, VERY_RARE)
+                .blight(30, 0.03, VERY_RARE)
         );
 
         boss();

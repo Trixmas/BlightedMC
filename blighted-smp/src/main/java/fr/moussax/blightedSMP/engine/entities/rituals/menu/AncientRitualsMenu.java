@@ -92,8 +92,8 @@ public final class AncientRitualsMenu extends Menu {
             builder.addLore(" §8‣ " + Utilities.extractIngredientName(offering) + " §8x" + offering.getAmount());
         }
 
-        if (ritual.getGemsCost() > 0) {
-            builder.addLore(" §8‣ §d" + Formatter.formatDecimalWithCommas(ritual.getGemsCost()) + "✵ Gems");
+        if (ritual.getBlightCost() > 0) {
+            builder.addLore(" §8‣ §3" + Formatter.formatDecimalWithCommas(ritual.getBlightCost()) + "❖ Blight");
         }
         if (ritual.getLevelCost() > 0) {
             builder.addLore(" §8‣ §3" + Formatter.formatDecimalWithCommas(ritual.getLevelCost()) + "◎ EXP Levels");

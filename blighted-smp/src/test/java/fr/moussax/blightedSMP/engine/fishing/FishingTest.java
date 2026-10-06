@@ -2,13 +2,16 @@ package fr.moussax.blightedSMP.engine.fishing;
 
 import fr.moussax.blightedSMP.engine.fishing.hooks.CustomFishingHook;
 import fr.moussax.blightedSMP.engine.fishing.modifiers.FishingSpeedCalculator;
+import fr.moussax.blightedSMP.engine.loot.LootCondition;
+import fr.moussax.blightedSMP.engine.loot.decorators.FishingCatchQuality;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.entity.EntityType;
 import org.bukkit.util.Vector;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class FishingTest {
 
@@ -65,20 +68,21 @@ class FishingTest {
     void testFishingLootTableBuilder() {
         FishingLootTable table = FishingLootTable.builder()
                 .entityRollChance(0.25)
-                .entity(org.bukkit.entity.EntityType.ZOMBIE, 10.0, fr.moussax.blightedSMP.engine.loot.decorators.FishingCatchQuality.GOOD_CATCH)
-                .entity(org.bukkit.entity.EntityType.SKELETON, 5.0, fr.moussax.blightedSMP.engine.loot.decorators.FishingCatchQuality.GREAT_CATCH, fr.moussax.blightedSMP.engine.loot.LootCondition.alwaysTrue())
-                .entity(org.bukkit.entity.EntityType.SQUID, 8.0, fr.moussax.blightedSMP.engine.loot.decorators.FishingCatchQuality.COMMON, "§b§lSPLASH!")
-                .entity(org.bukkit.entity.EntityType.TROPICAL_FISH, 4.0, fr.moussax.blightedSMP.engine.loot.decorators.FishingCatchQuality.GOOD_CATCH, "§d§lCOLORFUL!", true, fr.moussax.blightedSMP.engine.loot.LootCondition.alwaysTrue())
-                .entity(org.bukkit.entity.EntityType.SILVERFISH, entity -> {}, 2.0, fr.moussax.blightedSMP.engine.loot.decorators.FishingCatchQuality.GREAT_CATCH)
-                .item(org.bukkit.Material.COD, 50.0)
-                .item(org.bukkit.Material.SALMON, 2, 30.0, fr.moussax.blightedSMP.engine.loot.decorators.FishingCatchQuality.GOOD_CATCH)
-                .item(org.bukkit.Material.PUFFERFISH, 1, 3, 10.0, fr.moussax.blightedSMP.engine.loot.decorators.FishingCatchQuality.GREAT_CATCH)
-                .gems(5, 50.0, fr.moussax.blightedSMP.engine.loot.decorators.FishingCatchQuality.GOOD_CATCH)
-                .gems(10, 20, 25.0, fr.moussax.blightedSMP.engine.loot.decorators.FishingCatchQuality.GREAT_CATCH)
-                .damagedItem(org.bukkit.Material.FISHING_ROD, 0.2, 0.8, 15.0)
+                .entity(EntityType.ZOMBIE, 10.0, FishingCatchQuality.GOOD_CATCH)
+                .entity(EntityType.SKELETON, 5.0, FishingCatchQuality.GREAT_CATCH, LootCondition.alwaysTrue())
+                .entity(EntityType.SQUID, 8.0, FishingCatchQuality.COMMON, "§b§lSPLASH!")
+                .entity(EntityType.TROPICAL_FISH, 4.0, FishingCatchQuality.GOOD_CATCH, "§d§lCOLORFUL!", true, LootCondition.alwaysTrue())
+                .entity(EntityType.SILVERFISH, entity -> {
+                }, 2.0, FishingCatchQuality.GREAT_CATCH)
+                .item(Material.COD, 50.0)
+                .item(Material.SALMON, 2, 30.0, FishingCatchQuality.GOOD_CATCH)
+                .item(Material.PUFFERFISH, 1, 3, 10.0, FishingCatchQuality.GREAT_CATCH)
+                .blight(5, 50.0, FishingCatchQuality.GOOD_CATCH)
+                .blight(10, 20, 25.0, FishingCatchQuality.GREAT_CATCH)
+                .damagedItem(Material.FISHING_ROD, 0.2, 0.8, 15.0)
                 .build();
 
-        org.junit.jupiter.api.Assertions.assertNotNull(table, "Constructed FishingLootTable must not be null");
+        assertNotNull(table, "Constructed FishingLootTable must not be null");
         assertEquals(0.25, table.getEntityRollChance(), 1e-6);
     }
 }

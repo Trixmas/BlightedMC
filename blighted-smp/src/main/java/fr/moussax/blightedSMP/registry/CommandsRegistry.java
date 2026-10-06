@@ -39,7 +39,7 @@ public final class CommandsRegistry {
         // Administrator Commands
         registrar.register("spawncustommob", new SpawnCustomMobCommand());
         registrar.register("giveitem", new GiveItemCommand());
-        registrar.register("gems", new GemsCommand());
+        registrar.register("blight", new BlightCommand());
         registrar.register("tppos", new TeleportPositionCommand());
         GamemodeCommands gamemodeCommands = new GamemodeCommands();
         registrar.register("gmc", gamemodeCommands);

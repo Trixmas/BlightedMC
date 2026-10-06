@@ -65,7 +65,7 @@ public class OverworldFishing implements RegistryModule<FishingRegistryHandler> 
 
                 .item("ENCHANTED_COD", 1, 2, 65.0, GOOD_CATCH)
                 .item("ENCHANTED_SALMON", 1, 2, 60.0, GOOD_CATCH)
-                .gems(2, 5, 60.0, GOOD_CATCH)
+                .blight(2, 5, 60.0, GOOD_CATCH)
                 .item("BLIGHTED_ALGAE", 1, 3, 45.0, GOOD_CATCH)
                 .item("SMOKED_SALMON_PLATE", 1, 2, 45.0, GOOD_CATCH)
                 .item("SALTED_COD", 1, 2, 45.0, GOOD_CATCH)
@@ -76,7 +76,7 @@ public class OverworldFishing implements RegistryModule<FishingRegistryHandler> 
                 .item("FISHERMANS_BAIT", 1, 2, 20.0, GOOD_CATCH)
                 .item("FISHERMANS_STEW", 1, 20.0, GOOD_CATCH)
 
-                .gems(6, 10, 30.0, GREAT_CATCH)
+                .blight(6, 10, 30.0, GREAT_CATCH)
                 .item("BARNACLE_CLUSTER", 1, 3, 35.0, GREAT_CATCH)
                 .item("CORAL_FRAGMENT", 1, 4, 30.0, GREAT_CATCH)
                 .item(Material.SPONGE, 1, 2, 20.0, GREAT_CATCH)
@@ -99,7 +99,7 @@ public class OverworldFishing implements RegistryModule<FishingRegistryHandler> 
                 )
                 .item("BLIGHTED_SUSHI", 1, 8.0, GREAT_CATCH)
 
-                .gems(12, 16, 10.0, OUTSTANDING_CATCH)
+                .blight(12, 16, 10.0, OUTSTANDING_CATCH)
                 .item("ABYSSAL_PEARL", 1, 5.0, OUTSTANDING_CATCH)
                 .enchantedBook(
                         List.of(

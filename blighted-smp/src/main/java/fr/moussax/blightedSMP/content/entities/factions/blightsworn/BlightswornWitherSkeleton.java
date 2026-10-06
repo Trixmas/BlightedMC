@@ -26,7 +26,7 @@ public final class BlightswornWitherSkeleton extends BlightswornEliteArchetype {
                 .drop(Material.BONE, 2, 5, 1.0)
                 .drop(Material.COAL, 1, 3, 0.5)
                 .drop(Material.WITHER_SKELETON_SKULL, 0.03, VERY_RARE)
-                .gems(5, 0.04, VERY_RARE)
+                .blight(5, 0.04, VERY_RARE)
         );
 
         setDamage(8);

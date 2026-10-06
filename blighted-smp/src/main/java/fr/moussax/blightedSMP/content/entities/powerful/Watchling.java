@@ -44,7 +44,7 @@ public class Watchling extends SpawnableEntity {
         loot(loot -> loot
                 .maxDrops(2)
                 .drop(Material.ENDER_PEARL, 1, 2, 1.0)
-                .gems(5, 0.03, VERY_RARE)
+                .blight(5, 0.03, VERY_RARE)
         );
     }
 

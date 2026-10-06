@@ -15,7 +15,7 @@ public class AncientRituals implements RegistryModule<Consumer<AncientRitual>> {
                 .displayedItem(Material.ENDER_PEARL, builder -> builder.setDisplayName("hello"))
                 .addOffering(Material.DIRT, 45)
                 .addOffering(Material.EMERALD, 45)
-                .gemsCost(12)
+                .blightCost(12)
                 .levelCost(3)
                 .build();
 

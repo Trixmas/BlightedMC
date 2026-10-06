@@ -94,4 +94,13 @@ public interface ItemAbility<T extends Event> {
     default String[] getDescription() {
         return new String[0];
     }
+
+    /**
+     * Determines whether this ability should be rendered in item tooltip lore.
+     *
+     * @return {@code true} if ability lore should be rendered, {@code false} to suppress it
+     */
+    default boolean hasLore() {
+        return true;
+    }
 }

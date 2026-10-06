@@ -34,7 +34,7 @@ public final class RitualAltarMenu extends Menu implements TickableMenu {
     private final Menu previousMenu;
     private boolean canInvoke = false;
     private int lastPlayerLevel = -1;
-    private double lastPlayerGems = -1;
+    private double lastPlayerBlight = -1;
 
     public RitualAltarMenu(AncientRitual ritual, Menu previousMenu) {
         super("Rituals Altar", 54);
@@ -56,11 +56,11 @@ public final class RitualAltarMenu extends Menu implements TickableMenu {
 
         BlightedPlayer blightedPlayer = BlightedPlayer.get(player);
         int currentLevel = player.getLevel();
-        double currentGems = blightedPlayer != null ? blightedPlayer.getGems() : 0;
+        double currentBlight = blightedPlayer != null ? blightedPlayer.getBlight() : 0;
 
-        if (initialCanInvoke != this.canInvoke || lastPlayerLevel != currentLevel || lastPlayerGems != currentGems) {
+        if (initialCanInvoke != this.canInvoke || lastPlayerLevel != currentLevel || lastPlayerBlight != currentBlight) {
             this.lastPlayerLevel = currentLevel;
-            this.lastPlayerGems = currentGems;
+            this.lastPlayerBlight = currentBlight;
             refresh(player);
         }
     }
@@ -146,10 +146,10 @@ public final class RitualAltarMenu extends Menu implements TickableMenu {
 
         boolean hasItems = requiredCounts.entrySet().stream()
                 .allMatch(entry -> inventoryCounts.getOrDefault(entry.getKey(), 0) >= entry.getValue());
-        boolean hasGems = blightedPlayer.hasGems(ritual.getGemsCost());
+        boolean hasBlight = blightedPlayer.hasBlight(ritual.getBlightCost());
         boolean hasXp = player.getLevel() >= ritual.getLevelCost();
 
-        this.canInvoke = hasItems && hasGems && hasXp;
+        this.canInvoke = hasItems && hasBlight && hasXp;
     }
 
     private Map<String, Integer> aggregateRequirements() {
@@ -190,7 +190,7 @@ public final class RitualAltarMenu extends Menu implements TickableMenu {
         ItemStack shriekerIcon = new ItemBuilder(Material.SCULK_SHRIEKER, "§5The Altar")
                 .addLore(
                         "§7The Ritual Altar allows you to offer",
-                        "§7rare sacrifices, gems, and experience",
+                        "§7rare sacrifices, §3Blight§7, and experience",
                         "§7to invoke ancient forgotten entities."
                 )
                 .toItemStack();
@@ -223,8 +223,8 @@ public final class RitualAltarMenu extends Menu implements TickableMenu {
                 builder.addLore(" §8‣ " + Utilities.extractIngredientName(ingredient) + " §8x" + ingredient.getAmount());
             }
 
-            if (ritual.getGemsCost() > 0) {
-                builder.addLore(" §8‣ §d" + Formatter.formatDecimalWithCommas(ritual.getGemsCost()) + "✵ Gems");
+            if (ritual.getBlightCost() > 0) {
+                builder.addLore(" §8‣ §3" + Formatter.formatDecimalWithCommas(ritual.getBlightCost()) + "❖ Blight");
             }
             if (ritual.getLevelCost() > 0) {
                 builder.addLore(" §8‣ §3" + Formatter.formatDecimalWithCommas(ritual.getLevelCost()) + "◎ EXP Levels");
@@ -276,7 +276,7 @@ public final class RitualAltarMenu extends Menu implements TickableMenu {
         for (RecipeIngredient ingredient : ritual.getOfferings()) {
             Utilities.consumeItemsFromInventory(player, ingredient);
         }
-        BlightedPlayer.get(player).removeGems(ritual.getGemsCost());
+        BlightedPlayer.get(player).removeBlight(ritual.getBlightCost());
         player.setLevel(player.getLevel() - ritual.getLevelCost());
     }
 

@@ -39,7 +39,7 @@ public final class CraftingTableMenu extends InteractiveMenu {
         }
 
         setItem(25, new ItemBuilder(Material.KNOWLEDGE_BOOK, "§6Crafting Recipes")
-                .addLore("§7A tainted book that holds", "§7secrets of §5blighted §7items.", "", "§eClick to view!")
+                .addLore("§7A tainted book that holds", "§7secrets of §3Blighted §7items.", "", "§eClick to view!")
                 .toItemStack(), (clickingPlayer, _) -> new RecipeBookMenu(new CraftingTableMenu()).open(clickingPlayer)
         );
 
