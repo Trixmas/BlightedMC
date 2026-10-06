@@ -147,9 +147,8 @@ public class ItemBuilder {
             url = object.get("url").getAsString();
         }
 
-        UUID id = UUID.nameUUIDFromBytes(url.getBytes(StandardCharsets.UTF_8));
-        String profileName = id.toString().replace("-", "").substring(0, 16);
-        PlayerProfile profile = Bukkit.createPlayerProfile(id, profileName);
+        UUID id = UUID.randomUUID();
+        PlayerProfile profile = Bukkit.createPlayerProfile(id, id.toString().substring(0, 16));
         PlayerTextures textures = profile.getTextures();
 
         try {
