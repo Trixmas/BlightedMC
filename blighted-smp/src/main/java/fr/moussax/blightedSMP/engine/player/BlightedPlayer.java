@@ -13,6 +13,7 @@ import fr.moussax.blightedSMP.server.database.PlayerDataHandler;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -118,7 +119,8 @@ public final class BlightedPlayer {
      * Handles physiological heartbeat feedback when player health falls below 35%.
      */
     private void tickHeartbeat() {
-        if (!player.isOnline() || player.isDead()) {
+        GameMode gameMode = player.getGameMode();
+        if (!player.isOnline() || player.isDead() || gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR) {
             heartbeatCooldownTicks = 0;
             damageUrgencyTicks = 0;
             lowHealthExposureTicks = 0;
@@ -157,7 +159,8 @@ public final class BlightedPlayer {
      * resetting prolonged exposure dampening and applying temporary damage urgency.
      */
     public void onDamageTaken() {
-        if (!player.isOnline() || player.isDead()) return;
+        GameMode gameMode = player.getGameMode();
+        if (!player.isOnline() || player.isDead() || gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR) return;
 
         double maxHealth = getMaxHealth();
         double currentHealth = player.getHealth();
