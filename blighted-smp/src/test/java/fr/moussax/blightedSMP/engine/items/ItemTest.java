@@ -87,6 +87,20 @@ class ItemTest {
     }
 
     @Test
+    @DisplayName("BlightedItem soulbound configuration sets soulbound flag and drop prevention")
+    void testSoulboundItem() {
+        BlightedItem item = new BlightedItem("soulbound_relic", ItemType.UNCATEGORIZED, ItemRarity.RARE, Material.BLACK_BANNER)
+                .soulbound();
+
+        assertTrue(item.isSoulbound());
+        assertTrue(item.hasRestriction(ItemRestriction.PREVENT_DROP));
+
+        item.soulbound(false);
+        assertFalse(item.isSoulbound());
+        assertFalse(item.hasRestriction(ItemRestriction.PREVENT_DROP));
+    }
+
+    @Test
     @DisplayName("ItemLoreRenderer renders canonical footer, description, and abilities")
     void testItemLoreRenderer() {
         BlightedItem item = new BlightedItem("test_sword", ItemType.SWORD, ItemRarity.UNIQUE, Material.DIAMOND_SWORD)

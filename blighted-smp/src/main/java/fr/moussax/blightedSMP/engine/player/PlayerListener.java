@@ -3,6 +3,7 @@ package fr.moussax.blightedSMP.engine.player;
 import fr.moussax.blightedSMP.BlightedSMP;
 import fr.moussax.blightedSMP.engine.entities.BlightedEntity;
 import fr.moussax.blightedSMP.engine.entities.EntityManager;
+import fr.moussax.blightedSMP.engine.items.BlightedItem;
 import fr.moussax.blightedSMP.engine.player.cinematic.FirstJoinCinematic;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.*;
@@ -13,6 +14,10 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class PlayerListener implements Listener {
 
@@ -47,11 +52,28 @@ public final class PlayerListener implements Listener {
         }
     }
 
-    @EventHandler
+    private static final Map<UUID, List<ItemStack>> SAVED_SOULBOUND_ITEMS = new ConcurrentHashMap<>();
+
+    @EventHandler(priority = org.bukkit.event.EventPriority.HIGH)
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player deadPlayer = event.getEntity();
 
         clearTargetedMobs(deadPlayer);
+
+        if (!event.getKeepInventory()) {
+            List<ItemStack> drops = event.getDrops();
+            List<ItemStack> kept = new ArrayList<>();
+            for (Iterator<ItemStack> it = drops.iterator(); it.hasNext(); ) {
+                ItemStack drop = it.next();
+                if (BlightedItem.isSoulbound(drop)) {
+                    kept.add(drop.clone());
+                    it.remove();
+                }
+            }
+            if (!kept.isEmpty()) {
+                SAVED_SOULBOUND_ITEMS.put(deadPlayer.getUniqueId(), kept);
+            }
+        }
 
         String deathMessage = event.getDeathMessage();
         if (deathMessage == null) return;
@@ -92,6 +114,20 @@ public final class PlayerListener implements Listener {
             LivingEntity entity = blighted.getEntity();
             if (entity instanceof Mob mob && targetPlayer.equals(mob.getTarget())) {
                 mob.setTarget(null);
+            }
+        }
+    }
+
+    @EventHandler(priority = org.bukkit.event.EventPriority.HIGHEST)
+    public void onPlayerRespawn(org.bukkit.event.player.PlayerRespawnEvent event) {
+        Player player = event.getPlayer();
+        List<ItemStack> saved = SAVED_SOULBOUND_ITEMS.remove(player.getUniqueId());
+        if (saved != null && !saved.isEmpty()) {
+            for (ItemStack item : saved) {
+                var leftover = player.getInventory().addItem(item);
+                for (ItemStack overflow : leftover.values()) {
+                    player.getWorld().dropItemNaturally(player.getLocation(), overflow);
+                }
             }
         }
     }

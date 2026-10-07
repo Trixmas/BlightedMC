@@ -42,6 +42,9 @@ public class BlightedItem extends ItemBuilder implements Supplier<ItemStack> {
     public static final NamespacedKey BLIGHTED_RARITY_KEY = BlightedSMP.getInstance() != null
             ? new NamespacedKey(BlightedSMP.getInstance(), "blighted_rarity")
             : NamespacedKey.fromString("blightedsmp:blighted_rarity");
+    public static final NamespacedKey BLIGHTED_SOULBOUND_KEY = BlightedSMP.getInstance() != null
+            ? new NamespacedKey(BlightedSMP.getInstance(), "blighted_soulbound")
+            : NamespacedKey.fromString("blightedsmp:blighted_soulbound");
 
     @Getter
     private final String itemId;
@@ -63,6 +66,8 @@ public class BlightedItem extends ItemBuilder implements Supplier<ItemStack> {
     private boolean recipePreviewEnabled = false;
     @Getter
     private boolean spacedRarity = true;
+    @Getter
+    private boolean soulbound = false;
     @Getter
     private ItemConsumeHandler consumeHandler;
 
@@ -183,6 +188,31 @@ public class BlightedItem extends ItemBuilder implements Supplier<ItemStack> {
 
     public BlightedItem preventInteraction() {
         return addRestriction(ItemRestriction.PREVENT_INTERACTION);
+    }
+
+    /**
+     * Marks this item as soulbound, preventing it from being dropped and preserving it across player deaths.
+     *
+     * @return this item instance for method chaining
+     */
+    public BlightedItem soulbound() {
+        return soulbound(true);
+    }
+
+    /**
+     * Configures whether this item is soulbound.
+     *
+     * @param soulbound {@code true} if soulbound, {@code false} otherwise
+     * @return this item instance for method chaining
+     */
+    public BlightedItem soulbound(boolean soulbound) {
+        this.soulbound = soulbound;
+        if (soulbound) {
+            preventDrop();
+        } else {
+            this.restrictions.remove(ItemRestriction.PREVENT_DROP);
+        }
+        return this;
     }
 
     /**
@@ -337,6 +367,28 @@ public class BlightedItem extends ItemBuilder implements Supplier<ItemStack> {
     }
 
     /**
+     * Checks if the given item stack is marked as soulbound.
+     *
+     * @param itemStack item stack to check
+     * @return {@code true} if marked as soulbound, {@code false} otherwise
+     */
+     public static boolean isSoulbound(@Nullable ItemStack itemStack) {
+         if (itemStack == null || itemStack.getType().isAir()) return false;
+         ItemMeta itemMeta = itemStack.getItemMeta();
+         if (itemMeta == null) return false;
+         PersistentDataContainer container = itemMeta.getPersistentDataContainer();
+         if (container.has(BLIGHTED_SOULBOUND_KEY, PersistentDataType.BOOLEAN)) {
+             return Boolean.TRUE.equals(container.get(BLIGHTED_SOULBOUND_KEY, PersistentDataType.BOOLEAN));
+         }
+         if (container.has(BLIGHTED_SOULBOUND_KEY, PersistentDataType.BYTE)) {
+             Byte byteValue = container.get(BLIGHTED_SOULBOUND_KEY, PersistentDataType.BYTE);
+             return byteValue != null && byteValue == 1;
+         }
+         BlightedItem blighted = fromItemStack(itemStack);
+         return blighted != null && blighted.isSoulbound();
+     }
+
+    /**
      * Builds the item stack, applies metadata, renders canonical lore, and returns an independent clone.
      *
      * @return configured, pristine item stack
@@ -345,6 +397,9 @@ public class BlightedItem extends ItemBuilder implements Supplier<ItemStack> {
     public ItemStack toItemStack() {
         setPersistentData(BLIGHTED_ID_KEY, PersistentDataType.STRING, itemId);
         setPersistentData(BLIGHTED_RARITY_KEY, PersistentDataType.STRING, itemRarity.name());
+        if (soulbound) {
+            setPersistentData(BLIGHTED_SOULBOUND_KEY, PersistentDataType.BOOLEAN, true);
+        }
 
         List<String> renderedLore = ItemLoreRenderer.render(this);
         super.setLore(renderedLore);
