@@ -1,10 +1,11 @@
 package fr.moussax.blightedSMP.content.recipes;
 
+import fr.moussax.blightedSMP.engine.items.registry.ItemRegistry;
 import fr.moussax.blightedSMP.engine.recipes.crafting.BlightedRecipe;
 import fr.moussax.blightedSMP.registry.RegistryModule;
-import java.util.function.Consumer;
-import fr.moussax.blightedSMP.engine.items.registry.ItemRegistry;
 import org.bukkit.Material;
+
+import java.util.function.Consumer;
 
 import static fr.moussax.blightedSMP.engine.recipes.crafting.registry.RecipeRegistry.shapedRecipe;
 
@@ -154,7 +155,7 @@ public final class MaterialRecipes implements RegistryModule<Consumer<BlightedRe
                 .bind('c', ItemRegistry.get("ENCHANTED_LAVA_BUCKET"), 1)
                 .build();
 
-        var blightedCraftingTable = shapedRecipe("BLIGHTED_WORKBENCH", 1)
+        var blightedCraftingTable = shapedRecipe("FORGOTTEN_WORKBENCH", 1)
                 .shape(" a ", "bcb", "ddd")
                 .bind('a', Material.BOOK, 1)
                 .bind('b', Material.RED_WOOL, 1)
@@ -168,7 +169,7 @@ public final class MaterialRecipes implements RegistryModule<Consumer<BlightedRe
                 .bind('b', Material.BLAST_FURNACE, 1)
                 .bind('c', ItemRegistry.get("ENCHANTED_COAL"), 2)
                 .bind('d', Material.LAVA_BUCKET, 1)
-                .bind('e', ItemRegistry.get("BLIGHTED_WORKBENCH"), 1)
+                .bind('e', ItemRegistry.get("FORGOTTEN_WORKBENCH"), 1)
                 .build();
 
         BlightedRecipe magmaRodRecipe = shapedRecipe("MAGMA_ROD", 1)

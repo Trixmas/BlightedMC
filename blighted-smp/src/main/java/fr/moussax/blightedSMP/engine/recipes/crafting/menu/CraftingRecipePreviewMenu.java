@@ -1,16 +1,16 @@
 package fr.moussax.blightedSMP.engine.recipes.crafting.menu;
 
+import fr.moussax.bedrock.scheduling.PluginContext;
+import fr.moussax.bedrock.text.Messenger;
+import fr.moussax.bedrock.ui.menu.Menu;
+import fr.moussax.bedrock.ui.menu.TickableMenu;
+import fr.moussax.bedrock.utils.ItemBuilder;
 import fr.moussax.blightedSMP.engine.items.BlightedItem;
 import fr.moussax.blightedSMP.engine.recipes.RecipeIngredient;
 import fr.moussax.blightedSMP.engine.recipes.RecipePreviewManager;
 import fr.moussax.blightedSMP.engine.recipes.crafting.BlightedRecipe;
 import fr.moussax.blightedSMP.engine.recipes.crafting.BlightedShapedRecipe;
 import fr.moussax.blightedSMP.engine.recipes.crafting.BlightedShapelessRecipe;
-import fr.moussax.bedrock.scheduling.PluginContext;
-import fr.moussax.bedrock.text.Messenger;
-import fr.moussax.bedrock.ui.menu.Menu;
-import fr.moussax.bedrock.ui.menu.TickableMenu;
-import fr.moussax.bedrock.utils.ItemBuilder;
 import fr.moussax.blightedSMP.utils.Utilities;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -86,8 +86,8 @@ public final class CraftingRecipePreviewMenu extends Menu implements TickableMen
             setupShapelessRecipeGrid(shapelessRecipe);
         }
 
-        setItem(WORKBENCH_SLOT, new ItemBuilder(Material.CRAFTING_TABLE, "§fBlighted Workbench")
-                .addLore("§7Craft this recipe by using a blighted", "§7workbench or Quickcraft. ")
+        setItem(WORKBENCH_SLOT, new ItemBuilder(Material.SCULK_CATALYST, "§fForgotten Workbench")
+                .addLore("§7Craft this recipe by using a forgotten", "§7workbench or Quickcraft. ")
                 .toItemStack());
 
         ItemStack resultItem = recipe.assemble(createVirtualCraftingGrid());

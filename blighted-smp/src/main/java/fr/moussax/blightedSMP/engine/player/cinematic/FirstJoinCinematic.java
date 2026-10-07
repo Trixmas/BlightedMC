@@ -178,9 +178,14 @@ public final class FirstJoinCinematic {
                         player.getInventory().setHelmet(banner.toItemStack());
                     }
 
-                    BlightedItem codex = ItemRegistry.get("BLIGHTED_CODEX");
-                    if (codex != null) {
-                        player.getInventory().setItemInOffHand(codex.toItemStack());
+                    BlightedItem orb = ItemRegistry.get("ECHOING_TWISTED_ORB");
+                    if (orb != null) {
+                        player.getInventory().setItemInOffHand(orb.toItemStack());
+                    }
+
+                    BlightedItem forgottenPattern = ItemRegistry.get("FORGOTTEN_PATTERN");
+                    if (forgottenPattern != null) {
+                        player.getInventory().addItem(forgottenPattern.toItemStack());
                     }
 
                     cleanupShards();

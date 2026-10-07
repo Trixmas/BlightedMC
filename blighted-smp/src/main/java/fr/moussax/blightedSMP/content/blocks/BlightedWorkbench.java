@@ -15,7 +15,7 @@ import java.util.Objects;
 public class BlightedWorkbench extends BlightedBlock {
 
     public BlightedWorkbench() {
-        super(Material.SCULK_CATALYST, Objects.requireNonNull(ItemRegistry.get("BLIGHTED_WORKBENCH")));
+        super(Material.SCULK_CATALYST, Objects.requireNonNull(ItemRegistry.get("FORGOTTEN_WORKBENCH")));
     }
 
     @Override

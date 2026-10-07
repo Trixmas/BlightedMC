@@ -13,14 +13,14 @@ public class BlightedBlockItems implements RegistryModule<Consumer<BlightedItem>
     @Override
     public void register(Consumer<BlightedItem> registry) {
 
-        BlightedItem blightedWorkbench = new BlightedItem("BLIGHTED_WORKBENCH", ItemType.BLOCK, ItemRarity.COMMON, Material.SCULK_CATALYST);
-        blightedWorkbench.setDisplayName("Blighted Crafting Table");
-        blightedWorkbench.addLore(
-                "",
-                " §7A crafting table infused with ",
-                " §3Blight energy §7capable",
-                " §7of weaving forbidden magic",
-                " §7into physical form."
+        var blightedWorkbench = new BlightedItem("FORGOTTEN_WORKBENCH", ItemType.BLOCK, ItemRarity.COMMON, Material.SCULK_CATALYST);
+        blightedWorkbench.setDisplayName("Forgotten Workbench");
+        blightedWorkbench.description(
+                "The Forgotten used it to shape",
+                "things touched by the §3Blight§7.",
+                "Its sculk still carries their",
+                "ancient §3resonance§7, waiting for",
+                "another hand to put it to use."
         );
         blightedWorkbench.glow();
 

@@ -22,14 +22,20 @@ public class BlightedItems implements RegistryModule<Consumer<BlightedItem>> {
     @Override
     public void register(Consumer<BlightedItem> registry) {
 
-        var twistedBanner = new BlightedItem("TWISTED_BANNER", ItemType.UNCATEGORIZED, ItemRarity.RARE, Material.BLACK_BANNER);
+        BlightedItem twistedBanner = new BlightedItem(
+                "TWISTED_BANNER",
+                ItemType.UNCATEGORIZED,
+                ItemRarity.SPECIAL,
+                Material.BLACK_BANNER
+        );
         twistedBanner.setDisplayName("Twisted Banner");
         twistedBanner.description(
                 "Once a §3war-standard§7 of the Forgotten,",
                 "the banner was buried beneath the Keep.",
                 "The cloth has since §3twisted§7 into something ",
                 "living, and still hums with the §3resonance§7",
-                "of the deep.");
+                "of the deep."
+        );
         twistedBanner.addBannerPatterns(List.of(
                 new Pattern(DyeColor.CYAN, PatternType.CURLY_BORDER),
                 new Pattern(DyeColor.BLACK, PatternType.BRICKS),
@@ -45,46 +51,71 @@ public class BlightedItems implements RegistryModule<Consumer<BlightedItem>> {
         });
         twistedBanner.fireResistant();
         twistedBanner.unstackable();
+        twistedBanner.soulbound();
 
-        var resonantBlightstone = new BlightedItem("RESONANT_BLIGHTSTONE", ItemType.UNCATEGORIZED, ItemRarity.RARE, Material.PLAYER_HEAD);
+        BlightedItem resonantBlightstone = new BlightedItem(
+                "RESONANT_BLIGHTSTONE",
+                ItemType.UNCATEGORIZED,
+                ItemRarity.RARE,
+                Material.PLAYER_HEAD
+        );
         resonantBlightstone.setCustomSkullTexture("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjU1YzhhYWM4OTkwZTQ1NmFiZjM1MDMwMTE1ZTM2YzdjNTY2NzgyZTEzZDgxYjFhNzcwOTk1ZmE1ZjM3YzgyMiJ9fX0=");
         resonantBlightstone.setDisplayName("Resonant Blightstone");
         resonantBlightstone.description(
-                "Buried deep beneath the Trenches, this",
-                "this blightstone still pulses with a forgotten ",
-                "resonance. A single strike was once enough",
-                "to reshape living matter."
+                "Buried deep beneath the Trenches, this ",
+                "blightstone still pulses with a forgotten",
+                "resonance. A single strike was one",
+                "enough to reshape living matter."
         );
         resonantBlightstone.addLore("§8 Blight Sealed: §31❖");
-
         resonantBlightstone.preventEquipping();
         resonantBlightstone.unstackable();
         resonantBlightstone.preventPlacement();
         resonantBlightstone.addAbility(new ResonantBlightstoneItem.ResonantBlightstoneAbility());
 
+        BlightedItem echoingTwistedOrb = new BlightedItem(
+                "ECHOING_TWISTED_ORB",
+                ItemType.UNCATEGORIZED,
+                ItemRarity.SPECIAL,
+                Material.PLAYER_HEAD
+        );
+        echoingTwistedOrb.setCustomSkullTexture("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTIwZTU5OWI1YjIzMDExNTdjYjE0ZWYwMGZmM2FmY2Y2ZjI3NWMzMjMwNjQwZDM0ZGI1NzU4MjI3MDQzY2Y0In19fQ==");
+        echoingTwistedOrb.setDisplayName("Echoing Twisted Orb");
+        echoingTwistedOrb.description(
+                "A fragment of something older than",
+                "the hands that carried it. It echoes ",
+                "with the souls of the Blighted, yet",
+                "never seems full."
+        );
+        echoingTwistedOrb.addLore("", "§8 Souls Bound: §30 ☠");
+        echoingTwistedOrb.fireResistant();
+        echoingTwistedOrb.preventPlacement();
+        echoingTwistedOrb.preventEquipping();
+        echoingTwistedOrb.soulbound();
 
-        BlightedItem blightedCodex =
-                new BlightedItem("BLIGHTED_CODEX", ItemType.UNCATEGORIZED, ItemRarity.UNIQUE, Material.ENCHANTED_BOOK);
-        blightedCodex.setDisplayName("Blighted Codex");
-        blightedCodex.description(
-                "A forbidden ledger bound in cracked",
-                "leather. Its pages remain blank until",
-                "they absorb the essence of the Blight.");
-        blightedCodex.addLore(
+        BlightedItem forgottenPattern = new BlightedItem(
+                "FORGOTTEN_PATTERN",
+                ItemType.UNCATEGORIZED,
+                ItemRarity.UNIQUE,
+                Material.BORDURE_INDENTED_BANNER_PATTERN
+        );
+        forgottenPattern.setDisplayName("Forgotten Pattern");
+        forgottenPattern.description(
+                "A pattern worn by hands long",
+                "forgotten. Its markings speak",
+                "of a path buried deep.",
                 "",
-                " &#D2A5FF§lSEALED RIDDLE!",
-                "&#D2A5FF Wear the woven shadow as your crown,",
-                "&#D2A5FF claim a Blighted soul for these pages.",
-                "&#D2A5FF Hold the violet crystal in your left hand, ",
-                "&#D2A5FF stand before the altar of runes.",
-                "&#D2A5FF Lay your hand upon the ancient seal,",
-                "&#D2A5FF and the hidden path shall awaken.",
-                "",
-                "§8 Souls trapped: §d0 ☠");
-        blightedCodex.fireResistant();
+                " §8§lThe Forgotten Verse",
+                " §8Wear what was woven.",
+                " §8Release what echoes within.",
+                " §8Let pale ink wake the darkness.",
+                " §8At the old table, let it remember. "
+        );
+        forgottenPattern.soulbound();
 
         registry.accept(twistedBanner);
-        registry.accept(blightedCodex);
+        registry.accept(echoingTwistedOrb);
+        registry.accept(forgottenPattern);
         registry.accept(resonantBlightstone);
     }
 }
