@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class FishingComboTracker {
 
     private static final int MAXIMUM_COMBO = 20;
-    private static final long EXPIRATION_DELAY_TICKS = 500L;
+    private static final long EXPIRATION_DELAY_TICKS = 1800L;
     private static final Map<UUID, EnumMap<FishingMethod, Integer>> PLAYER_COMBOS = new ConcurrentHashMap<>();
     private static final Map<UUID, BukkitTask> EXPIRATION_TASKS = new ConcurrentHashMap<>();
 
@@ -53,7 +53,9 @@ public final class FishingComboTracker {
         methodMap.put(method, newCombo);
 
         refreshExpirationTimer(player);
-        handleMilestoneFeedback(player, newCombo);
+        if (newCombo > currentCombo) {
+            handleMilestoneFeedback(player, newCombo);
+        }
     }
 
     public static void resetCombo(Player player, FishingMethod method) {
