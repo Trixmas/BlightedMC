@@ -1,15 +1,11 @@
 package fr.moussax.blightedSMP.engine.quest;
 
-import fr.moussax.bedrock.text.Messenger;
 import fr.moussax.blightedSMP.BlightedSMP;
-import fr.moussax.blightedSMP.content.entities.factions.blightsworn.BlightswornCreature;
 import fr.moussax.blightedSMP.engine.entities.BlightedEntity;
 import fr.moussax.blightedSMP.engine.entities.EntityManager;
 import fr.moussax.blightedSMP.engine.items.BlightedItem;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Sound;
+import fr.moussax.blightedSMP.engine.player.cinematic.WorkbenchCinematic;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -18,19 +14,24 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.util.Vector;
 
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Handles progression triggers for the Echoing Twisted Orb, Blighted soul harvesting,
+ * and the Forgotten Workbench awakening ritual.
+ */
 public final class BlightedQuestListener implements Listener {
+    public static final int REQUIRED_RITUAL_SOULS = 10;
+
     private final BlightedSMP plugin = BlightedSMP.getInstance();
 
     @EventHandler(priority = EventPriority.LOW)
@@ -40,26 +41,31 @@ public final class BlightedQuestListener implements Listener {
 
         if (killer != null) {
             BlightedEntity blightedEntity = EntityManager.getBlightedEntity(deadEntity);
-            if (blightedEntity instanceof BlightswornCreature) {
-                incrementCodexTrappedSouls(killer);
+            if (blightedEntity != null) {
+                harvestSoulToOrb(killer, deadEntity.getLocation());
             }
         }
     }
 
-    private void incrementCodexTrappedSouls(Player player) {
+    private void harvestSoulToOrb(Player player, Location entityDeathLocation) {
+        ItemStack orbItem = null;
         for (ItemStack item : player.getInventory().getContents()) {
             if (item != null && item.getType() != Material.AIR) {
                 BlightedItem blightedItem = BlightedItem.fromItemStack(item);
-                if (blightedItem != null && "BLIGHTED_CODEX".equals(blightedItem.getItemId())) {
-                    applySoulToCodex(player, item);
+                if (blightedItem != null && "ECHOING_TWISTED_ORB".equals(blightedItem.getItemId())) {
+                    orbItem = item;
                     break;
                 }
             }
         }
+
+        if (orbItem == null) return;
+
+        applySoulToOrb(player, orbItem, entityDeathLocation);
     }
 
-    private void applySoulToCodex(Player player, ItemStack codexItem) {
-        ItemMeta meta = codexItem.getItemMeta();
+    private void applySoulToOrb(Player player, ItemStack orbItem, Location deathLocation) {
+        ItemMeta meta = orbItem.getItemMeta();
         if (meta == null) return;
 
         NamespacedKey trappedSoulsKey = new NamespacedKey(plugin, "souls_trapped");
@@ -83,129 +89,107 @@ public final class BlightedQuestListener implements Listener {
         if (lore != null) {
             for (int lineIndex = 0; lineIndex < lore.size(); lineIndex++) {
                 String line = lore.get(lineIndex);
-                if (line.contains("Souls trapped:")) {
-                    lore.set(lineIndex, "§8 Souls trapped: §d" + updatedTrappedSoulsCount + " ☠");
+                if (line.contains("Souls Bound:")) {
+                    lore.set(lineIndex, "§8 Souls Bound: §3" + updatedTrappedSoulsCount + " ☠");
                     break;
                 }
             }
             meta.setLore(lore);
         }
 
-        codexItem.setItemMeta(meta);
+        orbItem.setItemMeta(meta);
 
-        player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 0.5f);
-        player.sendMessage("§d ⚚ §fThe §dBlighted Codex§f has absorbed a §3Blighted soul§f!");
-    }
-
-    @EventHandler
-    public void onInventoryOpen(InventoryOpenEvent event) {
-        if (event.getInventory().getType() == InventoryType.ENCHANTING) {
-            if (event.getPlayer() instanceof Player player) {
-                if (isBlightedCodex(player.getInventory().getItemInMainHand())) {
-                    event.setCancelled(true);
-                }
-            }
+        if (deathLocation.getWorld() != null) {
+            Location playerChest = player.getLocation().add(0, 1.0, 0);
+            Vector toPlayer = playerChest.toVector().subtract(deathLocation.toVector()).normalize().multiply(0.4);
+            deathLocation.getWorld().spawnParticle(Particle.SOUL, deathLocation.add(0, 0.8, 0), 0, toPlayer.getX(), toPlayer.getY(), toPlayer.getZ(), 0.15);
+            player.spawnParticle(Particle.SCULK_SOUL, playerChest, 6, 0.2, 0.3, 0.2, 0.02);
         }
+
+        // Restrained audio feedback
+        player.playSound(player.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 0.55f, 1.4f);
+        player.playSound(player.getLocation(), Sound.BLOCK_SCULK_CHARGE, 0.45f, 1.3f);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (isRightOrLeftClickOnBlock(event) && event.getHand() == EquipmentSlot.HAND) {
-            Block clickedBlock = event.getClickedBlock();
-            if (clickedBlock != null && clickedBlock.getType() == Material.ENCHANTING_TABLE) {
-                if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-                    attemptRitualStart(event, clickedBlock);
-                }
-            }
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK || event.getHand() != EquipmentSlot.HAND) {
+            return;
         }
-    }
 
-    private boolean isRightOrLeftClickOnBlock(PlayerInteractEvent event) {
-        return event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.LEFT_CLICK_BLOCK;
-    }
+        Block clickedBlock = event.getClickedBlock();
+        if (clickedBlock == null || clickedBlock.getType() != Material.CRAFTING_TABLE) {
+            return;
+        }
 
-    private void attemptRitualStart(PlayerInteractEvent event, Block clickedBlock) {
         Player player = event.getPlayer();
-        ItemStack mainHandItem = player.getInventory().getItemInMainHand();
+        ItemStack mainHand = player.getInventory().getItemInMainHand();
 
-        if (isBlightedCodex(mainHandItem)) {
+        if (!isEchoingTwistedOrb(mainHand)) {
+            return;
+        }
+
+        // The player is trying to interact with a Crafting Table while holding the Echoing Twisted Orb
+        if (hasEnoughSouls(mainHand, REQUIRED_RITUAL_SOULS)
+                && hasGlowInkSac(player)
+                && hasTwistedBanner(player)
+                && hasForgottenPattern(player)) {
             event.setCancelled(true);
 
-            if (!hasClearWorkspace(clickedBlock)) {
-                Messenger.warn(player, "The ritual requires a clear space of 5 blocks on all sides and 5 blocks above the table.");
+            if (WorkbenchCinematic.isRitualActiveAt(clickedBlock.getLocation())) {
                 return;
             }
 
-            if (hasAbsorbedSoul(mainHandItem) && hasAmethystShard(player) && hasBlightedBanner(player)) {
-                consumeRitualItems(player);
-
-                player.sendMessage("§d ⚚ §fYou have solved the §dCodex Riddle§f. The ritual begins...");
-                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                    if (!onlinePlayer.equals(player)) {
-                        onlinePlayer.sendMessage("§d ⚚ §7" + player.getName() + " §fhas solved the §dCodex Riddle§f.");
-                    }
-                }
-                new BlightedRitualAnimation(plugin, player, clickedBlock).runTaskTimer(plugin, 0L, 1L);
-            }
+            // Note: Consumables (Glowing Ink Sac & Forgotten Pattern) and soul reset
+            // are NOT consumed up-front. They are consumed only upon successful completion
+            // inside ForgottenWorkbenchCinematic, ensuring items are protected if interrupted.
+            new WorkbenchCinematic(plugin, player, clickedBlock, mainHand).start();
         }
     }
 
-    private boolean hasClearWorkspace(Block center) {
-        for (int offsetX = -5; offsetX <= 5; offsetX++) {
-            for (int offsetY = 1; offsetY <= 5; offsetY++) {
-                for (int offsetZ = -5; offsetZ <= 5; offsetZ++) {
-                    if (!center.getRelative(offsetX, offsetY, offsetZ).isPassable()) {
-                        return false;
-                    }
-                }
-            }
-        }
-        return true;
-    }
-
-    private boolean isBlightedCodex(ItemStack item) {
+    private boolean isEchoingTwistedOrb(ItemStack item) {
         if (item == null || item.getType() == Material.AIR) return false;
         BlightedItem blightedItem = BlightedItem.fromItemStack(item);
-        return blightedItem != null && "BLIGHTED_CODEX".equals(blightedItem.getItemId());
+        return blightedItem != null && "ECHOING_TWISTED_ORB".equals(blightedItem.getItemId());
     }
 
-    private boolean hasAbsorbedSoul(ItemStack item) {
+    private boolean hasEnoughSouls(ItemStack item, int requiredSouls) {
         if (item == null || !item.hasItemMeta()) return false;
-
-        NamespacedKey absorbedSoulKey = new NamespacedKey(plugin, "cipher_absorbed_soul");
+        NamespacedKey trappedSoulsKey = new NamespacedKey(plugin, "souls_trapped");
         PersistentDataContainer persistentDataContainer = Objects.requireNonNull(item.getItemMeta()).getPersistentDataContainer();
+        Integer stored = persistentDataContainer.get(trappedSoulsKey, PersistentDataType.INTEGER);
+        return stored != null && stored >= requiredSouls;
+    }
 
-        if (persistentDataContainer.has(absorbedSoulKey, PersistentDataType.BOOLEAN)) {
-            return Boolean.TRUE.equals(persistentDataContainer.get(absorbedSoulKey, PersistentDataType.BOOLEAN));
+    private boolean hasGlowInkSac(Player player) {
+        ItemStack offHandItem = player.getInventory().getItemInOffHand();
+        if (offHandItem.getType() == Material.GLOW_INK_SAC && offHandItem.getAmount() >= 1) {
+            return true;
         }
-        if (persistentDataContainer.has(absorbedSoulKey, PersistentDataType.BYTE)) {
-            Byte byteValue = persistentDataContainer.get(absorbedSoulKey, PersistentDataType.BYTE);
-            return byteValue != null && byteValue == 1;
+        for (ItemStack item : player.getInventory().getStorageContents()) {
+            if (item != null && item.getType() == Material.GLOW_INK_SAC && item.getAmount() >= 1) {
+                return true;
+            }
         }
         return false;
     }
 
-    private boolean hasAmethystShard(Player player) {
-        ItemStack offHandItem = player.getInventory().getItemInOffHand();
-        return offHandItem.getType() == Material.AMETHYST_SHARD && offHandItem.getAmount() >= 1;
+    private boolean hasForgottenPattern(Player player) {
+        for (ItemStack item : player.getInventory().getStorageContents()) {
+            if (item != null && item.getType() != Material.AIR) {
+                BlightedItem blighted = BlightedItem.fromItemStack(item);
+                if (blighted != null && "FORGOTTEN_PATTERN".equals(blighted.getItemId())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
-    private boolean hasBlightedBanner(Player player) {
+    private boolean hasTwistedBanner(Player player) {
         ItemStack helmetItem = player.getInventory().getHelmet();
         if (helmetItem == null || helmetItem.getType() == Material.AIR) return false;
         BlightedItem blightedItem = BlightedItem.fromItemStack(helmetItem);
         return blightedItem != null && "TWISTED_BANNER".equals(blightedItem.getItemId());
-    }
-
-    private void consumeRitualItems(Player player) {
-        player.getInventory().setHelmet(null);
-
-        ItemStack offHandItem = player.getInventory().getItemInOffHand();
-        if (offHandItem.getAmount() <= 1) {
-            player.getInventory().setItemInOffHand(null);
-        } else {
-            offHandItem.setAmount(offHandItem.getAmount() - 1);
-        }
-        player.getInventory().setItemInMainHand(null);
     }
 }

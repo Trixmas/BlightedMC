@@ -1,7 +1,12 @@
 package fr.moussax.blightedSMP;
 
+import fr.moussax.bedrock.scheduling.PluginContext;
+import fr.moussax.bedrock.utils.debug.Log;
 import fr.moussax.blightedSMP.engine.entities.spawnable.engine.BlightedSpawnEngine;
 import fr.moussax.blightedSMP.engine.fishing.hooks.CustomFishingHook;
+import fr.moussax.blightedSMP.engine.player.BlightedPlayer;
+import fr.moussax.blightedSMP.engine.player.cinematic.FirstJoinCinematic;
+import fr.moussax.blightedSMP.engine.player.cinematic.WorkbenchCinematic;
 import fr.moussax.blightedSMP.registry.CommandsRegistry;
 import fr.moussax.blightedSMP.registry.EventsRegistry;
 import fr.moussax.blightedSMP.registry.RegistrySystem;
@@ -9,11 +14,7 @@ import fr.moussax.blightedSMP.server.BlightedServer;
 import fr.moussax.blightedSMP.server.PluginFiles;
 import fr.moussax.blightedSMP.server.PluginSettings;
 import fr.moussax.blightedSMP.server.database.PluginDatabase;
-import fr.moussax.bedrock.scheduling.PluginContext;
-import fr.moussax.bedrock.utils.debug.Log;
-import fr.moussax.blightedSMP.engine.player.cinematic.FirstJoinCinematic;
 import lombok.Getter;
-import fr.moussax.blightedSMP.engine.player.BlightedPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -71,6 +72,7 @@ public final class BlightedSMP extends JavaPlugin {
     @Override
     public void onDisable() {
         FirstJoinCinematic.cleanupAll();
+        WorkbenchCinematic.cleanupAll();
         CustomFishingHook.cleanupAll();
         BlightedPlayer.saveAllSync();
         if (database != null) {
