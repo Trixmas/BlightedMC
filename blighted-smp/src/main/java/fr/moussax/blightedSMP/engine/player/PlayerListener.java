@@ -8,12 +8,14 @@ import fr.moussax.blightedSMP.engine.player.cinematic.FirstJoinCinematic;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
@@ -47,14 +49,24 @@ public final class PlayerListener implements Listener {
 
     @EventHandler
     public void onPlayerDamage(EntityDamageEvent event) {
-        if (event.getEntity() instanceof Player player && FirstJoinCinematic.isCinematicActive(player)) {
-            event.setCancelled(true);
+        if (event.getEntity() instanceof Player player) {
+            if (FirstJoinCinematic.isCinematicActive(player)) {
+                event.setCancelled(true);
+                return;
+            }
+
+            if (!event.isCancelled()) {
+                BlightedPlayer blighted = BlightedPlayer.get(player);
+                if (blighted != null) {
+                    blighted.onDamageTaken();
+                }
+            }
         }
     }
 
     private static final Map<UUID, List<ItemStack>> SAVED_SOULBOUND_ITEMS = new ConcurrentHashMap<>();
 
-    @EventHandler(priority = org.bukkit.event.EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player deadPlayer = event.getEntity();
 
@@ -118,8 +130,8 @@ public final class PlayerListener implements Listener {
         }
     }
 
-    @EventHandler(priority = org.bukkit.event.EventPriority.HIGHEST)
-    public void onPlayerRespawn(org.bukkit.event.player.PlayerRespawnEvent event) {
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPlayerRespawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
         List<ItemStack> saved = SAVED_SOULBOUND_ITEMS.remove(player.getUniqueId());
         if (saved != null && !saved.isEmpty()) {

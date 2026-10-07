@@ -13,6 +13,7 @@ import fr.moussax.blightedSMP.server.database.PlayerDataHandler;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.IllegalPluginAccessException;
@@ -40,7 +41,8 @@ public final class BlightedPlayer {
     private final UUID playerId;
     private final PlayerDataHandler dataHandler;
 
-    public record CooldownKey(String key, AbilityTrigger trigger) {}
+    public record CooldownKey(String key, AbilityTrigger trigger) {
+    }
 
     @Getter
     private int blight;
@@ -60,6 +62,18 @@ public final class BlightedPlayer {
     @Getter
     @Setter
     private int forgeFuel;
+
+    private static final double HEARTBEAT_HEALTH_THRESHOLD = 0.35;
+    private static final int HEARTBEAT_MAX_INTERVAL_TICKS = 36;
+    private static final int HEARTBEAT_MIN_INTERVAL_TICKS = 10;
+    private static final int HEARTBEAT_DAMAGE_URGENCY_DURATION_TICKS = 100;
+    private static final int HEARTBEAT_PROLONGED_EXPOSURE_TICKS = 600;
+    private static final float HEARTBEAT_PROLONGED_DAMPEN_FACTOR = 0.5f;
+
+    private int tickCounter = 0;
+    private int heartbeatCooldownTicks = 0;
+    private int damageUrgencyTicks = 0;
+    private int lowHealthExposureTicks = 0;
 
     /**
      * Constructs a player context for an online Bukkit player.
@@ -88,10 +102,102 @@ public final class BlightedPlayer {
     }
 
     /**
-     * Ticks periodic player lifecycle tasks, including passive mana regeneration.
+     * Ticks periodic player lifecycle tasks, including low-health heartbeat audio
+     * and passive mana regeneration.
      */
     public void tick() {
-        regenerateMana();
+        tickCounter++;
+        if (tickCounter >= 20) {
+            tickCounter = 0;
+            regenerateMana();
+        }
+        tickHeartbeat();
+    }
+
+    /**
+     * Handles physiological heartbeat feedback when player health falls below 35%.
+     */
+    private void tickHeartbeat() {
+        if (!player.isOnline() || player.isDead()) {
+            heartbeatCooldownTicks = 0;
+            damageUrgencyTicks = 0;
+            lowHealthExposureTicks = 0;
+            return;
+        }
+
+        double maxHealth = getMaxHealth();
+        double currentHealth = player.getHealth();
+        double healthFraction = currentHealth / Math.max(1.0, maxHealth);
+
+        // Above threshold: no heartbeat, reset exposure and damage urgency
+        if (healthFraction > HEARTBEAT_HEALTH_THRESHOLD) {
+            heartbeatCooldownTicks = 0;
+            damageUrgencyTicks = 0;
+            lowHealthExposureTicks = 0;
+            return;
+        }
+
+        lowHealthExposureTicks++;
+        if (damageUrgencyTicks > 0) {
+            damageUrgencyTicks--;
+        }
+
+        if (heartbeatCooldownTicks > 0) {
+            heartbeatCooldownTicks--;
+        }
+
+        if (heartbeatCooldownTicks <= 0) {
+            playHeartbeatSound(healthFraction);
+            heartbeatCooldownTicks = calculateHeartbeatInterval(healthFraction);
+        }
+    }
+
+    /**
+     * Immediately triggers a heartbeat if the player is already below the low-health threshold,
+     * resetting prolonged exposure dampening and applying temporary damage urgency.
+     */
+    public void onDamageTaken() {
+        if (!player.isOnline() || player.isDead()) return;
+
+        double maxHealth = getMaxHealth();
+        double currentHealth = player.getHealth();
+        double healthFraction = currentHealth / Math.max(1.0, maxHealth);
+
+        if (healthFraction <= HEARTBEAT_HEALTH_THRESHOLD) {
+            damageUrgencyTicks = HEARTBEAT_DAMAGE_URGENCY_DURATION_TICKS;
+            lowHealthExposureTicks = 0;
+            playHeartbeatSound(healthFraction);
+            heartbeatCooldownTicks = calculateHeartbeatInterval(healthFraction);
+        }
+    }
+
+    private double getMaxHealth() {
+        var attribute = player.getAttribute(Attribute.MAX_HEALTH);
+        return attribute != null ? attribute.getValue() : 20.0;
+    }
+
+    private void playHeartbeatSound(double healthFraction) {
+        float healthDanger = (float) Math.clamp(1.0 - (healthFraction / HEARTBEAT_HEALTH_THRESHOLD), 0.0, 1.0);
+        float damageUrgencyRatio = (float) damageUrgencyTicks / HEARTBEAT_DAMAGE_URGENCY_DURATION_TICKS;
+        float exposureProgress = (float) Math.clamp((double) lowHealthExposureTicks / HEARTBEAT_PROLONGED_EXPOSURE_TICKS, 0.0, 1.0);
+        float prolongedDampening = exposureProgress * HEARTBEAT_PROLONGED_DAMPEN_FACTOR * (1.0f - damageUrgencyRatio);
+        float effectiveUrgency = Math.clamp(healthDanger + (damageUrgencyRatio * 0.35f) - prolongedDampening, 0.1f, 1.35f);
+
+        float volume = 0.85f + (effectiveUrgency * 0.40f);
+        float pitch = 0.70f + (effectiveUrgency * 0.45f);
+
+        player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_WARDEN_HEARTBEAT, volume, pitch);
+    }
+
+    private int calculateHeartbeatInterval(double healthFraction) {
+        double normalizedHealth = Math.clamp(healthFraction / HEARTBEAT_HEALTH_THRESHOLD, 0.0, 1.0);
+        double baselineInterval = HEARTBEAT_MIN_INTERVAL_TICKS
+                + (normalizedHealth * (HEARTBEAT_MAX_INTERVAL_TICKS - HEARTBEAT_MIN_INTERVAL_TICKS));
+
+        float damageUrgencyRatio = (float) damageUrgencyTicks / HEARTBEAT_DAMAGE_URGENCY_DURATION_TICKS;
+        double effectiveInterval = baselineInterval - (damageUrgencyRatio * 4.0);
+
+        return (int) Math.round(Math.max(HEARTBEAT_MIN_INTERVAL_TICKS - 2, effectiveInterval));
     }
 
     /**

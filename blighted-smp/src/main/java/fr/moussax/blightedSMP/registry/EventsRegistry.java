@@ -57,7 +57,7 @@ public final class EventsRegistry {
             for (BlightedPlayer player : BlightedPlayer.getPlayers()) {
                 player.tick();
             }
-        }, 20L, 20L);
+        }, 1L, 1L);
 
         spawnableEntitiesListener = new SpawnableEntitiesListener();
         EntitiesRegistry.addOnRegisterCallback(spawnableEntitiesListener::invalidateCache);
