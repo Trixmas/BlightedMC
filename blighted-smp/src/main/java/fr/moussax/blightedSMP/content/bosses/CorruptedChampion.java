@@ -1,4 +1,4 @@
-package fr.moussax.blightedSMP.content.entities.bosses;
+package fr.moussax.blightedSMP.content.bosses;
 
 import fr.moussax.bedrock.utils.ItemBuilder;
 import fr.moussax.bedrock.utils.debug.Log;

@@ -1,4 +1,4 @@
-package fr.moussax.blightedSMP.content.entities.factions.blightsworn;
+package fr.moussax.blightedSMP.content.factions.blightsworn;
 
 import fr.moussax.blightedSMP.engine.entities.spawnable.condition.SpawnRules;
 import org.bukkit.Location;

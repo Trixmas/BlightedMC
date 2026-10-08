@@ -1,4 +1,4 @@
-package fr.moussax.blightedSMP.content.entities.factions.blightsworn;
+package fr.moussax.blightedSMP.content.factions.blightsworn;
 
 import org.bukkit.Location;
 import org.bukkit.Material;

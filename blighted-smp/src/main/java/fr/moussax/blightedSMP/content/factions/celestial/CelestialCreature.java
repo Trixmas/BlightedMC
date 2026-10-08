@@ -1,4 +1,4 @@
-package fr.moussax.blightedSMP.content.entities.factions.celestial;
+package fr.moussax.blightedSMP.content.factions.celestial;
 
 import fr.moussax.blightedSMP.engine.entities.spawnable.SpawnableEntity;
 import org.bukkit.Location;

@@ -1,27 +1,28 @@
 package fr.moussax.blightedSMP.content;
 
 import fr.moussax.blightedSMP.content.entities.BlightedEntities;
-import fr.moussax.blightedSMP.content.fishing.EndFishing;
-import fr.moussax.blightedSMP.content.fishing.NetherFishing;
-import fr.moussax.blightedSMP.content.fishing.OverworldFishing;
-import fr.moussax.blightedSMP.content.fishing.OverworldLavaFishing;
-import fr.moussax.blightedSMP.content.items.BlightedItems;
-import fr.moussax.blightedSMP.content.items.BlightedTools;
-import fr.moussax.blightedSMP.content.items.Bonemerang;
-import fr.moussax.blightedSMP.content.items.GlimmeringEye;
-import fr.moussax.blightedSMP.content.items.Hyperion;
-import fr.moussax.blightedSMP.content.items.KnightsSword;
-import fr.moussax.blightedSMP.content.items.ThermalFuels;
-import fr.moussax.blightedSMP.content.items.armors.FishingArmors;
-import fr.moussax.blightedSMP.content.items.armors.RocketBoots;
+import fr.moussax.blightedSMP.content.systems.fishing.loot.EndFishing;
+import fr.moussax.blightedSMP.content.systems.fishing.loot.NetherFishing;
+import fr.moussax.blightedSMP.content.systems.fishing.loot.OverworldFishing;
+import fr.moussax.blightedSMP.content.systems.fishing.loot.OverworldLavaFishing;
+import fr.moussax.blightedSMP.content.artifacts.BlightedArtifacts;
+import fr.moussax.blightedSMP.content.equipment.tools.BlightedTools;
+import fr.moussax.blightedSMP.content.equipment.weapons.Bonemerang;
+import fr.moussax.blightedSMP.content.equipment.weapons.GlimmeringEye;
+import fr.moussax.blightedSMP.content.equipment.weapons.Hyperion;
+import fr.moussax.blightedSMP.content.equipment.weapons.KnightsSword;
+import fr.moussax.blightedSMP.content.materials.ThermalFuels;
+import fr.moussax.blightedSMP.content.systems.fishing.items.FishingArmors;
+import fr.moussax.blightedSMP.content.equipment.armor.RocketBoots;
 import fr.moussax.blightedSMP.content.blocks.BlightedBlockItems;
 import fr.moussax.blightedSMP.content.blocks.BlightedBlocks;
-import fr.moussax.blightedSMP.content.items.materials.BlightedMaterials;
-import fr.moussax.blightedSMP.content.items.materials.EndMaterials;
-import fr.moussax.blightedSMP.content.items.materials.FishingMaterials;
-import fr.moussax.blightedSMP.content.items.materials.NetherMaterials;
+import fr.moussax.blightedSMP.content.materials.BlightedMaterials;
+import fr.moussax.blightedSMP.content.materials.EndMaterials;
+import fr.moussax.blightedSMP.content.systems.fishing.items.FishingMaterials;
+import fr.moussax.blightedSMP.content.materials.NetherMaterials;
 import fr.moussax.blightedSMP.content.recipes.*;
-import fr.moussax.blightedSMP.content.rituals.AncientRituals;
+import fr.moussax.blightedSMP.content.systems.fishing.recipes.FishingArmorsRecipes;
+import fr.moussax.blightedSMP.content.systems.rituals.AncientRituals;
 import fr.moussax.blightedSMP.engine.entities.BlightedEntity;
 import fr.moussax.blightedSMP.engine.entities.rituals.AncientRitual;
 import fr.moussax.blightedSMP.engine.fishing.registry.FishingRegistryHandler;
@@ -52,7 +53,7 @@ public final class ContentRegistrar {
             new RocketBoots(),
             new ThermalFuels(),
             new FishingArmors(),
-            new BlightedItems(),
+            new BlightedArtifacts(),
             new FishingMaterials(),
             new NetherMaterials(),
             new EndMaterials(),

@@ -1,11 +1,11 @@
 package fr.moussax.blightedSMP.engine.items;
 
-import fr.moussax.blightedSMP.content.items.ThermalFuels;
-import fr.moussax.blightedSMP.content.items.abilities.BonemerangAbility;
-import fr.moussax.blightedSMP.content.items.abilities.tools.AutosmeltAbility;
-import fr.moussax.blightedSMP.content.items.abilities.tools.HammerAbility;
-import fr.moussax.blightedSMP.content.items.abilities.tools.TimberAbility;
-import fr.moussax.blightedSMP.content.items.abilities.tools.VeinmineAbility;
+import fr.moussax.blightedSMP.content.materials.ThermalFuels;
+import fr.moussax.blightedSMP.content.equipment.abilities.BonemerangAbility;
+import fr.moussax.blightedSMP.content.equipment.abilities.tools.AutosmeltAbility;
+import fr.moussax.blightedSMP.content.equipment.abilities.tools.HammerAbility;
+import fr.moussax.blightedSMP.content.equipment.abilities.tools.TimberAbility;
+import fr.moussax.blightedSMP.content.equipment.abilities.tools.VeinmineAbility;
 import fr.moussax.blightedSMP.engine.items.abilities.AbilityTrigger;
 import fr.moussax.blightedSMP.engine.items.abilities.ItemAbility;
 import fr.moussax.blightedSMP.engine.items.lore.ItemLoreRenderer;

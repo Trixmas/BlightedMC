@@ -1,4 +1,4 @@
-package fr.moussax.blightedSMP.content.entities.factions.blightsworn;
+package fr.moussax.blightedSMP.content.factions.blightsworn;
 
 import fr.moussax.bedrock.utils.ItemBuilder;
 import org.bukkit.Material;
