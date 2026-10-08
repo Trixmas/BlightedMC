@@ -1,12 +1,9 @@
 package fr.moussax.blightedSMP.content.factions.twisted;
 
-import fr.moussax.blightedSMP.engine.entities.EntityManager;
 import fr.moussax.blightedSMP.engine.entities.spawnable.SpawnableEntity;
-import net.minecraft.world.entity.ai.goal.FloatGoal;
-import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
-import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
-import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
-import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
+import fr.moussax.blightedSMP.engine.entities.state.EntityAttributeInjector;
+import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import org.bukkit.Color;
@@ -15,10 +12,7 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.craftbukkit.entity.CraftMob;
-import org.bukkit.entity.Creature;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.util.Vector;
@@ -203,18 +197,27 @@ public abstract class TwistedCreature extends SpawnableEntity {
      * Reconfigures the entity's pathfinding goals with NMS to make it persistently hostile
      * toward players, replacing vanilla passivity or panic goals.
      *
-     * @param spawned      bound entity
+     * @param spawned       bound entity
      * @param speedModifier pursuit movement speed modifier
      */
     protected void applyTwistedHostileGoals(LivingEntity spawned, double speedModifier) {
         if (!(spawned instanceof CraftMob craftMob)) return;
+
+        if (spawned.getAttribute(Attribute.ATTACK_DAMAGE) == null) {
+            EntityAttributeInjector.injectAttribute(
+                    spawned,
+                    Attribute.ATTACK_DAMAGE,
+                    Math.max(1.0, getDamage())
+            );
+        }
+
         net.minecraft.world.entity.Mob nmsMob = craftMob.getHandle();
 
         nmsMob.goalSelector.removeAllGoals(goal -> true);
         nmsMob.targetSelector.removeAllGoals(goal -> true);
 
         nmsMob.goalSelector.addGoal(0, new FloatGoal(nmsMob));
-        if (nmsMob instanceof net.minecraft.world.entity.PathfinderMob pathfinderMob) {
+        if (nmsMob instanceof PathfinderMob pathfinderMob) {
             nmsMob.goalSelector.addGoal(1, new MeleeAttackGoal(pathfinderMob, speedModifier, false));
             nmsMob.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(pathfinderMob, 0.85D));
             nmsMob.targetSelector.addGoal(1, new HurtByTargetGoal(pathfinderMob).setAlertOthers());
@@ -229,9 +232,9 @@ public abstract class TwistedCreature extends SpawnableEntity {
         ));
     }
 
-    private LivingEntity getDirectDamager(org.bukkit.entity.Entity entity) {
+    private LivingEntity getDirectDamager(Entity entity) {
         if (entity instanceof LivingEntity living) return living;
-        if (entity instanceof org.bukkit.entity.Projectile proj && proj.getShooter() instanceof LivingEntity shooter) {
+        if (entity instanceof Projectile projectile && projectile.getShooter() instanceof LivingEntity shooter) {
             return shooter;
         }
         return null;
