@@ -60,9 +60,19 @@ public final class LifecycleTaskManager {
     }
 
     /**
-     * Cancels all currently running tasks associated with this manager.
+     * Cancels all currently running tasks associated with this manager without clearing task definitions.
      */
     public void cancelAll() {
+        if (tasks == null) return;
+        for (ScheduledTask task : new ArrayList<>(tasks)) {
+            task.cancel();
+        }
+    }
+
+    /**
+     * Cancels all currently running tasks and clears all registered task definitions permanently.
+     */
+    public void clearAll() {
         if (tasks == null) return;
         for (ScheduledTask task : new ArrayList<>(tasks)) {
             task.cancel();

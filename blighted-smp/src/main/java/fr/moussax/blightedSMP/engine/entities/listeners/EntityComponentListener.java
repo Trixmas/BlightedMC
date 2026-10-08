@@ -22,13 +22,6 @@ public final class EntityComponentListener implements Listener {
                 ? shooter
                 : rawDamager;
 
-        BlightedEntity victimWrapper = getBlightedEntity(victim);
-        if (victimWrapper != null) {
-            for (EntityComponent component : victimWrapper.getComponents()) {
-                component.onDamageTaken(victimWrapper, event);
-            }
-        }
-
         BlightedEntity attackerWrapper = getBlightedEntity(source);
         if (attackerWrapper != null) {
             for (EntityComponent component : attackerWrapper.getComponents()) {

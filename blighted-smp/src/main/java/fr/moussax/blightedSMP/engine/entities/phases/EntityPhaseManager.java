@@ -142,11 +142,19 @@ public final class EntityPhaseManager {
     }
 
     /**
-     * Cancels all scheduled core and phase tasks.
+     * Cancels all scheduled core and phase tasks without wiping registered task definitions.
      */
     public void cancelAllTasks() {
         coreTasks.cancelAll();
         phaseTasks.cancelAll();
+    }
+
+    /**
+     * Cancels all scheduled tasks and permanently clears all task definitions.
+     */
+    public void clearAllTasks() {
+        coreTasks.clearAll();
+        phaseTasks.clearAll();
     }
 
     private void scheduleAbility(LifecycleTaskManager manager, long delayTicks, long periodTicks, Runnable action) {

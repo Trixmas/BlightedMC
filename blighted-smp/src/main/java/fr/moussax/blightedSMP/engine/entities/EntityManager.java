@@ -204,12 +204,16 @@ public final class EntityManager {
             blighted.attachToExisting(living);
         }
 
+        boolean hasAttachments = false;
+
         // Pass 2: re-register attachment entities carrying ATTACHMENT_OWNER_KEY.
         for (Entity entity : entities) {
             if (!entity.getScoreboardTags().contains(FAST_PASS_TAG)) continue;
 
             PersistentDataContainer persistentDataContainer = entity.getPersistentDataContainer();
             if (!persistentDataContainer.has(ATTACHMENT_OWNER_KEY, PersistentDataType.STRING)) continue;
+
+            hasAttachments = true;
 
             String ownerUuidString = persistentDataContainer.get(ATTACHMENT_OWNER_KEY, PersistentDataType.STRING);
             String roleString = persistentDataContainer.get(ATTACHMENT_ROLE_KEY, PersistentDataType.STRING);
@@ -250,6 +254,8 @@ public final class EntityManager {
                     new EntityAttachment(entity, role, offset, syncYaw, syncPitch));
             registerAttachment(entity, owner);
         }
+
+        if (!hasAttachments) return;
 
         // Pass 3: Purge orphan attachments whose owner entity no longer exists.
         Bukkit.getScheduler().runTaskLater(BlightedSMP.getInstance(), () -> {
