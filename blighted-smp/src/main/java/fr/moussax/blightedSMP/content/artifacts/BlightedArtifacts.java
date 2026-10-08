@@ -1,4 +1,4 @@
-package fr.moussax.blightedSMP.content.items;
+package fr.moussax.blightedSMP.content.artifacts;
 
 import fr.moussax.blightedSMP.engine.items.BlightedItem;
 import fr.moussax.blightedSMP.engine.items.ItemRarity;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @SuppressWarnings("UnstableApiUsage")
-public class BlightedItems implements RegistryModule<Consumer<BlightedItem>> {
+public class BlightedArtifacts implements RegistryModule<Consumer<BlightedItem>> {
 
     @Override
     public void register(Consumer<BlightedItem> registry) {

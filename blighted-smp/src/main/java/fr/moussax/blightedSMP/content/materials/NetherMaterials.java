@@ -1,4 +1,4 @@
-package fr.moussax.blightedSMP.content.items.materials;
+package fr.moussax.blightedSMP.content.materials;
 
 import fr.moussax.blightedSMP.engine.items.BlightedItem;
 import fr.moussax.blightedSMP.engine.items.ItemRarity;
