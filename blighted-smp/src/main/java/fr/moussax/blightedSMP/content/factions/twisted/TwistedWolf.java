@@ -6,18 +6,8 @@ import fr.moussax.blightedSMP.engine.loot.decorators.EntityLootRarity;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Sound;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Wolf;
+import org.bukkit.entity.*;
 
-/**
- * Twisted Wolf — pursuit / pack hunter mob.
- *
- * <p>Quickly acquires players, maintains persistent pursuit over distance, attacks aggressively
- * at close range, and nearby Twisted Wolves naturally contribute to the hunt.</p>
- */
 public final class TwistedWolf extends TwistedCreature {
 
     public TwistedWolf() {
@@ -86,8 +76,7 @@ public final class TwistedWolf extends TwistedCreature {
     }
 
     @Override
-    protected void onConfigureAI(LivingEntity spawned) {
-        super.onConfigureAI(spawned);
-        applyTwistedHostileGoals(spawned, 1.40D);
+    protected double getPursuitSpeedModifier() {
+        return 1.40D;
     }
 }

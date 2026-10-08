@@ -5,18 +5,11 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-/**
- * Twisted Chicken — fast nuisance and swarm pressure mob.
- *
- * <p>Pursues players rapidly while moving erratically and making sudden direction changes.
- * Low individual damage, but dangerous when gathering together.</p>
- */
 public final class TwistedChicken extends TwistedCreature {
 
     public TwistedChicken() {
@@ -47,28 +40,31 @@ public final class TwistedChicken extends TwistedCreature {
         Player target = getTargetPlayer();
         if (target == null) return;
 
-        double distanceSq = entity.getLocation().distanceSquared(target.getLocation());
-        // Only make erratic corrections when within engagement range (between 2 and 16 blocks)
-        if (distanceSq > 16.0 * 16.0 || distanceSq < 2.0 * 2.0) return;
+        double distanceSquared = entity.getLocation().distanceSquared(target.getLocation());
+        if (distanceSquared > 16.0 * 16.0 || distanceSquared < 2.0 * 2.0) return;
 
         ThreadLocalRandom random = ThreadLocalRandom.current();
-        Vector toTarget = target.getLocation().toVector().subtract(entity.getLocation().toVector()).normalize();
-        Vector lateral = new Vector(-toTarget.getZ(), 0, toTarget.getX()).normalize();
+        Vector toTarget = target.getLocation().toVector().subtract(entity.getLocation().toVector()).setY(0);
+        if (toTarget.lengthSquared() < 0.001) return;
+        toTarget.normalize();
+
+        Vector lateral = new Vector(-toTarget.getZ(), 0, toTarget.getX());
         if (random.nextBoolean()) {
             lateral.multiply(-1);
         }
 
-        // Check if forward landing position is not hazard (lava, void) or wall
-        Location checkLoc = entity.getLocation().add(toTarget.clone().multiply(1.2)).add(lateral.clone().multiply(1.0));
-        if (checkLoc.getBlock().getType().isSolid()) {
+        Location checkLocation = entity.getLocation().add(toTarget.clone().multiply(1.2))
+                .add(lateral.clone().multiply(1.0));
+        if (checkLocation.getBlock().getType().isSolid()) {
             lateral.multiply(-1);
         }
 
-        Vector impulse = toTarget.multiply(0.20).add(lateral.multiply(0.38));
-        impulse.setY(0.10); // Small, physically believable hop for chicken
-        entity.setVelocity(impulse);
+        if (entity.isOnGround()) {
+            Vector currentVelocity = entity.getVelocity();
+            Vector impulse = toTarget.multiply(0.16).add(lateral.multiply(0.30));
+            entity.setVelocity(currentVelocity.add(impulse).setY(0.0));
+        }
 
-        // Quiet sculk-like click accompanies rare movement changes instead of chicken hurt sound
         if (random.nextDouble() < 0.35) {
             playSound(Sound.BLOCK_SCULK_SENSOR_CLICKING, 0.4f, 1.9f);
             emitSoulLeakage(1, 0.02);
@@ -76,8 +72,7 @@ public final class TwistedChicken extends TwistedCreature {
     }
 
     @Override
-    protected void onConfigureAI(LivingEntity spawned) {
-        super.onConfigureAI(spawned);
-        applyTwistedHostileGoals(spawned, 1.35D);
+    protected double getPursuitSpeedModifier() {
+        return 1.35D;
     }
 }

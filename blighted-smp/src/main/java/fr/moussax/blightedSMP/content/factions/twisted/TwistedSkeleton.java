@@ -2,13 +2,8 @@ package fr.moussax.blightedSMP.content.factions.twisted;
 
 import fr.moussax.bedrock.utils.ItemBuilder;
 import fr.moussax.blightedSMP.engine.loot.decorators.EntityLootRarity;
-import net.minecraft.world.entity.ai.goal.FleeSunGoal;
-import net.minecraft.world.entity.ai.goal.FloatGoal;
-import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
-import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
-import net.minecraft.world.entity.ai.goal.RangedBowAttackGoal;
-import net.minecraft.world.entity.ai.goal.RestrictSunGoal;
-import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
+import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.skeleton.AbstractSkeleton;
@@ -16,7 +11,6 @@ import org.bukkit.Material;
 import org.bukkit.craftbukkit.entity.CraftMob;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -48,7 +42,7 @@ public final class TwistedSkeleton extends TwistedCreature {
     }
 
     private void setupTwistedEquipment() {
-        equipment(eq -> eq.mainHand(Material.BOW));
+        equipment(equipment -> equipment.mainHand(Material.BOW));
         ItemStack helmet = new ItemBuilder(Material.LEATHER_HELMET)
                 .setLeatherColor(CORRUPTION_HEX)
                 .unbreakable()
@@ -59,13 +53,13 @@ public final class TwistedSkeleton extends TwistedCreature {
     @Override
     protected void onConfigureAI(LivingEntity spawned) {
         if (!(spawned instanceof CraftMob craftMob)) return;
-        net.minecraft.world.entity.Mob nmsMob = craftMob.getHandle();
+        var nmsMob = craftMob.getHandle();
 
         nmsMob.goalSelector.removeAllGoals(goal -> true);
         nmsMob.targetSelector.removeAllGoals(goal -> true);
 
         nmsMob.goalSelector.addGoal(0, new FloatGoal(nmsMob));
-        if (nmsMob instanceof net.minecraft.world.entity.PathfinderMob pathfinderMob) {
+        if (nmsMob instanceof PathfinderMob pathfinderMob) {
             nmsMob.goalSelector.addGoal(2, new RestrictSunGoal(pathfinderMob));
             nmsMob.goalSelector.addGoal(3, new FleeSunGoal(pathfinderMob, 1.0D));
             nmsMob.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(pathfinderMob, 1.0D));
@@ -73,7 +67,6 @@ public final class TwistedSkeleton extends TwistedCreature {
         }
 
         if (nmsMob instanceof AbstractSkeleton skeleton) {
-            // Bow attack goal maintaining combat distance (speedModifier 1.0, attackInterval 30 ticks, maxDistance 16 blocks)
             nmsMob.goalSelector.addGoal(4, new RangedBowAttackGoal<>(skeleton, 1.0D, 30, 16.0F));
         }
 

@@ -5,18 +5,9 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-import java.util.concurrent.ThreadLocalRandom;
-
-/**
- * Twisted Pig — straight-line charger mob.
- *
- * <p>Pursues the player, creates distance or gathers speed, commits to a straight charge
- * with increased impact, and loses momentum upon finishing before resuming pursuit.</p>
- */
 public final class TwistedPig extends TwistedCreature {
 
     private static final long CHARGE_COOLDOWN_MS = 6000L;
@@ -46,14 +37,12 @@ public final class TwistedPig extends TwistedCreature {
 
     private void handlePigBehavior() {
         if (!isAlive() || isCharging) return;
-        // Check cooldown early before calculating distance and raycasting path
         if (!isCooldownReady("pig_charge", CHARGE_COOLDOWN_MS)) return;
 
         Player target = getTargetPlayer();
         if (target == null) return;
 
         double distance = entity.getLocation().distance(target.getLocation());
-        // Opportunity check: distance between 4 and 14 blocks, line of sight, and clear forward path
         if (distance >= 4.0 && distance <= 14.0
                 && hasLineOfSight(target)
                 && isPathClear(target.getLocation())
@@ -62,16 +51,15 @@ public final class TwistedPig extends TwistedCreature {
         }
     }
 
-    private boolean isPathClear(Location targetLoc) {
-        Vector step = targetLoc.toVector().subtract(entity.getLocation().toVector()).setY(0);
-        double dist = step.length();
-        if (dist < 1.0) return true;
+    private boolean isPathClear(Location targetLocation) {
+        Vector step = targetLocation.toVector().subtract(entity.getLocation().toVector()).setY(0);
+        double distance = step.length();
+        if (distance < 1.0) return true;
         step.normalize().multiply(1.2);
 
         Location check = entity.getLocation().clone();
-        for (double d = 1.2; d < dist - 1.0; d += 1.2) {
+        for (double distanceCovered = 1.2; distanceCovered < distance - 1.0; distanceCovered += 1.2) {
             check.add(step);
-            // Obstruction at feet or eye level
             if (check.getBlock().getType().isSolid() || check.clone().add(0, 1, 0).getBlock().getType().isSolid()) {
                 return false;
             }
@@ -82,35 +70,30 @@ public final class TwistedPig extends TwistedCreature {
     private void executeCharge(Player target) {
         isCharging = true;
         faceLocation(target.getLocation());
-        // Subtle sculk click and quiet soul escape instead of artificial pig hurt sound
         playSound(Sound.BLOCK_SCULK_SENSOR_CLICKING, 0.5f, 1.6f);
         emitSoulLeakage(2, 0.03);
 
-        // Wind-up: 10 ticks (0.5s) settling before lunging
         addCoreDelayedAction(10L, () -> {
             if (!isAlive()) {
                 isCharging = false;
                 return;
             }
 
-            // Failure state check before launch: if target broke line of sight, abort charge
             if (!hasLineOfSight(target)) {
                 isCharging = false;
                 return;
             }
 
-            Vector targetDir = target.getLocation().toVector().subtract(entity.getLocation().toVector());
-            targetDir.setY(0);
-            final Vector chargeDirection = (targetDir.lengthSquared() > 0.001)
-                    ? targetDir.normalize()
+            Vector targetDirection = target.getLocation().toVector().subtract(entity.getLocation().toVector());
+            targetDirection.setY(0);
+            final Vector chargeDirection = (targetDirection.lengthSquared() > 0.001)
+                    ? targetDirection.normalize()
                     : entity.getLocation().getDirection().setY(0).normalize();
 
             entity.setVelocity(chargeDirection.clone().multiply(1.25).setY(0.08));
             playSound(Sound.ENTITY_PLAYER_ATTACK_KNOCKBACK, 0.8f, 0.8f);
-            // Small directional soul burst trailing behind the pig during charge
             emitSoulBurst(entity.getLocation().add(0, 0.4, 0), chargeDirection.clone().multiply(-1), 5, 0.12);
 
-            // Active charge checks over the next few ticks
             for (int tick = 2; tick <= 12; tick += 2) {
                 final int currentTick = tick;
                 addCoreDelayedAction(currentTick, () -> {
@@ -145,11 +128,5 @@ public final class TwistedPig extends TwistedCreature {
                 isCharging = false;
             });
         });
-    }
-
-    @Override
-    protected void onConfigureAI(LivingEntity spawned) {
-        super.onConfigureAI(spawned);
-        applyTwistedHostileGoals(spawned, 1.25D);
     }
 }

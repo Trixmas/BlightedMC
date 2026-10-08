@@ -7,20 +7,10 @@ import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Sheep;
+import org.bukkit.entity.*;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-/**
- * Twisted Sheep — group pressure mob.
- *
- * <p>Aggressively pursues players while retaining recognizable sheep movement.
- * Nearby Twisted Sheep tend toward the same target to overwhelm players through numbers.</p>
- */
 public final class TwistedSheep extends TwistedCreature {
 
     public TwistedSheep() {
@@ -60,7 +50,6 @@ public final class TwistedSheep extends TwistedCreature {
     @Override
     protected void onDefineBehavior() {
         super.onDefineBehavior();
-        // Periodic flock coordination: nearby Twisted Sheep converge on the same target
         addCoreAbility(25L, 25L, this::handleFlockConvergence);
     }
 
@@ -69,12 +58,10 @@ public final class TwistedSheep extends TwistedCreature {
         Player myTarget = getTargetPlayer();
 
         if (myTarget != null) {
-            // When one sheep identifies a player, nearby sheep without targets gradually orient toward the same target
             boolean alertedAny = false;
             for (Entity nearby : entity.getNearbyEntities(14.0, 6.0, 14.0)) {
                 BlightedEntity blighted = EntityManager.getBlightedEntity(nearby);
                 if (blighted instanceof TwistedSheep ally && ally.isAlive()) {
-                    // Do not constantly overwrite already-engaged sheep with an active target
                     if (ally.getTarget() == null || !ally.getTarget().isValid()) {
                         ally.setAITarget(myTarget);
                         alertedAny = true;
@@ -83,16 +70,9 @@ public final class TwistedSheep extends TwistedCreature {
             }
 
             if (alertedAny && ThreadLocalRandom.current().nextDouble() < 0.35) {
-                // Subtle sculk communication cue when flock coordinates
                 playSound(Sound.BLOCK_SCULK_SENSOR_CLICKING, 0.45f, 1.7f);
                 emitSoulLeakage(1, 0.02);
             }
         }
-    }
-
-    @Override
-    protected void onConfigureAI(LivingEntity spawned) {
-        super.onConfigureAI(spawned);
-        applyTwistedHostileGoals(spawned, 1.25D);
     }
 }

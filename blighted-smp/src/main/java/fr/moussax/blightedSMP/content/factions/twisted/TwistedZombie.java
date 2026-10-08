@@ -4,15 +4,8 @@ import fr.moussax.bedrock.utils.ItemBuilder;
 import fr.moussax.blightedSMP.engine.loot.decorators.EntityLootRarity;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 
-/**
- * Twisted Zombie — baseline melee mob.
- *
- * <p>Persistent player pursuit, slightly faster movement, equipped with dark purple leather chestplate,
- * establishing the foundational combat language of the Twisted faction.</p>
- */
 public final class TwistedZombie extends TwistedCreature {
 
     public TwistedZombie() {
@@ -46,11 +39,5 @@ public final class TwistedZombie extends TwistedCreature {
                 .unbreakable()
                 .toItemStack();
         setArmor(helmet, chestplate, null, null);
-    }
-
-    @Override
-    protected void onConfigureAI(LivingEntity spawned) {
-        super.onConfigureAI(spawned);
-        applyTwistedHostileGoals(spawned, 1.25D);
     }
 }

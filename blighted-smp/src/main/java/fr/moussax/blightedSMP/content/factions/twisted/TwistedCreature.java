@@ -21,14 +21,9 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
-/**
- * Base class for all Twisted creatures corrupted by the Blight.
- *
- * <p>Twisted creatures are common creatures whose instincts have been twisted into
- * persistent hostility toward players. They share restrained soul leakage visual cues,
- * corrupted dark-purple accents, and rare Resonant Blightstone drops.</p>
- */
-public abstract class TwistedCreature extends SpawnableEntity {
+public sealed abstract class TwistedCreature extends SpawnableEntity
+        permits TwistedChicken, TwistedCow, TwistedPig, TwistedSheep, TwistedSkeleton,
+        TwistedSpider, TwistedWolf, TwistedZombie {
 
     public static final double DEFAULT_TWISTED_SPAWN_PROBABILITY = 0.08;
 
@@ -187,10 +182,20 @@ public abstract class TwistedCreature extends SpawnableEntity {
         location.getWorld().playSound(chest, Sound.BLOCK_SCULK_CHARGE, 0.4f, 1.4f);
     }
 
+    /**
+     * Returns the pursuit movement speed modifier for hostile MeleeAttackGoal.
+     * Can be overridden by subclasses to configure custom pursuit speed.
+     *
+     * @return speed modifier
+     */
+    protected double getPursuitSpeedModifier() {
+        return 1.25D;
+    }
+
     @Override
     protected void onConfigureAI(LivingEntity spawned) {
         super.onConfigureAI(spawned);
-        applyTwistedHostileGoals(spawned, 1.25D);
+        applyTwistedHostileGoals(spawned, getPursuitSpeedModifier());
     }
 
     /**
@@ -202,17 +207,11 @@ public abstract class TwistedCreature extends SpawnableEntity {
      */
     protected void applyTwistedHostileGoals(LivingEntity spawned, double speedModifier) {
         if (!(spawned instanceof CraftMob craftMob)) return;
-
         if (spawned.getAttribute(Attribute.ATTACK_DAMAGE) == null) {
-            EntityAttributeInjector.injectAttribute(
-                    spawned,
-                    Attribute.ATTACK_DAMAGE,
-                    Math.max(1.0, getDamage())
-            );
+            EntityAttributeInjector.injectAttribute(spawned, Attribute.ATTACK_DAMAGE, Math.max(1.0, getDamage()));
         }
 
-        net.minecraft.world.entity.Mob nmsMob = craftMob.getHandle();
-
+        var nmsMob = craftMob.getHandle();
         nmsMob.goalSelector.removeAllGoals(goal -> true);
         nmsMob.targetSelector.removeAllGoals(goal -> true);
 
