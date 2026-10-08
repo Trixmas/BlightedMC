@@ -27,7 +27,7 @@ public sealed abstract class TwistedCreature extends SpawnableEntity
 
     public static final double DEFAULT_TWISTED_SPAWN_PROBABILITY = 0.08;
 
-    protected static final String CORRUPTION_HEX = "#4A156D";
+    protected static final String CORRUPTION_HEX = "#175E6E";
     protected static final Color CORRUPTION_PURPLE = Color.fromRGB(0x4A, 0x15, 0x6D);
     protected static final Particle.DustOptions CORRUPTION_DUST = new Particle.DustOptions(CORRUPTION_PURPLE, 1.0f);
 
@@ -97,7 +97,7 @@ public sealed abstract class TwistedCreature extends SpawnableEntity
      * @param speed particle speed
      */
     public void emitSoulLeakage(int count, double speed) {
-        if (!isAlive() || entity.getWorld() == null) return;
+        if (!isAlive()) return;
         Location center = entity.getLocation().add(0, entity.getHeight() * 0.55, 0);
         entity.getWorld().spawnParticle(
                 Particle.SOUL,

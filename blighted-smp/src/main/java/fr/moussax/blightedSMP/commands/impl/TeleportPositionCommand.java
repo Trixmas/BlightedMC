@@ -1,7 +1,7 @@
 package fr.moussax.blightedSMP.commands.impl;
 
-import fr.moussax.blightedSMP.commands.AdminCommand;
 import fr.moussax.bedrock.commands.CommandArgument;
+import fr.moussax.blightedSMP.commands.AdminCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -58,10 +58,10 @@ public final class TeleportPositionCommand extends AdminCommand {
             target.teleport(location);
 
             String displayWorld = getWorldDisplayName(world);
-            String coordinates = String.format("§d%.0f, %.0f, %.0f §ein §5%s§a.", x, y, z, displayWorld);
+            String coordinates = String.format("§d%.0f, %.0f, %.0f §ein §f%s§e.", x, y, z, displayWorld);
 
             if (target.equals(player)) {
-                inform(player, "§eTeleported to " + coordinates);
+                inform(player, " §eTeleported to " + coordinates);
                 player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1, 0.75f);
             } else {
                 inform(player, " §eTeleported §f" + target.getName() + " §eto " + coordinates);
