@@ -1,10 +1,12 @@
 package fr.moussax.blightedSMP.content.entities;
 
-import fr.moussax.blightedSMP.content.entities.bosses.CorruptedChampion;
-import fr.moussax.blightedSMP.content.entities.factions.blightsworn.*;
+import fr.moussax.blightedSMP.content.bosses.CorruptedChampion;
 import fr.moussax.blightedSMP.content.entities.powerful.Endersent;
 import fr.moussax.blightedSMP.content.entities.powerful.Illusioner;
 import fr.moussax.blightedSMP.content.entities.powerful.Watchling;
+import fr.moussax.blightedSMP.content.factions.blightsworn.*;
+import fr.moussax.blightedSMP.content.factions.celestial.*;
+import fr.moussax.blightedSMP.content.factions.twisted.*;
 import fr.moussax.blightedSMP.engine.entities.BlightedEntity;
 import fr.moussax.blightedSMP.registry.RegistryModule;
 
@@ -24,6 +26,16 @@ public class BlightedEntities implements RegistryModule<Consumer<BlightedEntity>
         registry.accept(new BlightswornWitherSkeleton());
         registry.accept(new BlightswornZombie());
         registry.accept(new BlightswornZombifiedPiglin());
+
+        registry.accept(new TwistedChicken());
+        registry.accept(new TwistedCow());
+        registry.accept(new TwistedPig());
+        registry.accept(new TwistedSheep());
+        registry.accept(new TwistedSkeleton());
+        registry.accept(new TwistedSpider());
+        registry.accept(new TwistedWolf());
+        registry.accept(new TwistedZombie());
+
         registry.accept(new CorruptedChampion());
         registry.accept(new Endersent());
         registry.accept(new Watchling());

@@ -1,0 +1,239 @@
+package fr.moussax.blightedSMP.content.factions.twisted;
+
+import fr.moussax.blightedSMP.engine.entities.EntityManager;
+import fr.moussax.blightedSMP.engine.entities.spawnable.SpawnableEntity;
+import net.minecraft.world.entity.ai.goal.FloatGoal;
+import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
+import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
+import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
+import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import org.bukkit.Color;
+import org.bukkit.Location;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.craftbukkit.entity.CraftMob;
+import org.bukkit.entity.Creature;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.util.Vector;
+
+import java.util.Objects;
+import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
+
+/**
+ * Base class for all Twisted creatures corrupted by the Blight.
+ *
+ * <p>Twisted creatures are common creatures whose instincts have been twisted into
+ * persistent hostility toward players. They share restrained soul leakage visual cues,
+ * corrupted dark-purple accents, and rare Resonant Blightstone drops.</p>
+ */
+public abstract class TwistedCreature extends SpawnableEntity {
+
+    public static final double DEFAULT_TWISTED_SPAWN_PROBABILITY = 0.08;
+
+    protected static final String CORRUPTION_HEX = "#4A156D";
+    protected static final Color CORRUPTION_PURPLE = Color.fromRGB(0x4A, 0x15, 0x6D);
+    protected static final Particle.DustOptions CORRUPTION_DUST = new Particle.DustOptions(CORRUPTION_PURPLE, 1.0f);
+
+    private UUID lastKnownTargetId = null;
+
+    protected TwistedCreature(String entityId, String name, EntityType entityType, int maxHealth, int damage) {
+        this(entityId, name, entityType, maxHealth, damage, DEFAULT_TWISTED_SPAWN_PROBABILITY);
+    }
+
+    protected TwistedCreature(String entityId, String name, EntityType entityType, int maxHealth, int damage, double spawnProbability) {
+        super(entityId, name, entityType);
+        setMaxHealth(maxHealth);
+        setDamage(damage);
+        setDroppedExp(5);
+        spawning(spawn -> {
+            spawn.probability(spawnProbability).overworld();
+            if (isPassiveAnimal(entityType)) {
+                spawn.notInLiquid();
+            } else {
+                spawn.overworldHostile();
+            }
+        });
+    }
+
+    private static boolean isPassiveAnimal(EntityType type) {
+        return type == EntityType.CHICKEN || type == EntityType.COW || type == EntityType.PIG
+                || type == EntityType.SHEEP || type == EntityType.WOLF;
+    }
+
+    @Override
+    protected void onDefineBehavior() {
+        // Periodic check for target acquisition and ambient corruption leakage
+        addCoreAbility(10L, 10L, this::handleTwistedTick);
+    }
+
+    private void handleTwistedTick() {
+        if (!isAlive()) return;
+
+        Player currentTarget = getTargetPlayer();
+        UUID currentTargetId = currentTarget != null ? currentTarget.getUniqueId() : null;
+
+        if (currentTargetId != null && !Objects.equals(currentTargetId, lastKnownTargetId)) {
+            lastKnownTargetId = currentTargetId;
+            onTargetAcquired(currentTarget);
+        } else if (currentTargetId == null) {
+            lastKnownTargetId = null;
+        }
+
+        // Very subtle, occasional soul emission when actively hunting (10% per half-second)
+        if (currentTarget != null && ThreadLocalRandom.current().nextDouble() < 0.10) {
+            emitSoulLeakage(1, 0.02);
+        }
+    }
+
+    /**
+     * Triggered when the creature notices a player. Emits a brief soul leak.
+     */
+    protected void onTargetAcquired(Player target) {
+        emitSoulLeakage(3, 0.04);
+        playSound(Sound.PARTICLE_SOUL_ESCAPE, 0.45f, 1.4f);
+    }
+
+    /**
+     * Emits subtle soul particles around the creature.
+     *
+     * @param count particle count
+     * @param speed particle speed
+     */
+    public void emitSoulLeakage(int count, double speed) {
+        if (!isAlive() || entity.getWorld() == null) return;
+        Location center = entity.getLocation().add(0, entity.getHeight() * 0.55, 0);
+        entity.getWorld().spawnParticle(
+                Particle.SOUL,
+                center,
+                count,
+                entity.getWidth() * 0.3,
+                entity.getHeight() * 0.3,
+                entity.getWidth() * 0.3,
+                speed
+        );
+        entity.getWorld().spawnParticle(
+                Particle.DUST,
+                center,
+                Math.max(1, count / 2),
+                entity.getWidth() * 0.25,
+                entity.getHeight() * 0.25,
+                entity.getWidth() * 0.25,
+                0.0,
+                CORRUPTION_DUST
+        );
+    }
+
+    /**
+     * Emits a directional soul leak during an impactful attack or charge.
+     */
+    public void emitSoulBurst(Location origin, Vector direction, int count, double speed) {
+        if (origin.getWorld() == null) return;
+        Vector normalized = direction.clone().normalize();
+        for (int i = 0; i < count; i++) {
+            origin.getWorld().spawnParticle(
+                    Particle.SOUL,
+                    origin,
+                    0,
+                    normalized.getX(),
+                    normalized.getY() + 0.05,
+                    normalized.getZ(),
+                    speed
+            );
+        }
+        origin.getWorld().spawnParticle(Particle.DUST, origin, count, 0.2, 0.2, 0.2, 0.0, CORRUPTION_DUST);
+    }
+
+    @Override
+    public void onDamageTaken(EntityDamageEvent event) {
+        super.onDamageTaken(event);
+        if (!isAlive()) return;
+
+        // Heavy damage briefly disturbs the corruption and releases souls
+        if (event.getFinalDamage() >= 4.0 || (getHealth() - event.getFinalDamage()) <= (getMaxHealth() * 0.4)) {
+            emitSoulLeakage(4, 0.05);
+            playSound(Sound.PARTICLE_SOUL_ESCAPE, 0.5f, 1.2f);
+        }
+
+        // If damaged by a player without a current target, immediately fixate on them
+        if (event instanceof EntityDamageByEntityEvent damageByEntity) {
+            LivingEntity damager = getDirectDamager(damageByEntity.getDamager());
+            if (damager instanceof Player playerDamager && (getTarget() == null || !getTarget().isValid())) {
+                setAITarget(playerDamager);
+            }
+        }
+    }
+
+    @Override
+    public void onDamageDealt(EntityDamageByEntityEvent event) {
+        super.onDamageDealt(event);
+        if (!isAlive()) return;
+
+        // Impactful melee attack releases a small soul trace
+        emitSoulLeakage(2, 0.03);
+    }
+
+    @Override
+    public void onDeath(Location location) {
+        super.onDeath(location);
+        if (location.getWorld() == null) return;
+
+        // Death provides the clearest faction signature: short burst of souls before fading
+        Location chest = location.clone().add(0, 0.8, 0);
+        location.getWorld().spawnParticle(Particle.SOUL, chest, 14, 0.35, 0.45, 0.35, 0.06);
+        location.getWorld().spawnParticle(Particle.DUST, chest, 10, 0.35, 0.45, 0.35, 0.0, CORRUPTION_DUST);
+        location.getWorld().playSound(chest, Sound.PARTICLE_SOUL_ESCAPE, 0.7f, 0.9f);
+        location.getWorld().playSound(chest, Sound.BLOCK_SCULK_CHARGE, 0.4f, 1.4f);
+    }
+
+    @Override
+    protected void onConfigureAI(LivingEntity spawned) {
+        super.onConfigureAI(spawned);
+        applyTwistedHostileGoals(spawned, 1.25D);
+    }
+
+    /**
+     * Reconfigures the entity's pathfinding goals with NMS to make it persistently hostile
+     * toward players, replacing vanilla passivity or panic goals.
+     *
+     * @param spawned      bound entity
+     * @param speedModifier pursuit movement speed modifier
+     */
+    protected void applyTwistedHostileGoals(LivingEntity spawned, double speedModifier) {
+        if (!(spawned instanceof CraftMob craftMob)) return;
+        net.minecraft.world.entity.Mob nmsMob = craftMob.getHandle();
+
+        nmsMob.goalSelector.removeAllGoals(goal -> true);
+        nmsMob.targetSelector.removeAllGoals(goal -> true);
+
+        nmsMob.goalSelector.addGoal(0, new FloatGoal(nmsMob));
+        if (nmsMob instanceof net.minecraft.world.entity.PathfinderMob pathfinderMob) {
+            nmsMob.goalSelector.addGoal(1, new MeleeAttackGoal(pathfinderMob, speedModifier, false));
+            nmsMob.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(pathfinderMob, 0.85D));
+            nmsMob.targetSelector.addGoal(1, new HurtByTargetGoal(pathfinderMob).setAlertOthers());
+        }
+        nmsMob.goalSelector.addGoal(6, new LookAtPlayerGoal(nmsMob, net.minecraft.world.entity.player.Player.class, 16.0F));
+        nmsMob.goalSelector.addGoal(7, new RandomLookAroundGoal(nmsMob));
+
+        nmsMob.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(
+                nmsMob,
+                net.minecraft.world.entity.player.Player.class,
+                true
+        ));
+    }
+
+    private LivingEntity getDirectDamager(org.bukkit.entity.Entity entity) {
+        if (entity instanceof LivingEntity living) return living;
+        if (entity instanceof org.bukkit.entity.Projectile proj && proj.getShooter() instanceof LivingEntity shooter) {
+            return shooter;
+        }
+        return null;
+    }
+}
