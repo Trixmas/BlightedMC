@@ -43,3 +43,8 @@ commands:
   butcher:
   speed:
   fly:
+  scan:
+    description: Scan for nearby active Blighted creatures with quick teleport
+    aliases:
+      - scanmob
+      - mobscan

@@ -51,6 +51,7 @@ public final class CommandsRegistry {
         registrar.register("nightvision", new NightVisionCommand());
         registrar.register("speed", new SpeedCommand());
         registrar.register("butcher", new ButcherCommand());
+        registrar.register("scan", new ScanEntitiesCommand());
         registrar.register("loop", new LoopCommand());
         registrar.register("test", new TestCommand());
     }
