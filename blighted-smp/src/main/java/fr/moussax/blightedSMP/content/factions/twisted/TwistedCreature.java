@@ -195,6 +195,9 @@ public sealed abstract class TwistedCreature extends SpawnableEntity
     @Override
     protected void onConfigureAI(LivingEntity spawned) {
         super.onConfigureAI(spawned);
+        if (spawned instanceof org.bukkit.entity.Ageable ageable && !ageable.isAdult()) {
+            ageable.setAdult();
+        }
         applyTwistedHostileGoals(spawned, getPursuitSpeedModifier());
     }
 

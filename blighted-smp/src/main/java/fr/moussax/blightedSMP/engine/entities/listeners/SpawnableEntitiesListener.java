@@ -9,11 +9,14 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
+
+import static fr.moussax.blightedSMP.engine.entities.BlightedEntity.FAST_PASS_TAG;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -33,6 +36,11 @@ public final class SpawnableEntitiesListener implements Listener {
         CreatureSpawnEvent.SpawnReason reason = event.getSpawnReason();
         if (reason != CreatureSpawnEvent.SpawnReason.NATURAL
                 && reason != CreatureSpawnEvent.SpawnReason.REINFORCEMENTS) {
+            return;
+        }
+
+        LivingEntity entity = event.getEntity();
+        if (entity.getScoreboardTags().contains(FAST_PASS_TAG) || entity.getCustomName() != null) {
             return;
         }
 
@@ -57,6 +65,9 @@ public final class SpawnableEntitiesListener implements Listener {
 
         for (Entity entity : event.getChunk().getEntities()) {
             if (!(entity instanceof LivingEntity living)) continue;
+            if (living.getScoreboardTags().contains(FAST_PASS_TAG)) continue;
+            if (living.getCustomName() != null) continue;
+            if (living instanceof Tameable tameable && tameable.isTamed()) continue;
 
             List<SpawnableEntity> candidates = spawnCache.get(living.getType());
             if (candidates == null || candidates.isEmpty()) continue;
