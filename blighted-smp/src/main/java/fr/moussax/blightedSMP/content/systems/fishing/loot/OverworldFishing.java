@@ -1,4 +1,4 @@
-package fr.moussax.blightedSMP.content.fishing;
+package fr.moussax.blightedSMP.content.systems.fishing.loot;
 
 import fr.moussax.blightedSMP.engine.fishing.FishingLootTable;
 import fr.moussax.blightedSMP.engine.fishing.FishingMethod;

@@ -1,7 +1,7 @@
-package fr.moussax.blightedSMP.content.items.armors;
+package fr.moussax.blightedSMP.content.systems.fishing.items;
 
-import fr.moussax.blightedSMP.content.items.abilities.weave.EmberWeaveSetBonus;
-import fr.moussax.blightedSMP.content.items.abilities.weave.MagmaweaveSetBonus;
+import fr.moussax.blightedSMP.content.equipment.abilities.weave.EmberWeaveSetBonus;
+import fr.moussax.blightedSMP.content.equipment.abilities.weave.MagmaweaveSetBonus;
 import fr.moussax.blightedSMP.engine.items.BlightedItem;
 import fr.moussax.blightedSMP.engine.items.ItemRarity;
 import fr.moussax.blightedSMP.engine.items.ItemType;

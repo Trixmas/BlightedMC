@@ -1,4 +1,4 @@
-package fr.moussax.blightedSMP.content.rituals;
+package fr.moussax.blightedSMP.content.systems.rituals;
 
 import fr.moussax.blightedSMP.content.entities.powerful.Illusioner;
 import fr.moussax.blightedSMP.engine.entities.rituals.AncientRitual;

@@ -1,4 +1,4 @@
-package fr.moussax.blightedSMP.content.recipes;
+package fr.moussax.blightedSMP.content.systems.fishing.recipes;
 
 import fr.moussax.blightedSMP.engine.recipes.crafting.BlightedRecipe;
 import fr.moussax.blightedSMP.registry.RegistryModule;
