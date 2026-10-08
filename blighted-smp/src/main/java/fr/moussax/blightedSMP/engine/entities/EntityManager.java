@@ -193,9 +193,7 @@ public final class EntityManager {
 
             BlightedEntity existing = BLIGHTED_ENTITIES.get(living.getUniqueId());
             if (existing != null) {
-                if (existing.getEntity() != living) {
-                    existing.attachToExisting(living);
-                }
+                existing.attachToExisting(living);
                 continue;
             }
 
