@@ -1,6 +1,6 @@
-package fr.moussax.blightedSMP.content.items;
+package fr.moussax.blightedSMP.content.equipment.tools;
 
-import fr.moussax.blightedSMP.content.items.abilities.tools.VeinmineAbility;
+import fr.moussax.blightedSMP.content.equipment.abilities.tools.VeinmineAbility;
 import fr.moussax.blightedSMP.engine.items.BlightedItem;
 import fr.moussax.blightedSMP.engine.items.ItemRarity;
 import fr.moussax.blightedSMP.engine.items.ItemType;

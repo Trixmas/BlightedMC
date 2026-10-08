@@ -1,6 +1,6 @@
-package fr.moussax.blightedSMP.content.items;
+package fr.moussax.blightedSMP.content.equipment.weapons;
 
-import fr.moussax.blightedSMP.content.items.abilities.KnightsSlamAbility;
+import fr.moussax.blightedSMP.content.equipment.abilities.KnightsSlamAbility;
 import fr.moussax.blightedSMP.engine.items.BlightedItem;
 import fr.moussax.blightedSMP.engine.items.ItemRarity;
 import fr.moussax.blightedSMP.engine.items.ItemType;

@@ -1,4 +1,4 @@
-package fr.moussax.blightedSMP.content.items.abilities;
+package fr.moussax.blightedSMP.content.equipment.abilities;
 
 import fr.moussax.blightedSMP.engine.items.abilities.ItemAbility;
 import fr.moussax.blightedSMP.engine.items.abilities.AbilityTrigger;

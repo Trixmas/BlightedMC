@@ -1,6 +1,6 @@
-package fr.moussax.blightedSMP.content.items.armors;
+package fr.moussax.blightedSMP.content.equipment.armor;
 
-import fr.moussax.blightedSMP.content.items.abilities.RocketBootsAbility;
+import fr.moussax.blightedSMP.content.equipment.abilities.RocketBootsAbility;
 import fr.moussax.blightedSMP.engine.items.BlightedItem;
 import fr.moussax.blightedSMP.engine.items.ItemRarity;
 import fr.moussax.blightedSMP.engine.items.ItemType;
