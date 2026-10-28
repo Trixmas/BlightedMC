@@ -27,8 +27,8 @@ public final class BlightCommand extends AdminCommand {
         }
 
         return switch (args[0].toLowerCase()) {
-            case "add" -> handleModify(player, args, true);
-            case "remove" -> handleModify(player, args, false);
+            case "add" -> handleAdd(player, args);
+            case "remove" -> handleRemove(player, args);
             case "set" -> handleSet(player, args);
             case "reset" -> handleReset(player, args);
             case "resetall" -> handleResetAll(player);
@@ -78,9 +78,9 @@ public final class BlightCommand extends AdminCommand {
         return "§f" + token;
     }
 
-    private boolean handleModify(Player sender, String[] args, boolean add) {
+    private boolean handleAdd(Player sender, String[] args) {
         if (args.length < 3) {
-            warn(sender, "Usage: /blight " + (add ? "add" : "remove") + " <player> <amount>");
+            warn(sender, "Usage: /blight add <player> <amount>");
             return false;
         }
 
@@ -93,25 +93,40 @@ public final class BlightCommand extends AdminCommand {
         BlightedPlayer blightedPlayer = BlightedPlayer.get(target);
         if (blightedPlayer == null) return false;
 
-        if (add) {
-            blightedPlayer.addBlight(amount);
-            inform(sender, " §eGave §3" + amount + "❖ Blight §eto §5" + target.getName() + "§e.");
-            Actionbar.sendSlotAlert(
-                    target,
-                    PlayerHudManager.SECTION_BLIGHT,
-                    "§3" + Formatter.formatDecimalWithCommas(blightedPlayer.getBlight()) + "❖ Blight §b(+" + Formatter.formatDecimalWithCommas(amount) + ")",
-                    Duration.ofSeconds(2)
-            );
-        } else {
-            blightedPlayer.removeBlight(amount);
-            inform(sender, " §eRemoved §3" + amount + "❖ Blight §efrom §5" + target.getName() + "§e.");
-            Actionbar.sendSlotAlert(
-                    target,
-                    PlayerHudManager.SECTION_BLIGHT,
-                    "§3" + Formatter.formatDecimalWithCommas(blightedPlayer.getBlight()) + "❖ Blight §c(-" + Formatter.formatDecimalWithCommas(amount) + ")",
-                    Duration.ofSeconds(2)
-            );
+        blightedPlayer.addBlight(amount);
+        inform(sender, " §eGave §3" + amount + "❖ Blight §eto §5" + target.getName() + "§e.");
+        Actionbar.sendSlotAlert(
+                target,
+                PlayerHudManager.SECTION_BLIGHT,
+                "§3" + Formatter.formatDecimalWithCommas(blightedPlayer.getBlight()) + "❖ Blight §b(+" + Formatter.formatDecimalWithCommas(amount) + ")",
+                Duration.ofSeconds(2)
+        );
+        return true;
+    }
+
+    private boolean handleRemove(Player sender, String[] args) {
+        if (args.length < 3) {
+            warn(sender, "Usage: /blight remove <player> <amount>");
+            return false;
         }
+
+        Player target = requireTarget(sender, args[1]);
+        if (target == null) return false;
+
+        Integer amount = parseAmount(sender, args[2]);
+        if (amount == null) return false;
+
+        BlightedPlayer blightedPlayer = BlightedPlayer.get(target);
+        if (blightedPlayer == null) return false;
+
+        blightedPlayer.removeBlight(amount);
+        inform(sender, " §eRemoved §3" + amount + "❖ Blight §efrom §5" + target.getName() + "§e.");
+        Actionbar.sendSlotAlert(
+                target,
+                PlayerHudManager.SECTION_BLIGHT,
+                "§3" + Formatter.formatDecimalWithCommas(blightedPlayer.getBlight()) + "❖ Blight §c(-" + Formatter.formatDecimalWithCommas(amount) + ")",
+                Duration.ofSeconds(2)
+        );
         return true;
     }
 
@@ -168,9 +183,9 @@ public final class BlightCommand extends AdminCommand {
 
     private boolean handleResetAll(Player sender) {
         Bukkit.getOnlinePlayers().forEach(player -> {
-            BlightedPlayer bp = BlightedPlayer.get(player);
-            if (bp != null) {
-                bp.setBlight(0);
+            BlightedPlayer blightedPlayer = BlightedPlayer.get(player);
+            if (blightedPlayer != null) {
+                blightedPlayer.setBlight(0);
                 Actionbar.sendSlotAlert(
                         player,
                         PlayerHudManager.SECTION_BLIGHT,
@@ -194,13 +209,13 @@ public final class BlightCommand extends AdminCommand {
         if (amount == null) return false;
 
         Bukkit.getOnlinePlayers().forEach(player -> {
-            BlightedPlayer bp = BlightedPlayer.get(player);
-            if (bp != null) {
-                bp.addBlight(amount);
+            BlightedPlayer blightedPlayer = BlightedPlayer.get(player);
+            if (blightedPlayer != null) {
+                blightedPlayer.addBlight(amount);
                 Actionbar.sendSlotAlert(
                         player,
                         PlayerHudManager.SECTION_BLIGHT,
-                        "§3" + Formatter.formatDecimalWithCommas(bp.getBlight()) + "❖ Blight §b(+" + Formatter.formatDecimalWithCommas(amount) + ")",
+                        "§3" + Formatter.formatDecimalWithCommas(blightedPlayer.getBlight()) + "❖ Blight §b(+" + Formatter.formatDecimalWithCommas(amount) + ")",
                         Duration.ofSeconds(2)
                 );
             }

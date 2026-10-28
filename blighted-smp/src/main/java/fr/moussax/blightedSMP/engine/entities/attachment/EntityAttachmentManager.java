@@ -64,8 +64,8 @@ public final class EntityAttachmentManager {
         }
 
         Vector localOffset = offset != null ? offset : new Vector(0, 0, 0);
-        Location spawnLoc = live.getLocation().clone().add(localOffset);
-        ItemDisplay display = live.getWorld().spawn(spawnLoc, ItemDisplay.class, itemDisplay -> {
+        Location spawnLocation = live.getLocation().clone().add(localOffset);
+        ItemDisplay display = live.getWorld().spawn(spawnLocation, ItemDisplay.class, itemDisplay -> {
             if (configurator != null) {
                 configurator.accept(itemDisplay);
             }
@@ -89,8 +89,8 @@ public final class EntityAttachmentManager {
         }
 
         Vector localOffset = offset != null ? offset : new Vector(0, 0, 0);
-        Location spawnLoc = live.getLocation().clone().add(localOffset);
-        BlockDisplay display = live.getWorld().spawn(spawnLoc, BlockDisplay.class, blockDisplay -> {
+        Location spawnLocation = live.getLocation().clone().add(localOffset);
+        BlockDisplay display = live.getWorld().spawn(spawnLocation, BlockDisplay.class, blockDisplay -> {
             if (configurator != null) {
                 configurator.accept(blockDisplay);
             }

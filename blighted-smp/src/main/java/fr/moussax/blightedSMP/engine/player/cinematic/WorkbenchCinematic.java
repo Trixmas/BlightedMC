@@ -53,6 +53,7 @@ public final class WorkbenchCinematic {
     private ItemDisplay floatingOrbDisplay;
     private ItemDisplay floatingInkDisplay;
     private final Map<Location, BlockState> temporarySculkBlocks = new LinkedHashMap<>();
+    private BlockState originalCraftingTableState;
     private BukkitRunnable runningTask;
 
     public WorkbenchCinematic(
@@ -81,11 +82,11 @@ public final class WorkbenchCinematic {
     }
 
     public void start() {
-        Location blockLoc = craftingTableBlock.getLocation();
-        if (ACTIVE_RITUALS.containsKey(blockLoc)) {
+        Location blockLocation = craftingTableBlock.getLocation();
+        if (ACTIVE_RITUALS.containsKey(blockLocation)) {
             return;
         }
-        ACTIVE_RITUALS.put(blockLoc, this);
+        ACTIVE_RITUALS.put(blockLocation, this);
 
         runningTask = new BukkitRunnable() {
             int tick = 0;
@@ -170,7 +171,7 @@ public final class WorkbenchCinematic {
 
         // Ticks 20 - 24: Abrupt reaction! The roaming souls sharply turn and react toward the Crafting Table
         else {
-            for (int i = 0; i < 3; i++) {
+            for (int reactIndex = 0; reactIndex < 3; reactIndex++) {
                 int[] offset = RITUAL_FIELD_OFFSETS[random.nextInt(RITUAL_FIELD_OFFSETS.length)];
                 Location reactLocation = tableCenter.clone().add(offset[0] * 0.8, 0.15, offset[1] * 0.8);
                 Vector snapToTable = tableCenter.toVector().subtract(reactLocation.toVector()).normalize().multiply(0.22);
@@ -207,6 +208,7 @@ public final class WorkbenchCinematic {
         // The Echoing Twisted Orb manifests ~1.35 blocks above the Crafting Table
         Location orbSpawnLocation = tableCenter.clone().add(0, 1.35, 0);
         floatingOrbDisplay = (ItemDisplay) tableCenter.getWorld().spawnEntity(orbSpawnLocation, EntityType.ITEM_DISPLAY);
+        floatingOrbDisplay.setPersistent(false);
         floatingOrbDisplay.setItemStack(orbItemStack.clone());
         floatingOrbDisplay.setTeleportDuration(1);
         float scale = 0.85f;
@@ -263,8 +265,8 @@ public final class WorkbenchCinematic {
 
         // Escaped souls curving into inward pull toward the table
         if (relativeTick > 18) {
-            for (int i = 0; i < 2; i++) {
-                double angle = Math.toRadians((relativeTick * 18.0) + (i * 180.0));
+            for (int armIndex = 0; armIndex < 2; armIndex++) {
+                double angle = Math.toRadians((relativeTick * 18.0) + (armIndex * 180.0));
                 double radius = 1.6 - (progress * 0.4);
                 Location swirlLocation = tableCenter.clone().add(Math.cos(angle) * radius, 0.3 + Math.sin(angle * 2.0) * 0.15, Math.sin(angle) * radius);
                 Vector toTable = tableCenter.toVector().subtract(swirlLocation.toVector()).normalize().multiply(0.16 + progress * 0.12);
@@ -287,8 +289,8 @@ public final class WorkbenchCinematic {
 
         // Directional movement: sweeping Sculk and soul rotation along the outer field speeding up inwards
         int outerPoints = 4;
-        for (int i = 0; i < outerPoints; i++) {
-            double angle = Math.toRadians((tick * (18.0 + progress * 16.0)) + (i * (360.0 / outerPoints)));
+        for (int pointIndex = 0; pointIndex < outerPoints; pointIndex++) {
+            double angle = Math.toRadians((tick * (18.0 + progress * 16.0)) + (pointIndex * (360.0 / outerPoints)));
             double outerRadius = 2.4 - (progress * 0.3);
             Location sweepLocation = tableCenter.clone().add(Math.cos(angle) * outerRadius, 0.1, Math.sin(angle) * outerRadius);
             tableCenter.getWorld().spawnParticle(Particle.SCULK_CHARGE_POP, sweepLocation, 1, 0.03, 0.01, 0.03, 0.01);
@@ -301,6 +303,7 @@ public final class WorkbenchCinematic {
         if (relativeTick == 0 && floatingInkDisplay == null) {
             Location inkSpawnLocation = (player.isOnline()) ? player.getLocation().add(0, 1.0, 0) : tableCenter.clone().add(0, 0.4, 0);
             floatingInkDisplay = (ItemDisplay) tableCenter.getWorld().spawnEntity(inkSpawnLocation, EntityType.ITEM_DISPLAY);
+            floatingInkDisplay.setPersistent(false);
             floatingInkDisplay.setItemStack(new ItemStack(Material.GLOW_INK_SAC));
             floatingInkDisplay.setTeleportDuration(1);
             float scale = 0.6f;
@@ -356,11 +359,11 @@ public final class WorkbenchCinematic {
                 : tableCenter.clone().add(0, 1.15, 0);
 
         double markingRadius = 2.1 - (progress);
-        for (int i = 0; i < 4; i++) {
-            double angle = Math.toRadians((i * 90.0) + (relativeTick * (12.0 + progress * 14.0)));
-            double x = Math.cos(angle) * markingRadius;
-            double z = Math.sin(angle) * markingRadius;
-            Location groundMarkLocation = tableCenter.clone().add(x, 0.12, z);
+        for (int conduitIndex = 0; conduitIndex < 4; conduitIndex++) {
+            double angle = Math.toRadians((conduitIndex * 90.0) + (relativeTick * (12.0 + progress * 14.0)));
+            double coordinateX = Math.cos(angle) * markingRadius;
+            double coordinateZ = Math.sin(angle) * markingRadius;
+            Location groundMarkLocation = tableCenter.clone().add(coordinateX, 0.12, coordinateZ);
 
             // Ground markings
             tableCenter.getWorld().spawnParticle(Particle.GLOW_SQUID_INK, groundMarkLocation, 1, 0.02, 0.01, 0.02, 0.003);
@@ -377,8 +380,8 @@ public final class WorkbenchCinematic {
             // 2. Luminous ink lines physically connect the Orb down to the markings
             Vector tetherVector = groundMarkLocation.toVector().subtract(orbPosition.toVector());
             double step = 0.35;
-            for (double d = step; d < tetherVector.length(); d += step) {
-                Location tetherPoint = orbPosition.clone().add(tetherVector.clone().normalize().multiply(d));
+            for (double stepDistance = step; stepDistance < tetherVector.length(); stepDistance += step) {
+                Location tetherPoint = orbPosition.clone().add(tetherVector.clone().normalize().multiply(stepDistance));
                 tableCenter.getWorld().spawnParticle(Particle.GLOW, tetherPoint, 1, 0.01, 0.01, 0.01, 0.0);
             }
 
@@ -429,6 +432,9 @@ public final class WorkbenchCinematic {
         if (tableCenter.getWorld() == null) return;
 
         // Sequence: corruption reverses inward, ink collapses, Orb plunges, table is overwritten
+        if (originalCraftingTableState == null) {
+            originalCraftingTableState = craftingTableBlock.getState();
+        }
         craftingTableBlock.setType(Material.AIR, false);
 
         if (floatingInkDisplay != null && floatingInkDisplay.isValid()) {
@@ -458,13 +464,13 @@ public final class WorkbenchCinematic {
         double outerAngle = Math.toRadians(relativeTick * (16.0 + progress * 24.0));
         double innerAngle = Math.toRadians(-relativeTick * (22.0 + progress * 28.0));
 
-        for (int i = 0; i < 4; i++) {
-            double a1 = outerAngle + (i * (Math.PI / 2.0));
-            Location outerLocation = tableCenter.clone().add(Math.cos(a1) * radius, 0.2 + Math.sin(a1) * 0.1, Math.sin(a1) * radius);
+        for (int soulIndex = 0; soulIndex < 4; soulIndex++) {
+            double outerAngleOffset = outerAngle + (soulIndex * (Math.PI / 2.0));
+            Location outerLocation = tableCenter.clone().add(Math.cos(outerAngleOffset) * radius, 0.2 + Math.sin(outerAngleOffset) * 0.1, Math.sin(outerAngleOffset) * radius);
             tableCenter.getWorld().spawnParticle(Particle.SOUL, outerLocation, 1, 0, 0, 0, 0);
 
-            double a2 = innerAngle + (i * (Math.PI / 2.0));
-            Location innerLocation = tableCenter.clone().add(Math.cos(a2) * (radius * 0.65), 0.35 + Math.cos(a2) * 0.1, Math.sin(a2) * (radius * 0.65));
+            double innerAngleOffset = innerAngle + (soulIndex * (Math.PI / 2.0));
+            Location innerLocation = tableCenter.clone().add(Math.cos(innerAngleOffset) * (radius * 0.65), 0.35 + Math.cos(innerAngleOffset) * 0.1, Math.sin(innerAngleOffset) * (radius * 0.65));
             tableCenter.getWorld().spawnParticle(Particle.SCULK_SOUL, innerLocation, 1, 0, 0, 0, 0);
         }
 
@@ -549,10 +555,10 @@ public final class WorkbenchCinematic {
                         pdc.set(absorbedSoulKey, PersistentDataType.BOOLEAN, false);
                         List<String> lore = meta.getLore();
                         if (lore != null) {
-                            for (int i = 0; i < lore.size(); i++) {
-                                String line = lore.get(i);
+                            for (int loreIndex = 0; loreIndex < lore.size(); loreIndex++) {
+                                String line = lore.get(loreIndex);
                                 if (line.contains("Souls Bound:") || line.contains("Souls trapped:")) {
-                                    lore.set(i, "§8 Souls Bound: §d0 ☠");
+                                    lore.set(loreIndex, "§8 Souls Bound: §d0 ☠");
                                     break;
                                 }
                             }
@@ -593,6 +599,12 @@ public final class WorkbenchCinematic {
 
         if (!completed) {
             restoreTemporarySculk();
+            if (originalCraftingTableState != null) {
+                originalCraftingTableState.update(true, false);
+                originalCraftingTableState = null;
+            }
+        } else {
+            originalCraftingTableState = null;
         }
         ACTIVE_RITUALS.remove(craftingTableBlock.getLocation());
     }

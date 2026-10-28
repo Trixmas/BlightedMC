@@ -14,6 +14,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -41,9 +42,6 @@ public final class BlightedPlayer {
     @Getter
     private final UUID playerId;
     private final PlayerDataHandler dataHandler;
-
-    public record CooldownKey(String key, AbilityTrigger trigger) {
-    }
 
     @Getter
     private int blight;
@@ -160,7 +158,8 @@ public final class BlightedPlayer {
      */
     public void onDamageTaken() {
         GameMode gameMode = player.getGameMode();
-        if (!player.isOnline() || player.isDead() || gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR) return;
+        if (!player.isOnline() || player.isDead() || gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR)
+            return;
 
         double maxHealth = getMaxHealth();
         double currentHealth = player.getHealth();
@@ -189,7 +188,7 @@ public final class BlightedPlayer {
         float volume = 0.85f + (effectiveUrgency * 0.40f);
         float pitch = 0.70f + (effectiveUrgency * 0.45f);
 
-        player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_WARDEN_HEARTBEAT, volume, pitch);
+        player.playSound(player.getLocation(), Sound.ENTITY_WARDEN_HEARTBEAT, volume, pitch);
     }
 
     private int calculateHeartbeatInterval(double healthFraction) {
@@ -639,5 +638,8 @@ public final class BlightedPlayer {
             return;
         }
         this.lastKnownArmor = Arrays.copyOf(armor, 4);
+    }
+
+    public record CooldownKey(String key, AbilityTrigger trigger) {
     }
 }

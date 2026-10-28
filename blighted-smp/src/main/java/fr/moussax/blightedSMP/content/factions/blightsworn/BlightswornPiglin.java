@@ -60,8 +60,8 @@ public final class BlightswornPiglin extends BlightswornEliteArchetype {
         entity.getWorld().playSound(location, Sound.ENTITY_PIGLIN_ANGRY, 1.5f, 0.5f);
         entity.getWorld().playSound(location, Sound.ITEM_ARMOR_EQUIP_GOLD, 1.0f, 0.5f);
 
-        entity.getWorld().spawnParticle(Particle.CRIT, location, 40, 0.5, 1.0, 0.5, 0.1);
-        entity.getWorld().spawnParticle(Particle.DUST, location, 30, 0.5, 1.0, 0.5, 0.0, BLIGHT_DUST);
+        entity.getWorld().spawnParticle(Particle.CRIT, location, 15, 0.4, 0.6, 0.4, 0.05);
+        entity.getWorld().spawnParticle(Particle.DUST, location, 12, 0.4, 0.6, 0.4, 0.0, BLIGHT_DUST);
     }
 
     private void executeHunterDash(boolean isPhaseTwo) {

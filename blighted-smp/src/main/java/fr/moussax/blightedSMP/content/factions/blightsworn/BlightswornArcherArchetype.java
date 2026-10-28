@@ -34,27 +34,38 @@ public sealed abstract class BlightswornArcherArchetype extends BlightswornCreat
 
     @Override
     protected void onDefineAdditionalBehavior() {
-        addCoreAbility(20L, 5L, this::performScatterEvasion);
+        addCoreAbility(10L, 5L, this::performTacticalMovement);
     }
 
     @Override
     protected void onNormalBehavior() {
-        addPhaseAbility(100L, 100L, () -> executeAimedShot(false));
+        addPhaseAbility(80L, 60L, () -> evaluateDeliberateShot(false));
     }
 
     @Override
     protected void onEnrageBehavior() {
-        addPhaseAbility(80L, 80L, () -> executeAimedShot(true));
+        addPhaseAbility(50L, 40L, () -> evaluateDeliberateShot(true));
     }
 
     protected abstract void applyArrowEffects(Arrow arrow, boolean isPhaseTwo);
 
-    private void executeAimedShot(boolean isPhaseTwo) {
+    private void evaluateDeliberateShot(boolean isPhaseTwo) {
         if (!isAlive() || isAiming) return;
 
         Player target = getNearestPlayer(AIMED_SHOT_RANGE);
-        if (target == null || !hasLineOfSight(target)) return;
+        if (target == null || target.isDead() || !hasLineOfSight(target)) return;
 
+        double distanceSquared = entity.getLocation().distanceSquared(target.getLocation());
+        // If the player is rushing right in front of the archer, prioritize dodging/repositioning first
+        if (distanceSquared < 3.5 * 3.5) {
+            performScatterEvasion();
+            return;
+        }
+
+        executeAimedShot(target, isPhaseTwo);
+    }
+
+    private void executeAimedShot(Player target, boolean isPhaseTwo) {
         isAiming = true;
 
         double originalSpeed = Objects.requireNonNull(
@@ -65,22 +76,28 @@ public sealed abstract class BlightswornArcherArchetype extends BlightswornCreat
         entity.getWorld().spawnParticle(
                 Particle.CRIT,
                 entity.getLocation().add(0, 1.5, 0),
-                15, 0.3, 0.3, 0.3, 0.02
+                8, 0.2, 0.2, 0.2, 0.02
         );
 
-        addCoreDelayedAction(20L, () -> {
+        int windupTicks = isPhaseTwo ? 14 : 20;
+
+        addCoreDelayedAction(windupTicks, () -> {
             if (!isAlive()) return;
 
             isAiming = false;
             Objects.requireNonNull(entity.getAttribute(Attribute.MOVEMENT_SPEED))
                     .setBaseValue(originalSpeed);
 
-            if (target.isDead() || target.getWorld() != entity.getWorld()) return;
+            if (target.isDead() || target.getWorld() != entity.getWorld() || !hasLineOfSight(target)) return;
 
             fireArrowAt(target, isPhaseTwo);
 
             if (isPhaseTwo) {
-                addCoreDelayedAction(15L, () -> fireArrowAt(target, true));
+                addCoreDelayedAction(12L, () -> {
+                    if (isAlive() && !target.isDead() && target.getWorld() == entity.getWorld() && hasLineOfSight(target)) {
+                        fireArrowAt(target, true);
+                    }
+                });
             }
         });
     }
@@ -101,6 +118,43 @@ public sealed abstract class BlightswornArcherArchetype extends BlightswornCreat
 
         entity.getWorld().playSound(entity.getLocation(), Sound.ENTITY_SKELETON_SHOOT, 1.0f, 0.8f);
         applyArrowEffects(arrow, isPhaseTwo);
+    }
+
+    private void performTacticalMovement() {
+        if (!isAlive() || isAiming) return;
+
+        Player threat = getNearestPlayer(SCATTER_TRIGGER_RADIUS);
+        if (threat != null && hasLineOfSight(threat)) {
+            performScatterEvasion();
+            return;
+        }
+
+        // At mid-range (6 - 15 blocks), occasionally reposition laterally to maintain a clean firing angle
+        if (entity.getTicksLived() >= nextScatterTick) {
+            Player target = getNearestPlayer(14.0);
+            if (target != null && hasLineOfSight(target)) {
+                double distance = entity.getLocation().distance(target.getLocation());
+                if (distance >= 6.0 && ThreadLocalRandom.current().nextDouble() < 0.25) {
+                    performLateralReposition(target);
+                }
+            }
+        }
+    }
+
+    private void performLateralReposition(Player target) {
+        Vector toTarget = target.getLocation().toVector().subtract(entity.getLocation().toVector()).setY(0);
+        if (toTarget.lengthSquared() == 0) return;
+        toTarget.normalize();
+
+        Vector strafe = ThreadLocalRandom.current().nextBoolean()
+                ? new Vector(-toTarget.getZ(), 0, toTarget.getX())
+                : new Vector(toTarget.getZ(), 0, -toTarget.getX());
+
+        if (isSafeEvasionDirection(strafe)) {
+            strafe.multiply(0.65).setY(0.1);
+            entity.setVelocity(strafe);
+            nextScatterTick = entity.getTicksLived() + 50; // brief delay before next reposition
+        }
     }
 
     private void performScatterEvasion() {
@@ -139,25 +193,25 @@ public sealed abstract class BlightswornArcherArchetype extends BlightswornCreat
 
         if (chosenDirection == null) return;
 
-        chosenDirection.multiply(1.2).setY(0.3);
+        chosenDirection.multiply(1.1).setY(0.25);
         entity.setVelocity(chosenDirection);
-        entity.getWorld().playSound(entity.getLocation(), Sound.ENTITY_ENDER_DRAGON_FLAP, 0.5f, 1.8f);
+        entity.getWorld().playSound(entity.getLocation(), Sound.ENTITY_BREEZE_SLIDE, 0.8f, 1.4f);
 
         nextScatterTick = entity.getTicksLived() + SCATTER_COOLDOWN_TICKS;
     }
 
     private boolean isSafeEvasionDirection(Vector direction) {
-        Location targetLoc = entity.getLocation().add(direction.getX() * 2.0, 0, direction.getZ() * 2.0);
+        Location targetLocation = entity.getLocation().add(direction.getX() * 2.0, 0, direction.getZ() * 2.0);
 
         for (int y = 0; y <= 3; y++) {
-            Material type = targetLoc.getBlock().getType();
+            Material type = targetLocation.getBlock().getType();
             if (type.isSolid() && type != Material.MAGMA_BLOCK && type != Material.CACTUS) {
                 return true;
             }
             if (type == Material.LAVA) {
                 return false;
             }
-            targetLoc.subtract(0, 1, 0);
+            targetLocation.subtract(0, 1, 0);
         }
 
         return false;

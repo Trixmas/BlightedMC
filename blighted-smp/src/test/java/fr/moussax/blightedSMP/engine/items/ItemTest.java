@@ -95,7 +95,7 @@ class ItemTest {
         assertTrue(item.isSoulbound());
         assertTrue(item.hasRestriction(ItemRestriction.PREVENT_DROP));
 
-        item.soulbound(false);
+        item.unbind();
         assertFalse(item.isSoulbound());
         assertFalse(item.hasRestriction(ItemRestriction.PREVENT_DROP));
     }
@@ -140,13 +140,13 @@ class ItemTest {
         List<String> lore = ItemLoreRenderer.render(item);
 
         assertNotNull(lore);
-        assertTrue(lore.stream().anyMatch(l -> l.contains("A blade forged in ancient fires.")));
-        assertTrue(lore.stream().anyMatch(l -> l.contains("Ability: Flaming Slash")));
-        assertTrue(lore.stream().anyMatch(l -> l.contains("RIGHT CLICK")));
-        assertTrue(lore.stream().anyMatch(l -> l.contains("Mana Cost: §330")));
-        assertTrue(lore.stream().anyMatch(l -> l.contains("Cooldown: §a5s")));
-        assertTrue(lore.stream().anyMatch(l -> l.contains(ItemRarity.UNIQUE.getName() + " SWORD")));
-        long rarityLineCount = lore.stream().filter(l -> l.contains(ItemRarity.UNIQUE.getName())).count();
+        assertTrue(lore.stream().anyMatch(line -> line.contains("A blade forged in ancient fires.")));
+        assertTrue(lore.stream().anyMatch(line -> line.contains("Ability: Flaming Slash")));
+        assertTrue(lore.stream().anyMatch(line -> line.contains("RIGHT CLICK")));
+        assertTrue(lore.stream().anyMatch(line -> line.contains("Mana Cost: §330")));
+        assertTrue(lore.stream().anyMatch(line -> line.contains("Cooldown: §a5s")));
+        assertTrue(lore.stream().anyMatch(line -> line.contains(ItemRarity.UNIQUE.getName() + " SWORD")));
+        long rarityLineCount = lore.stream().filter(line -> line.contains(ItemRarity.UNIQUE.getName())).count();
         assertEquals(1, rarityLineCount, "Item lore should contain exactly one canonical rarity footer");
     }
 
@@ -228,12 +228,12 @@ class ItemTest {
         assertEquals("", dedupedLore.get(dedupedLore.size() - 2), "Line before footer must be blank");
         assertNotEquals("", dedupedLore.get(dedupedLore.size() - 3), "Must not have duplicate blank lines");
 
-        // 5. padRarity toggle programmatic API
+        // 5. Rarity spacing toggle programmatic API
         BlightedItem toggledItem = new BlightedItem("toggle_test", ItemType.MATERIAL, ItemRarity.RARE, Material.IRON_INGOT)
                 .description("Toggle test")
-                .padRarity(false);
+                .flushRarity();
         assertFalse(toggledItem.isSpacedRarity());
-        toggledItem.padRarity(true);
+        toggledItem.spacedRarity();
         assertTrue(toggledItem.isSpacedRarity());
     }
 
@@ -298,9 +298,9 @@ class ItemTest {
         List<String> lore = ItemLoreRenderer.render(item);
 
         assertNotNull(lore);
-        assertTrue(lore.stream().anyMatch(l -> l.contains("A rare blightstone.")));
-        assertFalse(lore.stream().anyMatch(l -> l.contains("Ability:")), "Lore must not contain ability header when hasLore is false");
-        assertFalse(lore.stream().anyMatch(l -> l.contains("Consume Blightstone")), "Lore must not contain ability name when hasLore is false");
+        assertTrue(lore.stream().anyMatch(line -> line.contains("A rare blightstone.")));
+        assertFalse(lore.stream().anyMatch(line -> line.contains("Ability:")), "Lore must not contain ability header when hasLore is false");
+        assertFalse(lore.stream().anyMatch(line -> line.contains("Consume Blightstone")), "Lore must not contain ability name when hasLore is false");
         assertEquals(ItemRarity.RARE.getName(), lore.getLast());
     }
 

@@ -1,6 +1,7 @@
 package fr.moussax.blightedSMP.content.factions.blightsworn;
 
 import fr.moussax.bedrock.utils.ItemBuilder;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -21,14 +22,14 @@ import java.util.Objects;
 public sealed abstract class BlightswornBruteArchetype extends BlightswornCreature
         permits BlightswornHusk, BlightswornZombie {
 
-    private static final int ACCUMULATION_RADIUS = 8;
+    private static final double HEAVY_SLAM_TRIGGER_DISTANCE = 4.5;
     private static final int SURGE_STRIKE_RADIUS = 3;
     private static final int MAX_HEALTH = 35;
 
-    private int blightStacks = 0;
-    private boolean isSurging = false;
+    private boolean isAttacking = false;
     private boolean isRecovering = false;
     private boolean isPhaseTwo = false;
+    private long nextHeavySlamTick = 0;
 
     protected BlightswornBruteArchetype(String entityId, String name, EntityType entityType) {
         super(entityId, name, entityType, MAX_HEALTH);
@@ -36,73 +37,63 @@ public sealed abstract class BlightswornBruteArchetype extends BlightswornCreatu
 
     @Override
     protected void onDefineAdditionalBehavior() {
-        addCoreAbility(20L, 10L, this::handleBlightAccumulation);
+        addCoreAbility(10L, 5L, this::evaluateHeavySlam);
     }
 
     @Override
     protected void onNormalBehavior() {
         isPhaseTwo = false;
-        blightStacks = 0;
     }
 
     @Override
     protected void onEnrageBehavior() {
-        // Phase 2 escalation is handled via the isPhaseTwo flag inside handleBlightAccumulation.
-        // The stack threshold halves, and the surge leaves a Blight residue on impact.
     }
 
     @Override
     protected void onEnrage(LivingEntity entity) {
         isPhaseTwo = true;
-        blightStacks = 0;
     }
 
     /**
-     * Delegates on-hit effects for the Blight Surge to the concrete mob.
+     * Delegates on-hit effects for the heavy slam to the concrete mob.
      * For example, Husk applies Hunger here.
      */
     protected abstract void applySurgeHitEffects(Player player);
 
-    private void handleBlightAccumulation() {
-        if (!isAlive() || isSurging || isRecovering) return;
+    private void evaluateHeavySlam() {
+        if (!isAlive() || isAttacking || isRecovering || entity.getTicksLived() < nextHeavySlamTick) return;
 
-        Player target = getNearestPlayer(ACCUMULATION_RADIUS);
-        if (target != null && hasLineOfSight(target)) {
-            blightStacks++;
-            entity.getWorld().spawnParticle(
-                    Particle.WAX_OFF,
-                    entity.getLocation().add(0, 1, 0),
-                    2, 0.3, 0.3, 0.3, 0.01
-            );
-        } else {
-            blightStacks = Math.max(0, blightStacks - 1);
-        }
+        Player target = getNearestPlayer(HEAVY_SLAM_TRIGGER_DISTANCE);
+        if (target == null || target.isDead() || !hasLineOfSight(target)) return;
 
-        int threshold = isPhaseTwo ? 6 : 12;
-        if (blightStacks >= threshold) {
-            triggerBlightSurge(target);
-        }
+        triggerHeavySlam(target);
     }
 
-    private void triggerBlightSurge(Player target) {
-        isSurging = true;
-        blightStacks = 0;
+    private void triggerHeavySlam(Player target) {
+        isAttacking = true;
 
         double originalSpeed = Objects.requireNonNull(
                 entity.getAttribute(Attribute.MOVEMENT_SPEED)).getBaseValue();
+        // Halt briefly during windup to telegraphed committed attack
         Objects.requireNonNull(entity.getAttribute(Attribute.MOVEMENT_SPEED)).setBaseValue(0.0);
 
-        entity.getWorld().playSound(entity.getLocation(), Sound.ENTITY_WARDEN_HEARTBEAT, 1.0f, 1.5f);
+        // Readable telegraph: sound and small particle cue
+        entity.getWorld().playSound(entity.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.8f, 1.6f);
+        entity.getWorld().playSound(entity.getLocation(), Sound.ENTITY_ZOMBIE_ATTACK_WOODEN_DOOR, 0.7f, 0.5f);
         entity.getWorld().spawnParticle(
-                Particle.SQUID_INK,
-                entity.getLocation().add(0, 1, 0),
-                10, 0.4, 0.4, 0.4, 0.0
+                Particle.DUST,
+                entity.getLocation().add(0, 1.2, 0),
+                8, 0.3, 0.3, 0.3, 0.0,
+                BLIGHT_DUST
         );
 
-        addCoreDelayedAction(20L, () -> executeSurgeLunge(target, originalSpeed));
+        // Windup duration: 18 ticks normally, 12 ticks when enraged
+        int windupTicks = isPhaseTwo ? 12 : 18;
+
+        addCoreDelayedAction(windupTicks, () -> executeSlamLunge(target, originalSpeed));
     }
 
-    private void executeSurgeLunge(Player target, double originalSpeed) {
+    private void executeSlamLunge(Player target, double originalSpeed) {
         if (!isAlive()) return;
 
         Vector direction;
@@ -112,46 +103,55 @@ public sealed abstract class BlightswornBruteArchetype extends BlightswornCreatu
             direction = entity.getLocation().getDirection();
         }
 
-        direction.setY(0).normalize().multiply(1.6).setY(0.2);
+        direction.setY(0).normalize().multiply(1.3).setY(0.2);
         entity.setVelocity(direction);
-        entity.getWorld().playSound(entity.getLocation(), Sound.ENTITY_ZOMBIE_ATTACK_WOODEN_DOOR, 1.0f, 0.6f);
 
-        addCoreDelayedAction(10L, () -> executeSurgeStrikeAndRecover(originalSpeed));
+        addCoreDelayedAction(8L, () -> executeSlamImpactAndRecover(originalSpeed));
     }
 
-    private void executeSurgeStrikeAndRecover(double originalSpeed) {
+    private void executeSlamImpactAndRecover(double originalSpeed) {
         if (!isAlive()) return;
 
-        isSurging = false;
+        isAttacking = false;
         isRecovering = true;
+
+        Location impactLocation = entity.getLocation();
+        impactLocation.getWorld().playSound(impactLocation, Sound.ITEM_MACE_SMASH_GROUND, 1.0f, 0.8f);
+        impactLocation.getWorld().spawnParticle(Particle.DUST, impactLocation.add(0, 0.2, 0), 15, 0.6, 0.1, 0.6, 0.0, BLIGHT_DUST);
 
         getNearbyPlayers(SURGE_STRIKE_RADIUS).forEach(player -> {
             player.damage(this.damage * 1.5, entity);
             applySurgeHitEffects(player);
         });
 
+        // Slow down significantly during recovery window, creating an opening for the player to punish
         Objects.requireNonNull(entity.getAttribute(Attribute.MOVEMENT_SPEED))
-                .setBaseValue(originalSpeed * 0.5);
+                .setBaseValue(originalSpeed * 0.4);
 
         if (isPhaseTwo) {
             spawnBlightResidue();
         }
 
-        addCoreDelayedAction(30L, () -> {
+        // Recovery window: 30 ticks normally, 20 ticks when enraged
+        int recoveryTicks = isPhaseTwo ? 20 : 30;
+        int cooldownTicks = isPhaseTwo ? 70 : 100;
+
+        addCoreDelayedAction(recoveryTicks, () -> {
             if (!isAlive()) return;
             isRecovering = false;
             Objects.requireNonNull(entity.getAttribute(Attribute.MOVEMENT_SPEED))
                     .setBaseValue(originalSpeed);
+            nextHeavySlamTick = entity.getTicksLived() + (cooldownTicks - recoveryTicks);
         });
     }
 
     private void spawnBlightResidue() {
         AreaEffectCloud cloud = entity.getWorld().spawn(entity.getLocation(), AreaEffectCloud.class);
-        cloud.setRadius(2.0f);
-        cloud.setDuration(60);
+        cloud.setRadius(1.5f);
+        cloud.setDuration(40);
         cloud.setWaitTime(0);
         cloud.setParticle(Particle.DUST, BLIGHT_DUST);
-        cloud.addCustomEffect(new PotionEffect(PotionEffectType.SLOWNESS, 40, 0), true);
+        cloud.addCustomEffect(new PotionEffect(PotionEffectType.SLOWNESS, 30, 0), true);
     }
 
     @Override

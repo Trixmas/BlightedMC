@@ -1,5 +1,6 @@
 package fr.moussax.blightedSMP.engine.entities.state;
 
+import fr.moussax.bedrock.utils.debug.Log;
 import net.minecraft.core.Holder;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
@@ -36,7 +37,8 @@ public final class EntityAttributeInjector {
 
             ctor = AttributeInstance.class.getDeclaredConstructor(Holder.class, Consumer.class);
             ctor.setAccessible(true);
-        } catch (ReflectiveOperationException _) {
+        } catch (ReflectiveOperationException exception) {
+            Log.error("EntityAttributeInjector", "Failed to resolve attribute map handles via reflection: " + exception.getMessage());
         }
         ATTRIBUTES_MAP_HANDLE = attributesHandle;
         INSTANCE_CONSTRUCTOR = ctor;
@@ -66,7 +68,7 @@ public final class EntityAttributeInjector {
             return false;
         }
 
-        net.minecraft.world.entity.LivingEntity nmsEntity = craftEntity.getHandle();
+        var nmsEntity = craftEntity.getHandle();
         AttributeMap attributeMap = nmsEntity.getAttributes();
         Holder<net.minecraft.world.entity.ai.attributes.Attribute> holder =
                 CraftAttribute.bukkitToMinecraftHolder(attribute);
@@ -88,7 +90,8 @@ public final class EntityAttributeInjector {
                     map.put(holder, newInstance);
                     return true;
                 }
-            } catch (Throwable _) {
+            } catch (ReflectiveOperationException exception) {
+                Log.error("EntityAttributeInjector", "Failed to inject attribute " + attribute + " into " + entity.getType() + ": " + exception.getMessage());
             }
         }
         return false;

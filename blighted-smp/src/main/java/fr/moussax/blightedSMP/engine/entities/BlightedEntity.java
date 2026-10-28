@@ -1319,10 +1319,10 @@ public abstract class BlightedEntity {
             return 0.0;
         }
         AttributeInstance maxHealthAttribute = entity.getAttribute(Attribute.MAX_HEALTH);
-        double maxHealthVal = (maxHealthAttribute != null && maxHealthAttribute.getValue() > 0)
+        double effectiveMaxHealth = (maxHealthAttribute != null && maxHealthAttribute.getValue() > 0)
                 ? maxHealthAttribute.getValue()
                 : Math.max(1.0, this.maxHealth);
-        return Math.clamp(entity.getHealth() / maxHealthVal, 0.0, 1.0);
+        return Math.clamp(entity.getHealth() / effectiveMaxHealth, 0.0, 1.0);
     }
 
     /**

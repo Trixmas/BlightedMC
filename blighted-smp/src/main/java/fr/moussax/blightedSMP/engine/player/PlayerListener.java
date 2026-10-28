@@ -17,7 +17,13 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.io.BukkitObjectInputStream;
+import org.bukkit.util.io.BukkitObjectOutputStream;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -75,15 +81,16 @@ public final class PlayerListener implements Listener {
         if (!event.getKeepInventory()) {
             List<ItemStack> drops = event.getDrops();
             List<ItemStack> kept = new ArrayList<>();
-            for (Iterator<ItemStack> it = drops.iterator(); it.hasNext(); ) {
-                ItemStack drop = it.next();
+            for (Iterator<ItemStack> iterator = drops.iterator(); iterator.hasNext(); ) {
+                ItemStack drop = iterator.next();
                 if (BlightedItem.isSoulbound(drop)) {
                     kept.add(drop.clone());
-                    it.remove();
+                    iterator.remove();
                 }
             }
             if (!kept.isEmpty()) {
                 SAVED_SOULBOUND_ITEMS.put(deadPlayer.getUniqueId(), kept);
+                persistSoulboundItems(deadPlayer.getUniqueId(), kept);
             }
         }
 
@@ -133,7 +140,7 @@ public final class PlayerListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerRespawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
-        List<ItemStack> saved = SAVED_SOULBOUND_ITEMS.remove(player.getUniqueId());
+        List<ItemStack> saved = loadAndRemoveSoulboundItems(player.getUniqueId());
         if (saved != null && !saved.isEmpty()) {
             for (ItemStack item : saved) {
                 var leftover = player.getInventory().addItem(item);
@@ -142,5 +149,43 @@ public final class PlayerListener implements Listener {
                 }
             }
         }
+    }
+
+    private void persistSoulboundItems(UUID playerId, List<ItemStack> items) {
+        File folder = new File(BlightedSMP.getInstance().getDataFolder(), "soulbound");
+        if (!folder.exists() && !folder.mkdirs()) {
+            return;
+        }
+        File targetFile = new File(folder, playerId.toString() + ".bin");
+        try (var output = new BukkitObjectOutputStream(new FileOutputStream(targetFile))) {
+            output.writeInt(items.size());
+            for (ItemStack item : items) {
+                output.writeObject(item);
+            }
+        } catch (IOException exception) {
+            BlightedSMP.getInstance().getLogger().warning("Failed to persist soulbound items for " + playerId + ": " + exception.getMessage());
+        }
+    }
+
+    private List<ItemStack> loadAndRemoveSoulboundItems(UUID playerId) {
+        List<ItemStack> inMemory = SAVED_SOULBOUND_ITEMS.remove(playerId);
+        File folder = new File(BlightedSMP.getInstance().getDataFolder(), "soulbound");
+        File targetFile = new File(folder, playerId.toString() + ".bin");
+        if (!targetFile.exists()) {
+            return inMemory;
+        }
+
+        List<ItemStack> loadedItems = new ArrayList<>();
+        try (var input = new BukkitObjectInputStream(new FileInputStream(targetFile))) {
+            int count = input.readInt();
+            for (int index = 0; index < count; index++) {
+                loadedItems.add((ItemStack) input.readObject());
+            }
+        } catch (IOException | ClassNotFoundException exception) {
+            BlightedSMP.getInstance().getLogger().warning("Failed to load soulbound items for " + playerId + ": " + exception.getMessage());
+        } finally {
+            targetFile.delete();
+        }
+        return inMemory != null && !inMemory.isEmpty() ? inMemory : loadedItems;
     }
 }

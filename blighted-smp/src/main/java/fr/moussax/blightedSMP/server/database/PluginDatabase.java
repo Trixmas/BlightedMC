@@ -68,6 +68,11 @@ public final class PluginDatabase {
                 );
 
                 try {
+                    statement.execute("ALTER TABLE players RENAME COLUMN gems TO blight");
+                } catch (SQLException _) {
+                }
+
+                try {
                     statement.execute("ALTER TABLE players ADD COLUMN forge_fuel INTEGER NOT NULL DEFAULT 0");
                 } catch (SQLException _) {
                 }

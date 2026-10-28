@@ -77,11 +77,11 @@ public final class BlightswornDrowned extends BlightswornCreature {
     @Override
     protected void onEnrage(LivingEntity entity) {
         Location location = entity.getLocation().add(0, 1, 0);
-        entity.getWorld().playSound(location, Sound.ENTITY_DROWNED_DEATH, 1.5f, 0.5f);
-        entity.getWorld().playSound(location, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1.0f, 1.5f);
+        entity.getWorld().playSound(location, Sound.ENTITY_DROWNED_DEATH, 1.2f, 0.6f);
+        entity.getWorld().playSound(location, Sound.ITEM_TRIDENT_THUNDER, 1.0f, 1.2f);
 
-        entity.getWorld().spawnParticle(Particle.SPLASH, location, 150, 1.0, 1.0, 1.0, 0.2);
-        entity.getWorld().spawnParticle(Particle.DUST, location, 50, 1.0, 1.0, 1.0, 0.0, BLIGHT_DUST);
+        entity.getWorld().spawnParticle(Particle.SPLASH, location, 30, 0.5, 0.5, 0.5, 0.1);
+        entity.getWorld().spawnParticle(Particle.DUST, location, 15, 0.4, 0.6, 0.4, 0.0, BLIGHT_DUST);
 
         Objects.requireNonNull(entity.getEquipment()).setItemInMainHand(
                 new ItemBuilder(Material.TRIDENT).addEnchantment(Enchantment.IMPALING, 2).unbreakable().toItemStack()
@@ -103,8 +103,8 @@ public final class BlightswornDrowned extends BlightswornCreature {
             entity.getWorld().playSound(location, Sound.ITEM_TRIDENT_RIPTIDE_1, 1.0f, 0.8f);
             entity.getWorld().playSound(location, Sound.ENTITY_PLAYER_SPLASH_HIGH_SPEED, 1.0f, 0.5f);
 
-            entity.getWorld().spawnParticle(Particle.SPLASH, location, 60, 1.0, 0.5, 1.0, 0.2);
-            entity.getWorld().spawnParticle(Particle.NAUTILUS, location, 15, 0.5, 0.5, 0.5, 0.05);
+            entity.getWorld().spawnParticle(Particle.SPLASH, location, 20, 0.5, 0.3, 0.5, 0.1);
+            entity.getWorld().spawnParticle(Particle.NAUTILUS, location, 8, 0.3, 0.3, 0.3, 0.03);
 
             nextRepelTick = entity.getTicksLived() + REPEL_COOLDOWN_TICKS;
         }
@@ -118,14 +118,12 @@ public final class BlightswornDrowned extends BlightswornCreature {
 
         Location targetLocation = target.getLocation().clone();
 
-        entity.getWorld().playSound(targetLocation, Sound.BLOCK_CONDUIT_AMBIENT, 2.0f, 2.0f);
-        entity.getWorld().playSound(targetLocation, Sound.BLOCK_BEACON_AMBIENT, 2.0f, 0.5f);
+        entity.getWorld().playSound(targetLocation, Sound.BLOCK_CONDUIT_AMBIENT, 1.5f, 1.8f);
 
-        entity.getWorld().spawnParticle(Particle.BUBBLE_COLUMN_UP, targetLocation, 60, 0.8, 0.2, 0.8, 0.2);
-        entity.getWorld().spawnParticle(Particle.FISHING, targetLocation, 30, 1.0, 0.2, 1.0, 0.1);
+        entity.getWorld().spawnParticle(Particle.BUBBLE_COLUMN_UP, targetLocation, 25, 0.5, 0.2, 0.5, 0.1);
 
         if (isPhaseTwo) {
-            entity.getWorld().spawnParticle(Particle.DUST, targetLocation, 30, 1.0, 0.2, 1.0, 0.0, BLIGHT_DUST);
+            entity.getWorld().spawnParticle(Particle.DUST, targetLocation, 12, 0.5, 0.2, 0.5, 0.0, BLIGHT_DUST);
         }
 
         int delayTicks = isPhaseTwo ? 20 : 30;
@@ -135,11 +133,11 @@ public final class BlightswornDrowned extends BlightswornCreature {
     private void eruptGeyser(Location center, boolean isPhaseTwo) {
         if (!isAlive()) return;
 
-        Objects.requireNonNull(center.getWorld()).playSound(center, Sound.ENTITY_GENERIC_EXPLODE, 1.5f, 0.5f);
-        center.getWorld().playSound(center, Sound.ITEM_TRIDENT_THUNDER, 1.0f, 1.2f);
+        Objects.requireNonNull(center.getWorld()).playSound(center, Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 0.7f);
+        center.getWorld().playSound(center, Sound.ITEM_TRIDENT_THUNDER, 0.8f, 1.4f);
 
-        center.getWorld().spawnParticle(Particle.EXPLOSION, center, 2);
-        center.getWorld().spawnParticle(Particle.SPLASH, center, 300, 2.0, 4.0, 2.0, 0.5);
+        center.getWorld().spawnParticle(Particle.EXPLOSION, center, 1);
+        center.getWorld().spawnParticle(Particle.SPLASH, center, 50, 1.0, 2.0, 1.0, 0.3);
         center.getWorld().spawnParticle(Particle.CLOUD, center, 30, 1.0, 0.5, 1.0, 0.1);
 
         double radius = isPhaseTwo ? 3.5 : 2.5;

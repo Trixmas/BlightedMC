@@ -151,6 +151,7 @@ public class BonemerangAbility implements ItemAbility<PlayerInteractEvent> {
     }
 
     private void configureArmorStand(ArmorStand stand) {
+        stand.setPersistent(false);
         stand.setInvisible(true);
         stand.setInvulnerable(true);
         stand.setMarker(true);
@@ -218,12 +219,12 @@ public class BonemerangAbility implements ItemAbility<PlayerInteractEvent> {
     }
 
     private boolean replaceNuggetWithOriginal(Inventory inventory, ItemStack original) {
-        for (int i = 0; i < inventory.getSize(); i++) {
-            ItemStack slot = inventory.getItem(i);
+        for (int slotIndex = 0; slotIndex < inventory.getSize(); slotIndex++) {
+            ItemStack slot = inventory.getItem(slotIndex);
             if (slot != null && slot.getType() == Material.IRON_NUGGET && slot.hasItemMeta()) {
                 var meta = slot.getItemMeta();
                 if (meta != null && meta.getPersistentDataContainer().has(THROWN_KEY, PersistentDataType.BYTE)) {
-                    inventory.setItem(i, original);
+                    inventory.setItem(slotIndex, original);
                     return true;
                 }
             }

@@ -126,7 +126,7 @@ public sealed abstract class TwistedCreature extends SpawnableEntity
     public void emitSoulBurst(Location origin, Vector direction, int count, double speed) {
         if (origin.getWorld() == null) return;
         Vector normalized = direction.clone().normalize();
-        for (int i = 0; i < count; i++) {
+        for (int index = 0; index < count; index++) {
             origin.getWorld().spawnParticle(
                     Particle.SOUL,
                     origin,

@@ -100,8 +100,8 @@ public class VoidStepAbility implements ItemAbility<PlayerInteractEvent> {
             return null;
         }
 
-        Vector maxVec = direction.clone().normalize().multiply(MAX_DISTANCE);
-        Location inAir = eyeLocation.clone().add(maxVec);
+        Vector maxOffset = direction.clone().normalize().multiply(MAX_DISTANCE);
+        Location inAir = eyeLocation.clone().add(maxOffset);
 
         if (isSafe(inAir, false)) return inAir;
 

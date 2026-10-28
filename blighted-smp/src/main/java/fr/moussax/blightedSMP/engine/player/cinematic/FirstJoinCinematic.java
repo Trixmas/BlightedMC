@@ -247,10 +247,10 @@ public final class FirstJoinCinematic {
 
     private void clearObstructionsAbove(Location base) {
         if (base.getWorld() == null) return;
-        for (int y = 1; y <= 16; y++) {
-            for (int x = -1; x <= 1; x++) {
-                for (int z = -1; z <= 1; z++) {
-                    Location location = base.clone().add(x, y, z);
+        for (int offsetY = 1; offsetY <= 16; offsetY++) {
+            for (int offsetX = -1; offsetX <= 1; offsetX++) {
+                for (int offsetZ = -1; offsetZ <= 1; offsetZ++) {
+                    Location location = base.clone().add(offsetX, offsetY, offsetZ);
                     Block block = location.getBlock();
                     if (!block.isPassable()) {
                         clearedBlocks.put(location, block.getState());
@@ -271,11 +271,11 @@ public final class FirstJoinCinematic {
 
     private void spawnConvergingSouls(Location center, double radius) {
         if (center.getWorld() == null) return;
-        for (int i = 0; i < 6; i++) {
-            double angle = Math.toRadians((i * 60.0) + (radius * 50));
-            double x = radius * Math.cos(angle);
-            double z = radius * Math.sin(angle);
-            Location spawn = center.clone().add(x, 0.1, z);
+        for (int index = 0; index < 6; index++) {
+            double angle = Math.toRadians((index * 60.0) + (radius * 50));
+            double coordinateX = radius * Math.cos(angle);
+            double coordinateZ = radius * Math.sin(angle);
+            Location spawn = center.clone().add(coordinateX, 0.1, coordinateZ);
             Vector direction = center.toVector().subtract(spawn.toVector()).normalize().multiply(0.24);
             center.getWorld().spawnParticle(Particle.SOUL, spawn, 0, direction.getX(), 0.06, direction.getZ(), 0.12);
         }
@@ -285,8 +285,9 @@ public final class FirstJoinCinematic {
         if (location.getWorld() == null) return;
 
         float size = 0.40f;
-        for (int i = 0; i < 3; i++) {
+        for (int index = 0; index < 3; index++) {
             BlockDisplay display = (BlockDisplay) location.getWorld().spawnEntity(location, EntityType.BLOCK_DISPLAY);
+            display.setPersistent(false);
             display.setBlock(Material.SCULK.createBlockData());
             display.setTransformation(new Transformation(
                     new Vector3f(-size / 2f, -size / 2f, -size / 2f),
@@ -308,11 +309,11 @@ public final class FirstJoinCinematic {
 
         Location chest = center.clone().add(0, 1.1, 0);
 
-        for (int i = 0; i < list.size(); i++) {
-            BlockDisplay display = list.get(i);
+        for (int index = 0; index < list.size(); index++) {
+            BlockDisplay display = list.get(index);
             if (!display.isValid()) continue;
 
-            double angle = Math.toRadians(baseAngle + (i * (360.0 / list.size())));
+            double angle = Math.toRadians(baseAngle + (index * (360.0 / list.size())));
             double offsetX = Math.cos(angle) * radius;
             double offsetZ = Math.sin(angle) * radius;
             // Coordinated 3D undulating wave around chest
@@ -320,7 +321,7 @@ public final class FirstJoinCinematic {
 
             Location shardLocation = center.clone().add(offsetX, offsetY, offsetZ);
             shardLocation.setYaw((float) Math.toDegrees(angle) + 90.0f);
-            shardLocation.setPitch((float) (-15.0 + Math.sin(Math.toRadians(tick * 16.0 + i * 90.0)) * 20.0));
+            shardLocation.setPitch((float) (-15.0 + Math.sin(Math.toRadians(tick * 16.0 + index * 90.0)) * 20.0));
 
             display.teleport(shardLocation);
 

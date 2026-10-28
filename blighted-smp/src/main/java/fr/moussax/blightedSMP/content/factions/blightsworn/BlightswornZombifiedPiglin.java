@@ -42,6 +42,37 @@ public final class BlightswornZombifiedPiglin extends BlightswornEliteArchetype 
     }
 
     @Override
+    public LivingEntity spawn(Location location) {
+        LivingEntity spawned = super.spawn(location);
+        enforceHostility(spawned);
+        return spawned;
+    }
+
+    @Override
+    protected void onRehydrate(LivingEntity existing) {
+        super.onRehydrate(existing);
+        enforceHostility(existing);
+    }
+
+    @Override
+    protected void onDefineAdditionalBehavior() {
+        super.onDefineAdditionalBehavior();
+        // Periodically refresh aggression so target acquisition never relies on player provoking
+        addCoreAbility(20L, 20L, () -> enforceHostility(entity));
+    }
+
+    private void enforceHostility(LivingEntity targetEntity) {
+        if (targetEntity instanceof org.bukkit.entity.PigZombie pigZombie) {
+            pigZombie.setAngry(true);
+            pigZombie.setAnger(Integer.MAX_VALUE);
+            Player nearest = getNearestPlayer(16.0);
+            if (nearest != null && (pigZombie.getTarget() == null || pigZombie.getTarget().isDead())) {
+                pigZombie.setTarget(nearest);
+            }
+        }
+    }
+
+    @Override
     protected void onNormalBehavior() {
         addPhaseAbility(120L, 120L, () -> executeInfernalCharge(false));
     }
@@ -57,8 +88,8 @@ public final class BlightswornZombifiedPiglin extends BlightswornEliteArchetype 
         entity.getWorld().playSound(location, Sound.ENTITY_ZOMBIFIED_PIGLIN_ANGRY, 1.5f, 0.5f);
         entity.getWorld().playSound(location, Sound.ENTITY_BLAZE_SHOOT, 1.0f, 0.8f);
 
-        entity.getWorld().spawnParticle(Particle.LAVA, location, 30, 0.5, 1.0, 0.5, 0.1);
-        entity.getWorld().spawnParticle(Particle.DUST, location, 30, 0.5, 1.0, 0.5, 0.0, BLIGHT_DUST);
+        entity.getWorld().spawnParticle(Particle.LAVA, location, 10, 0.3, 0.5, 0.3, 0.05);
+        entity.getWorld().spawnParticle(Particle.DUST, location, 12, 0.4, 0.6, 0.4, 0.0, BLIGHT_DUST);
     }
 
     private void executeInfernalCharge(boolean isPhaseTwo) {

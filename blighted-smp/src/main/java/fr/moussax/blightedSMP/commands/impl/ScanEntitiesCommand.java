@@ -47,7 +47,7 @@ public final class ScanEntitiesCommand extends AdminCommand {
             }
         }
 
-        Location playerLoc = player.getLocation();
+        Location playerLocation = player.getLocation();
         double radiusSquared = radius * radius;
 
         record DetectedEntity(BlightedEntity blighted, double distance, Location targetLocation) {
@@ -61,7 +61,7 @@ public final class ScanEntitiesCommand extends AdminCommand {
             LivingEntity living = blighted.getEntity();
             if (living == null || !living.getWorld().equals(player.getWorld())) continue;
 
-            double distanceSquared = living.getLocation().distanceSquared(playerLoc);
+            double distanceSquared = living.getLocation().distanceSquared(playerLocation);
             if (distanceSquared <= radiusSquared) {
                 detected.add(new DetectedEntity(blighted, Math.sqrt(distanceSquared), living.getLocation()));
             }

@@ -53,16 +53,11 @@ public sealed abstract class BlightswornEliteArchetype extends BlightswornCreatu
         if (!isAlive()) return;
         isWarded = true;
 
-        entity.getWorld().playSound(entity.getLocation(), Sound.ENTITY_ILLUSIONER_CAST_SPELL, 1.0f, 0.8f);
-        entity.getWorld().spawnParticle(
-                Particle.WITCH,
-                entity.getLocation().add(0, 1, 0),
-                20, 0.5, 0.5, 0.5, 0.1
-        );
+        entity.getWorld().playSound(entity.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.7f, 1.4f);
         entity.getWorld().spawnParticle(
                 Particle.DUST,
                 entity.getLocation().add(0, 1, 0),
-                12, 0.4, 0.4, 0.4, 0.0,
+                8, 0.3, 0.4, 0.3, 0.0,
                 BLIGHT_DUST
         );
 

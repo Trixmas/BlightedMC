@@ -154,13 +154,13 @@ public final class LavaFishingHook implements CustomFishingHook {
         return false;
     }
 
-    private void moveParticleToHook(Location particleLoc) {
-        Vector direction = hook.getLocation().toVector().subtract(particleLoc.toVector());
+    private void moveParticleToHook(Location particleLocation) {
+        Vector direction = hook.getLocation().toVector().subtract(particleLocation.toVector());
         direction.normalize().multiply(PARTICLE_SPEED);
-        particleLoc.add(direction);
+        particleLocation.add(direction);
 
-        Objects.requireNonNull(particleLoc.getWorld()).spawnParticle(
-                Particle.SMOKE, particleLoc, PARTICLE_COUNT, 0.05, 0.05, 0.05, 0.01
+        Objects.requireNonNull(particleLocation.getWorld()).spawnParticle(
+                Particle.SMOKE, particleLocation, PARTICLE_COUNT, 0.05, 0.05, 0.05, 0.01
         );
     }
 

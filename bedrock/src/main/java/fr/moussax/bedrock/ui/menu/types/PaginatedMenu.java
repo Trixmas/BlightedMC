@@ -273,13 +273,13 @@ public abstract class PaginatedMenu extends Menu {
         }
 
         int totalPages = getTotalPages();
-        int pageNum = getCurrentPageNumber();
+        int pageNumber = getCurrentPageNumber();
 
         if (currentPage > 0) {
-            ItemStack prevItem = new ItemBuilder(Material.ARROW, "§aPrevious Page")
-                    .addLore("§7Page " + (pageNum - 1) + "/" + totalPages)
+            ItemStack previousItem = new ItemBuilder(Material.ARROW, "§aPrevious Page")
+                    .addLore("§7Page " + (pageNumber - 1) + "/" + totalPages)
                     .toItemStack();
-            setItem(backSlot, prevItem, (player, _) -> {
+            setItem(backSlot, previousItem, (player, _) -> {
                 currentPage--;
                 refresh(player);
             }).withPageTurnSound();
@@ -289,7 +289,7 @@ public abstract class PaginatedMenu extends Menu {
 
         if (endIndex < totalItems) {
             ItemStack nextItem = new ItemBuilder(Material.ARROW, "§aNext Page")
-                    .addLore("§7Page " + (pageNum + 1) + "/" + totalPages)
+                    .addLore("§7Page " + (pageNumber + 1) + "/" + totalPages)
                     .toItemStack();
             setItem(nextSlot, nextItem, (player, _) -> {
                 currentPage++;

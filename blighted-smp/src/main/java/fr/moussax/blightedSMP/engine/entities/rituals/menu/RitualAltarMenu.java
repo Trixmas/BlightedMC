@@ -294,11 +294,11 @@ public final class RitualAltarMenu extends Menu implements TickableMenu {
 
         Bukkit.broadcastMessage("§5 ☤ §f" + player.getName() + " §dhas started an §5Ancient Ritual§d!");
 
-        Location spawnLoc = player.getLocation().add(player.getLocation().getDirection().setY(0).normalize().multiply(3));
-        spawnLoc.setY(player.getLocation().getY());
+        Location spawnLocation = player.getLocation().add(player.getLocation().getDirection().setY(0).normalize().multiply(3));
+        spawnLocation.setY(player.getLocation().getY());
 
-        BlightedSounds.ANCIENT_MOB_SPAWN.play(spawnLoc);
-        RitualAnimations.playRiteAnimation(BlightedSMP.getInstance(), spawnLoc, () -> handleFinalImpact(spawnLoc));
+        BlightedSounds.ANCIENT_MOB_SPAWN.play(spawnLocation);
+        RitualAnimations.playRiteAnimation(BlightedSMP.getInstance(), spawnLocation, () -> handleFinalImpact(spawnLocation));
     }
 
     private void handleFinalImpact(Location location) {

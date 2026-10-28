@@ -196,22 +196,19 @@ public class BlightedItem extends ItemBuilder implements Supplier<ItemStack> {
      * @return this item instance for method chaining
      */
     public BlightedItem soulbound() {
-        return soulbound(true);
+        this.soulbound = true;
+        preventDrop();
+        return this;
     }
 
     /**
-     * Configures whether this item is soulbound.
+     * Removes the soulbound restriction from this item.
      *
-     * @param soulbound {@code true} if soulbound, {@code false} otherwise
      * @return this item instance for method chaining
      */
-    public BlightedItem soulbound(boolean soulbound) {
-        this.soulbound = soulbound;
-        if (soulbound) {
-            preventDrop();
-        } else {
-            this.restrictions.remove(ItemRestriction.PREVENT_DROP);
-        }
+    public BlightedItem unbind() {
+        this.soulbound = false;
+        this.restrictions.remove(ItemRestriction.PREVENT_DROP);
         return this;
     }
 
@@ -244,17 +241,6 @@ public class BlightedItem extends ItemBuilder implements Supplier<ItemStack> {
      */
     public BlightedItem spacedRarity() {
         this.spacedRarity = true;
-        return this;
-    }
-
-    /**
-     * Configures whether an empty spacer line precedes the rarity footer.
-     *
-     * @param spaced {@code true} to include an empty line spacer, {@code false} to sit flush
-     * @return this item instance for method chaining
-     */
-    public BlightedItem padRarity(boolean spaced) {
-        this.spacedRarity = spaced;
         return this;
     }
 

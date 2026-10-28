@@ -1,15 +1,18 @@
 package fr.moussax.blightedSMP.engine.fishing.hooks;
 
+import fr.moussax.bedrock.text.Messenger;
 import fr.moussax.blightedSMP.BlightedSMP;
+import fr.moussax.blightedSMP.engine.fishing.FishingComboTracker;
 import fr.moussax.blightedSMP.engine.fishing.FishingLootTable;
 import fr.moussax.blightedSMP.engine.fishing.FishingMethod;
-import fr.moussax.blightedSMP.engine.fishing.FishingComboTracker;
 import fr.moussax.blightedSMP.engine.fishing.modifiers.FishingSpeedCalculator;
 import fr.moussax.blightedSMP.engine.fishing.registry.FishingLootRegistry;
-import fr.moussax.blightedSMP.engine.player.BlightedPlayer;
-import fr.moussax.bedrock.text.Messenger;
 import fr.moussax.blightedSMP.engine.items.ItemType;
-import org.bukkit.*;
+import fr.moussax.blightedSMP.engine.player.BlightedPlayer;
+import org.bukkit.Location;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ExperienceOrb;
@@ -73,18 +76,18 @@ public final class VoidFishingHook implements CustomFishingHook {
             @Override
             public void run() {
                 if (isInvalid()) return;
-                Location hookLoc = hook.getLocation();
+                Location hookLocation = hook.getLocation();
 
-                if (hookLoc.getY() <= MIN_Y_LEVEL) {
+                if (hookLocation.getY() <= MIN_Y_LEVEL) {
                     Messenger.warn(player, "The void consumes your hook. Life cannot endure beneath Y0.");
                     remove();
                     hook.remove();
                     return;
                 }
 
-                double dropDistance = player.getLocation().getY() - hookLoc.getY();
+                double dropDistance = player.getLocation().getY() - hookLocation.getY();
                 if (dropDistance >= MIN_DROP_DISTANCE) {
-                    double distanceSquared = (hookLoc.getX() * hookLoc.getX()) + (hookLoc.getZ() * hookLoc.getZ());
+                    double distanceSquared = (hookLocation.getX() * hookLocation.getX()) + (hookLocation.getZ() * hookLocation.getZ());
                     if (distanceSquared <= CENTRAL_ISLAND_RADIUS_SQUARED) {
                         Messenger.warn(player, "The void beneath the central island is barren. Cast farther out.");
                         remove();
@@ -93,7 +96,7 @@ public final class VoidFishingHook implements CustomFishingHook {
                     }
 
                     suspendedInVoid = true;
-                    targetY = hookLoc.getY();
+                    targetY = hookLocation.getY();
 
                     startWaitTask(calculateWaitTime());
                     this.cancel();
@@ -213,14 +216,14 @@ public final class VoidFishingHook implements CustomFishingHook {
         task.runTaskTimer(BlightedSMP.getInstance(), 1L, 1L);
     }
 
-    private void moveParticleToHook(Location particleLoc) {
-        Vector direction = hook.getLocation().toVector().subtract(particleLoc.toVector());
+    private void moveParticleToHook(Location particleLocation) {
+        Vector direction = hook.getLocation().toVector().subtract(particleLocation.toVector());
         direction.normalize().multiply(PARTICLE_SPEED);
-        particleLoc.add(direction);
+        particleLocation.add(direction);
 
-        World world = Objects.requireNonNull(particleLoc.getWorld());
-        world.spawnParticle(Particle.END_ROD, particleLoc, 2, 0.02, 0.02, 0.02, 0.0);
-        world.spawnParticle(Particle.SMOKE, particleLoc, 1, 0.04, 0.04, 0.04, 0.001);
+        World world = Objects.requireNonNull(particleLocation.getWorld());
+        world.spawnParticle(Particle.END_ROD, particleLocation, 2, 0.02, 0.02, 0.02, 0.0);
+        world.spawnParticle(Particle.SMOKE, particleLocation, 1, 0.04, 0.04, 0.04, 0.001);
     }
 
     private void spawnImplosionFlash(Location center) {

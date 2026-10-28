@@ -197,9 +197,9 @@ public abstract class Menu implements InventoryHolder {
      * @return the configured menu slot
      */
     public MenuSlot setItem(int slot, @NonNull ItemStack item, @NonNull Map<MenuItemInteraction, MenuAction> actions) {
-        MenuSlot slotObj = new MenuSlot(item, actions);
-        slots.put(slot, slotObj);
-        return slotObj;
+        MenuSlot menuSlot = new MenuSlot(item, actions);
+        slots.put(slot, menuSlot);
+        return menuSlot;
     }
 
     /**

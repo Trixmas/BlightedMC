@@ -55,8 +55,8 @@ public final class BlightswornWitherSkeleton extends BlightswornEliteArchetype {
         entity.getWorld().playSound(location, Sound.ENTITY_WITHER_SKELETON_DEATH, 1.0f, 0.5f);
         entity.getWorld().playSound(location, Sound.ENTITY_WITHER_SPAWN, 0.5f, 1.5f);
 
-        entity.getWorld().spawnParticle(Particle.LARGE_SMOKE, location, 50, 0.5, 1.0, 0.5, 0.05);
-        entity.getWorld().spawnParticle(Particle.DUST, location, 30, 0.5, 1.0, 0.5, 0.0, BLIGHT_DUST);
+        entity.getWorld().spawnParticle(Particle.LARGE_SMOKE, location, 15, 0.4, 0.6, 0.4, 0.02);
+        entity.getWorld().spawnParticle(Particle.DUST, location, 12, 0.4, 0.6, 0.4, 0.0, BLIGHT_DUST);
     }
 
     private void executePhantomLunge(boolean isPhaseTwo) {
@@ -66,7 +66,7 @@ public final class BlightswornWitherSkeleton extends BlightswornEliteArchetype {
         if (target == null || target.isDead() || target.getWorld() != entity.getWorld() || !hasLineOfSight(target)) return;
 
         entity.getWorld().playSound(entity.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 0.5f);
-        entity.getWorld().spawnParticle(Particle.PORTAL, entity.getLocation().add(0, 1, 0), 20, 0.5, 1.0, 0.5, 0.1);
+        entity.getWorld().spawnParticle(Particle.PORTAL, entity.getLocation().add(0, 1, 0), 10, 0.3, 0.5, 0.3, 0.05);
 
         addCoreDelayedAction(10L, () -> {
             if (!isAlive()) return;

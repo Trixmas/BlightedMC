@@ -158,16 +158,16 @@ public class Endersent extends SpawnableEntity {
         killAttachments(AttachmentRole.SUBORDINATE);
 
         Player target = getNearestPlayer(60);
-        Location targetLoc = (target != null) ? target.getLocation() : entity.getLocation().subtract(0, 50, 0);
-        Location reappearLoc = targetLoc.clone().add((Math.random() - 0.5) * 4, 0, (Math.random() - 0.5) * 4);
-        reappearLoc.setY(targetLoc.getY());
+        Location targetLocation = (target != null) ? target.getLocation() : entity.getLocation().subtract(0, 50, 0);
+        Location reappearLocation = targetLocation.clone().add((Math.random() - 0.5) * 4, 0, (Math.random() - 0.5) * 4);
+        reappearLocation.setY(targetLocation.getY());
 
-        entity.teleport(reappearLoc);
+        entity.teleport(reappearLocation);
         entity.setInvisible(false);
         entity.setInvulnerable(false);
         entity.setAI(true);
 
-        playSound(reappearLoc, Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 0.5f);
+        playSound(reappearLocation, Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 0.5f);
     }
 
     @Override

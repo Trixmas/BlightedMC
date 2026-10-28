@@ -38,10 +38,10 @@ public final class VoidStrikeComponent implements EntityComponent {
     @Override
     public void onTick(BlightedEntity owner) {
         LivingEntity entity = owner.getEntity();
-        Location mobLoc = entity.getLocation().add(0, entity.getHeight() / 2, 0);
+        Location mobLocation = entity.getLocation().add(0, entity.getHeight() / 2, 0);
 
-        entity.getWorld().spawnParticle(Particle.SCULK_SOUL, mobLoc, 5, 0.4, 0.4, 0.4, 0.05);
-        entity.getWorld().spawnParticle(Particle.DUST, mobLoc, 3, 0.3, 0.3, 0.3, 0.0, new Particle.DustOptions(Color.fromRGB(20, 0, 40), 1.0f));
+        entity.getWorld().spawnParticle(Particle.SCULK_SOUL, mobLocation, 5, 0.4, 0.4, 0.4, 0.05);
+        entity.getWorld().spawnParticle(Particle.DUST, mobLocation, 3, 0.3, 0.3, 0.3, 0.0, new Particle.DustOptions(Color.fromRGB(20, 0, 40), 1.0f));
 
         if (markedPlayers.isEmpty()) return;
 
@@ -66,8 +66,8 @@ public final class VoidStrikeComponent implements EntityComponent {
             player.getWorld().spawnParticle(Particle.WHITE_ASH, player.getLocation().add(0, 1.2, 0), 2, 0.1, 0.2, 0.1, 0.01);
 
             if (System.currentTimeMillis() % 200 < 50) {
-                Vector direction = player.getLocation().add(0, 1, 0).toVector().subtract(mobLoc.toVector()).normalize().multiply(0.5);
-                Location current = mobLoc.clone();
+                Vector direction = player.getLocation().add(0, 1, 0).toVector().subtract(mobLocation.toVector()).normalize().multiply(0.5);
+                Location current = mobLocation.clone();
                 for (int i = 0; i < 10; i++) {
                     current.add(direction);
                     entity.getWorld().spawnParticle(Particle.DUST, current, 1, 0, 0, 0, 0, new Particle.DustOptions(Color.fromRGB(140, 0, 210), 0.6f));

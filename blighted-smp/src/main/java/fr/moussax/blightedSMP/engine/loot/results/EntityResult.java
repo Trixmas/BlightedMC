@@ -59,7 +59,7 @@ public final class EntityResult implements LootResult {
      */
     public static EntityResult blighted(fr.moussax.blightedSMP.engine.entities.BlightedEntity blightedEntity) {
         Objects.requireNonNull(blightedEntity, "blightedEntity cannot be null");
-        return custom(loc -> blightedEntity.createInstance().spawn(loc));
+        return custom(spawnLocation -> blightedEntity.createInstance().spawn(spawnLocation));
     }
 
     /**

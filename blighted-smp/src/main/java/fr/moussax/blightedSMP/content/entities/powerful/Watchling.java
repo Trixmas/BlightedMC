@@ -97,12 +97,12 @@ public class Watchling extends SpawnableEntity {
     }
 
     private void executeEscapeTeleport() {
-        Location escapeLoc = entity.getLocation().add(
+        Location escapeLocation = entity.getLocation().add(
             (random.nextDouble() - 0.5) * 15,
             0,
             (random.nextDouble() - 0.5) * 15
         );
-        entity.teleport(escapeLoc);
+        entity.teleport(escapeLocation);
         entity.setInvisible(true);
         addCoreDelayedAction(40L, () -> {
             if (isAlive()) entity.setInvisible(false);

@@ -50,10 +50,10 @@ public final class BlightstoneConsumptionEffect {
                     gemOrigin = eyeLocation.clone().subtract(0, 0.35, 0).add(direction.multiply(0.45));
 
                     double baseAngle = Math.toRadians(player.getLocation().getYaw());
-                    for (int i = 0; i < 4; i++) {
-                        double angle = baseAngle + (i * Math.PI / 2.0);
-                        wispOffsets[i][0] = Math.cos(angle);
-                        wispOffsets[i][1] = Math.sin(angle);
+                    for (int wispIndex = 0; wispIndex < 4; wispIndex++) {
+                        double angle = baseAngle + (wispIndex * Math.PI / 2.0);
+                        wispOffsets[wispIndex][0] = Math.cos(angle);
+                        wispOffsets[wispIndex][1] = Math.sin(angle);
                     }
                 }
 
@@ -71,13 +71,13 @@ public final class BlightstoneConsumptionEffect {
                     double radius = 0.75 * progress;
                     double yOffset = 0.25 * progress;
 
-                    for (int i = 0; i < 4; i++) {
+                    for (int wispIndex = 0; wispIndex < 4; wispIndex++) {
                         Location wispLocation = gemOrigin.clone().add(
-                                wispOffsets[i][0] * radius,
+                                wispOffsets[wispIndex][0] * radius,
                                 yOffset,
-                                wispOffsets[i][1] * radius
+                                wispOffsets[wispIndex][1] * radius
                         );
-                        Particle soulParticle = (i % 2 == 0) ? Particle.SCULK_SOUL : Particle.SOUL;
+                        Particle soulParticle = (wispIndex % 2 == 0) ? Particle.SCULK_SOUL : Particle.SOUL;
                         world.spawnParticle(soulParticle, wispLocation, 1, 0, 0.01, 0, 0.005);
                         world.spawnParticle(Particle.DUST, wispLocation, 1, 0.02, 0.02, 0.02, 0, BLIGHT_CYAN_DUST);
                     }
@@ -88,11 +88,11 @@ public final class BlightstoneConsumptionEffect {
                     double progress = (tick - 13) / 5.0;
                     Location chest = player.getLocation().add(0, 1.2, 0);
 
-                    for (int i = 0; i < 4; i++) {
+                    for (int wispIndex = 0; wispIndex < 4; wispIndex++) {
                         Location startLocation = gemOrigin.clone().add(
-                                wispOffsets[i][0] * 0.75,
+                                wispOffsets[wispIndex][0] * 0.75,
                                 0.25,
-                                wispOffsets[i][1] * 0.75
+                                wispOffsets[wispIndex][1] * 0.75
                         );
                         Location currentLocation = startLocation.clone().add(
                                 (chest.getX() - startLocation.getX()) * progress,
