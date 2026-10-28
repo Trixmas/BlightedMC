@@ -1,84 +1,102 @@
 ---
+
 name: patch-bug
-description: Trace a bug to its root cause, check for relevant sibling occurrences, apply the smallest correct fix, and verify it.
+description: Diagnose a bug, verify its root cause, fix confirmed occurrences with a focused regression test, and report concise evidence. Supports diagnosis-only mode.
 ---
 
 # Patch Bug
 
-Fix the mechanism, not merely the symptom.
+**Fix the cause, not the symptom.** Follow the repository's `AGENTS.md` and existing architecture. A correct small fix beats a broad cleanup.
 
-## Investigate
+## Rules
 
-Read the reported code and the surrounding implementation before changing anything.
+1. **Inspect before editing.** Read current code, callers, tests, config, installed versions, `git status`, and `git diff`. Re-read each target file immediately before changing it; preserve user edits.
+2. **Reproduce or qualify.** Prefer a failing test or safe minimal reproduction. A traced root cause can justify a fix when reproduction is impractical, but say so.
+3. **Prove the mechanism.** Test competing explanations; do not patch an unverified guess.
+4. **Minimal change.** Fix confirmed siblings, not merely similar-looking code. No unrelated refactors, renames, or formatting.
+5. **Verify and disclose.** Never claim a test or build passed without running it. Never stage, commit, or push without explicit authorization.
 
-If a diff, previous version, or recent edit is relevant, inspect it.
+## 1. Diagnose
 
-Follow the behavior through the code that actually controls it: callers, shared abstractions, listeners, schedulers, lifecycle hooks, registries, and framework APIs.
+- State the **observed behavior**, **expected behavior**, and **trigger** (input, sequence, environment, version).
+- Trace the actual path: entry point → caller → domain action → external dependency/state → result. Include lifecycle, scheduling, concurrency, and permission paths where relevant.
+- Check `git diff`, `git log`, and `git blame` when a regression is suspected. Verify platform and library behavior against installed versions.
+- If unclear, list at most **three falsifiable hypotheses**, run a targeted check for each, and discard refuted explanations.
+- State the root cause in **1–2 sentences**: why this trigger produces the symptom and, if applicable, why the regression began.
+- If the mechanism remains uncertain, stop and report the missing evidence. Do not ship a shotgun fix.
 
-Do not guess about code you have not read.
+## 2. Find sibling occurrences
 
-When the cause is unclear, form a small number of concrete hypotheses and test them against the codebase. Do not commit to the first plausible explanation without evidence.
+Search for the **same failure mechanism**, not matching syntax. Classify relevant hits:
+- **Affected:** same mechanism and trigger; fix in the same change.
+- **Unaffected:** similar code but protected or semantically different; leave alone.
+- **Unclear:** insufficient evidence; report, do not edit.
 
-State the root cause precisely enough to explain the reported behavior.
+Do not enumerate every unaffected match in the final report. Include only those necessary to explain scope.
 
-## Check for recurrence
+## 3. Fix
 
-Once the mechanism is understood, look for other places where the same mechanism genuinely applies.
+- Make the smallest change at the responsible domain boundary, preserving established contracts and caller behavior.
+- Add a regression test that would fail before the change and pass after it. Prefer testing observable behavior through the public interface.
+- Do not swallow exceptions, add blanket guards, retries, sleeps, casts, or new abstractions unless the verified root cause specifically requires them.
+- Avoid new flags, duplicated workflows, and speculative compatibility layers. Follow the repository's current `AGENTS.md` code-shape and API rules.
+- If no suitable test harness exists, explain the limitation and the concrete manual verification needed.
 
-Search relevant implementations, call sites, and usages rather than assuming the reported location is unique.
+## 4. Verify
 
-Do not mechanically search or refactor every superficially similar piece of code. The goal is to catch confirmed sibling bugs, not eliminate textual duplication.
+Run the relevant checks, as available:
+1. Regression test before and after the fix (when practical).
+2. Affected unit/integration tests and confirmed sibling cases.
+3. Type-check, build, lint/format checks appropriate to touched code.
+4. `git diff` to ensure no user changes or unrelated lines were lost.
 
-## Fix
+Record **pass / fail / skip** accurately. A failing check is not a pass because it is unrelated; note the reason. Do not run unsafe destructive verification against production or shared data.
 
-Apply the smallest change that fixes the confirmed cause.
+## 5. Report
 
-Follow the existing architecture and API conventions.
-
-Do not introduce an abstraction merely because similar code exists.
-
-Do not refactor unrelated code while fixing the bug.
-
-Add a short comment only when the reason for an otherwise unusual implementation would not be obvious from the code.
-
-## Verify
-
-Run the most relevant tests, build, lint, or reproduction available.
-
-Verify both the original behavior and any sibling cases fixed by the same change when practical.
-
-If the repository cannot verify the affected behavior, state that clearly rather than implying verification.
-
-## Report
-
-Report:
+**Status first. Evidence over narrative.** Plain text, no emoji, no praise, no investigation diary. Keep the report to roughly **10–15 short lines** when one cause is involved. No location table for a single fix; use a small table only for multiple affected locations. One line per label. Never repeat the same fact in a paragraph and table. Include only checks actually run; use `[skip]` for important unrun checks.
 
 ```text
-## Issue: <description>
+## Patch: <symptom>
+Status: <Fixed and verified | Fixed, partly verified | Fixed, unverified | Not fixed>
 
-Problem
-<observable behavior>
+Trigger  <exact reproduction condition>
+Cause    <mechanism> — `path:42`
+Fix      <smallest change> — `path:42`
+Test     <regression behavior> — `test-path:18`
 
-Root cause
-<precise mechanism>
+| Other location | Result | Reason |
+|---|---|---|
+| `path:88` | Fixed | Same mechanism |
+| `path:130` | Unaffected | Existing guard |
 
-Fix
-<what changed and why>
+Checks
+  [pass] <command>: <result>
+  [skip] <check>: <reason>
 
-Verification
-<tests/checks run, or why verification was unavailable>
+Open  <only unresolved risk or question>
 ```
 
-Keep the report focused on evidence and behavior.
+Omit the **Other location** table, **Test**, or **Open** when not applicable. Keep **Status**, **Cause**, **Fix**, and **Checks**. If nothing was fixed, say so; do not present a proposed change as completed.
 
-## Report-only mode
+### Diagnosis-only mode
 
-When asked to investigate or prepare a handoff without modifying code, stop after diagnosis and recurrence analysis.
+When asked to investigate, diagnose, or prepare a handoff **without edits**, stop after root-cause and sibling analysis. Do not change repository files. Use this shorter report:
 
-Provide:
+```text
+## Diagnosis: <symptom>
+Status: <Diagnosed | Partly diagnosed | Not reproduced>
 
-* Root cause
-* Confirmed affected locations
-* Proposed fix
-* Verification plan
-* Explicit out-of-scope areas
+Trigger   <known condition>
+Cause     <verified mechanism, or what remains uncertain> — `path:42`
+Proposed  <smallest fix> — `path:42`
+Test      <regression scenario to add>
+
+Coverage
+  [checked] <relevant callers and siblings>
+  [skip]    <unverified area>: <reason>
+
+Open  <specific missing evidence, if any>
+```
+
+Do not claim a diagnosis is confirmed when it relies on an unverified assumption.

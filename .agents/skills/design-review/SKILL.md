@@ -1,136 +1,123 @@
 ---
+
 name: design-review
-description: Audit an existing system for unnecessary complexity, weak boundaries, abstraction mismatch, and developer-experience friction; propose proportionate improvements.
+description: Audit architecture and developer experience against real requirements and usage. Rank evidence-backed simplifications by payoff and migration cost; identify what to keep. Read-only.
 ---
 
 # Design Review
 
-Evaluate whether the design fits the problem it actually solves.
+Judge whether the design fits the problem it actually solves. Favor smaller, deeper interfaces and clear domain ownership, not abstraction for its own sake.
 
-This is a read-only review by default.
+## Rules
 
-## Understand the system
+1. **Requirements over ideals.** Evaluate the actual problem, consumers, platform constraints, and likely direction—not a hypothetical architecture.
+2. **Usage before claims.** Never call something unused, redundant, or removable without searching definitions, callers, implementations, and indirect consumers.
+3. **Concrete cost or silence.** Report design friction only when it causes meaningful maintenance, correctness, compatibility, or caller cost.
+4. **Disprove recommendations.** Look for constraints, historical reasons, external consumers, and future requirements before proposing change.
+5. **Leave alone is an outcome.** Never invent findings to justify a review.
+6. **Read-only.** Do not modify, stage, commit, or push. Apply findings only after a separate explicit request.
 
-Before judging individual abstractions, establish:
+## 1. Establish the design
 
-* What problem the system solves.
-* What it intentionally centralizes.
-* Who consumes it.
-* Which parts are public or widely reused.
-* Which constraints come from the platform or lifecycle.
+Read the relevant code, root and local `AGENTS.md`, tests, manifests, and installed dependency versions. Verify platform behavior against installed versions, not memory. Inspect recent history or plans where relevant.
 
-Judge the design against those requirements, not against an abstract ideal of simplicity.
+Determine, briefly:
+- **Problem:** what behavior the system provides and for whom.
+- **Scope:** the named system or the smallest area answering the question.
+- **Consumers:** internal callers, other packages/apps, extension points, and possible external callers.
+- **Ownership:** state, workflows, and constraints deliberately centralized here.
+- **Constraints:** platform, lifecycle, threading, security, compatibility, and deployment requirements.
 
-## Inspect the real usage
+If the problem or consumers cannot be established from code or context, ask instead of inventing an architecture review.
 
-Trace interfaces, abstract classes, factories, builders, registries, overloads, generic types, context objects, and public APIs to their consumers.
+## 2. Trace actual usage
 
-Search before claiming something is unused, redundant, or removable.
+For each candidate (module, interface, factory, builder, registry, overload, generic, option, context, event, public API):
+- Locate its definition, implementations, variants, and call sites.
+- Search symbols **and** string/config references; inspect indirect use through reflection, dependency injection, serialization, tests, and documented extensions.
+- Record the search scope and relevant counts; do not equate a text-search count with a complete call graph.
+- For public APIs, say **"no internal consumers found"**, never **"unused"**, when external use cannot be ruled out.
+- Read the callers before judging the interface. A design that looks complex internally may make common use simpler.
 
-A type that appears unnecessary locally may be important elsewhere.
+## 3. Review lenses
 
-## Look for friction
+Apply only relevant lenses:
 
-Consider:
+| Lens            | Questions                                                                                                                                 |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Fit             | Does each abstraction solve a current requirement? Is flexibility exercised? Does a repeated _domain rule_ have one owner?                |
+| Depth           | Does a small interface hide substantial useful behavior, or merely forward arguments and rename types?                                    |
+| Boundaries      | Are state and domain actions owned once? Do storage, protocol, framework, or lifecycle details leak into callers?                         |
+| State and types | Are invalid states representable? Do discriminated unions improve the contract? Are wrappers or generics carrying real constraints?       |
+| API and DX      | Write the common call site. Is usage predictable, composable, discoverable, consistently named, and safe? Are errors and outcomes useful? |
+| Change locality | Does one domain change require coordinated edits across unrelated modules? Can consumers migrate safely?                                  |
+| Compatibility   | Which existing consumers break? Are external consumers known or unknown? Is an additive migration necessary?                              |
 
-* abstractions with no meaningful consumer
-* duplicated domain logic above an existing abstraction
-* APIs that make common operations unnecessarily verbose
-* nullable state representing mutually exclusive concepts
-* overloads or builders that create unnecessary complexity
-* objects carrying responsibilities from unrelated consumers
-* boundaries that leak implementation details
-* abstractions whose flexibility is not justified by real use
-* awkward call sites that could be made simpler without hiding important behavior
+Apply the repository's `AGENTS.md` as the standard. Prefer Stripe-level interface quality: the common case is obvious, correct usage is easy, and complexity is hidden behind meaningful contracts. Do not mechanically demand a `switch`, shorter function, typed mutation result, or new abstraction when the existing code is clearer. Independent guard clauses, cohesive long functions, self-explanatory literals, and meaningful `void` operations are not defects by themselves.
 
-Do not treat duplication itself as a defect.
+Do not flag similar syntax as duplication without a shared domain rule. Do not flag a single implementation merely for lacking a second one. Do not suggest a new seam for speculative future use.
 
-Do not treat abstraction itself as a defect.
+## 4. Prove or drop
 
-The question is whether the design earns its complexity.
+A Change finding requires:
+1. **Evidence:** exact `path:line`, relevant callers, and search scope/count where applicable.
+2. **Cost:** what breaks, becomes error-prone, or makes common use harder; name the affected consumers.
+3. **Countercheck:** test whether a platform rule, lifecycle requirement, existing consumer, history, or planned feature justifies the design.
+4. **Fix:** the smallest change that removes the cost without introducing more interface surface.
+5. **Migration:** approximate affected call sites, compatibility impact, and safe order of steps.
 
-## Separate conclusions
+Confidence: **Certain** (traced and counterchecked), **Likely** (strong evidence with one explicit assumption), **Unverified** (put under Questions, not Changes).
 
-Classify observations as:
+Drop opinions, hypothetical flexibility concerns, unverified removal claims, and changes whose migration cost outweighs demonstrated benefit.
 
-### Keep
+## 5. Decide and rank
 
-Complexity that is justified by real requirements, platform constraints, or meaningful reuse.
+Classify observations:
+- **Change:** demonstrated cost, proportionate fix, and credible migration.
+- **Consider:** genuine trade-off whose decision depends on a named future condition or owner.
+- **Keep:** complexity justified by real requirements, platform constraints, or useful reuse.
 
-### Consider
+Rank Changes by **payoff relative to migration cost**, not by stylistic preference:
+- **Payoff:** High (removes a bug source, unblocks a requirement, or simplifies many call sites); Medium (clear maintenance saving); Low (minor improvement).
+- **Cost:** S (local, no consumers move); M (several files or one consumer group); L (many consumers, public contract, or risky migration).
 
-A design choice that has a cost but may be appropriate depending on future requirements or project direction.
+Prefer removing unnecessary code, simplifying existing interfaces, and relocating a domain responsibility before introducing abstractions. A large redesign with uncertain payoff belongs in Consider; propose a safe first step instead.
 
-### Change
+## 6. Report
 
-A concrete design problem with evidence and a proportionate improvement.
-
-For every removal or consolidation proposal, include the usage evidence supporting it.
-
-## Recommend proportionate changes
-
-Prefer:
-
-1. Removing unnecessary code.
-2. Simplifying an existing abstraction.
-3. Improving an existing API.
-4. Moving a responsibility to a more appropriate owner.
-5. Introducing a new abstraction only when the shared concept is real.
-
-Do not replace one abstraction with a larger abstraction merely to make the design theoretically cleaner.
-
-Consider the migration cost and call-site impact of every proposed change.
-
-## API and DX
-
-For public APIs, start with the call site.
-
-Ask:
-
-> What does a developer have to know to use this correctly?
-
-Prefer APIs where the common case is concise, discoverable, and predictable.
-
-Advanced configuration should be available without making the common case pay for it.
-
-Use strong types where they communicate meaningful domain constraints.
-
-Do not introduce types, builders, DSLs, or generic frameworks purely for aesthetic reasons.
-
-## Output
-
-Report findings as:
+**Keep the output scannable.** Status first, one ranked table, brief evidence, explicit leave-alone decision. No essay, praise, score, or tour of the codebase. Maximum **5 Changes** and **3 Consider** items. Omit empty sections except Status, Coverage, and Leave alone. Details: at most **four short lines per Change**. Cite exact code locations. Never imply searches or checks were run when they were not.
 
 ```text
-## Finding: <short description>
+## Design review: <area>
+Status: <N changes recommended | Design fits; no changes recommended>
+Scope: <what was reviewed> · Consumers: <who uses it>
 
-Problem
-<concrete problem>
+| # | Payoff | Cost | Where | Recommendation |
+|---|--------|------|-------|----------------|
+| 1 | High | S | `path/file:42` | Move room ownership rules into one action |
 
-Evidence
-<usage and code evidence>
+1. <short title> [Certain]
+   Evidence  <locations, callers, search count>
+   Cost      <specific developer or behavior impact>
+   Change    <smallest improvement>
+   Migration <N callers; order; compatibility risk>
 
-Impact
-<maintenance, correctness, API, or DX cost>
+Consider
+  - <trade-off> — decide when <condition>; owner: <who>
 
-Recommendation
-<smallest proportionate change>
+Coverage
+  [read] <areas and callers inspected>
+  [skip] <unverified area or external consumers>: <reason>
+
+Leave alone
+  - <existing design> — <specific requirement or constraint justifying it>
+
+Questions
+  ? <only a question that changes a decision; assumed default>
 ```
 
-Order findings by practical leverage.
+When no change is warranted, omit the table and detail blocks. Keep **Leave alone** specific: identify an actual design decision supported by evidence, not generic reassurance. If no design choice can be justified, say what remains unknown rather than fabricate one.
 
-Finish with:
+## 7. Applying findings (only when requested)
 
-```text
-## Leave alone
-
-<parts of the system whose complexity is justified or whose current design should not be disturbed>
-```
-
-The "Leave alone" section is important. A good design review identifies unnecessary change as well as necessary change.
-
-## Applying findings
-
-Do not modify code unless explicitly asked.
-
-When asked to apply changes, work from confirmed findings only, verify usages before changing public or shared abstractions, and re-run the relevant tests/build after each meaningful structural change.
+Re-read the current code and `git status`/`git diff` before editing. Re-run usage searches before touching shared or public interfaces. Apply **confirmed Changes** only; do not implement Consider items without a decision. Preserve user changes, follow `AGENTS.md`, and make one coherent structural change at a time. Run relevant tests and checks, report failures or skips accurately, and stop if new evidence invalidates a finding. Never stage, commit, or push without explicit authorization.

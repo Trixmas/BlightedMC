@@ -1,511 +1,402 @@
 # Agent Guidelines
 
-`AGENTS.md` is the source of truth for every coding agent working in this repository.
+Source of truth for every coding agent in this repository.
 
-The goal is to produce code that is correct, maintainable, unsurprising, pleasant to use, and appropriate for the project.
+`MUST` and `NEVER` are literal. If a rule conflicts with what feels natural, the rule wins.
 
-These guidelines are principles for making engineering decisions, not a checklist to satisfy mechanically.
+Goal: code that is correct, understandable, adaptable, and pleasant for other engineers to consume.
 
----
-
-## Engineering principles
-
-### Read before changing
-
-Read the relevant code, tests, configuration, and existing abstractions before proposing or implementing a change.
-
-Understand the responsibility and lifecycle of the code being changed.
-
-Prefer extending an existing concept when it genuinely fits rather than creating a parallel abstraction.
-
-### Optimize for the simplest correct design
-
-Prefer the smallest solution that properly solves the problem.
-
-In general:
-
-1. Do not build what is not needed.
-2. Reuse existing code and abstractions when appropriate.
-3. Prefer the standard library and platform capabilities.
-4. Reuse installed dependencies when they are already a good fit.
-5. Otherwise, write the smallest clear implementation.
-
-Do not optimize for eliminating every duplicated line.
-
-Do not introduce an abstraction merely because two pieces of code look similar. Extract code when it represents a meaningful shared concept, invariant, ownership boundary, or evolution path.
-
-A few duplicated lines are often cheaper than the wrong abstraction.
-
-Do not use a more sophisticated solution simply because it is technically possible.
-
-### Keep scope proportional
-
-Touch what the task requires.
-
-A small local cleanup is appropriate when it directly improves the code being changed and does not alter unrelated behavior. Do not turn a focused task into a broad refactor.
-
-Delete unnecessary complexity before adding new complexity.
-
-Prefer explicit, boring code over clever code when both express the intent equally well.
-
-Early returns, small responsibilities, and simple control flow are useful defaults, not laws.
-
-Correctness, security, validation, thread-safety, accessibility, and data-loss protection must not be weakened merely to reduce code.
-
-### Document non-obvious trade-offs
-
-Comments should explain decisions that are not obvious from the code.
-
-`// ponytail:` is an optional convention for documenting a deliberate trade-off:
-
-```java
-// ponytail: kept — this operation must execute on Bukkit's main thread.
-```
-
-Do not add `// ponytail` comments merely because a piece of code is slightly complex or because a checklist demands it.
-
-The absence of a `// ponytail` comment is not a problem by itself.
+Optimize for clear ownership, stable contracts, and local changes—not speculative flexibility.
 
 ---
 
-# API and Developer Experience
+## 1. Read first
 
-Public APIs are products.
+Read the code, tests, and configuration you are about to change. Know its responsibility, lifecycle, thread, and
+consumers.
 
-Design them from the consumer's point of view: imagine the call site that someone unfamiliar with the implementation should be able to write after discovering the API.
+At the start of a task inspect `git status` and `git diff`. Re-read files immediately before editing. Preserve all
+pre-existing changes; never restore, reset, or overwrite them to fit a plan.
 
-A good API should be:
-
-* Easy to discover through names, types, autocomplete, and documentation.
-* Predictable and consistent with related APIs.
-* Explicit about ownership, lifecycle, nullability, mutability, and failure.
-* Small and convenient for the common case.
-* Capable of supporting advanced use cases without forcing that complexity onto ordinary callers.
-* Difficult to misuse without requiring unnecessary ceremony.
-
-### Common case first
-
-Optimize the normal call site.
-
-The simplest use case should not require callers to understand internal implementation details, construct unnecessary configuration objects, or provide information the API can already determine.
-
-Prefer:
-
-```java
-punishments.add(player, PunishmentType.MUTE, reason);
-```
-
-over exposing low-level parameters that callers should not need to coordinate.
-
-This does not mean convenience APIs should hide important behavior. It means normal usage should require as little incidental knowledge as possible.
-
-### Progressive disclosure
-
-Make simple things simple and advanced things possible.
-
-For example:
-
-```java
-spawn(entity, location);
-```
-
-can be the normal API while more specialized behavior can be available separately:
-
-```java
-spawn(entity, location, options);
-```
-
-Do not force every caller through a builder, DSL, configuration object, or generic abstraction merely because the API supports advanced customization.
-
-Builders and fluent APIs are tools, not goals.
-
-### Design from concepts, not syntax
-
-Extract abstractions from domain concepts rather than repeated syntax.
-
-This:
-
-```java
-List<SpawnableEntity> eligible = null;
-
-for (SpawnableEntity entity : candidates) {
-    if (!entity.canSpawnAt(location, world)) continue;
-
-    if (eligible == null) {
-        eligible = new ArrayList<>(candidates.size());
-    }
-
-    eligible.add(entity);
-}
-```
-
-does not automatically deserve a shared helper simply because another spawning system contains the same loop.
-
-If the surrounding systems have different responsibilities, lifecycles, caches, or future evolution, local implementations may be the better design.
-
-By contrast, a shared probability-selection algorithm may deserve extraction when both systems genuinely share that domain behavior.
-
-> Do not abstract by syntax alone.
-
-### Strong types, where they help
-
-Use types to communicate meaningful domain constraints.
-
-Prefer:
-
-```java
-enum SpawnMode {
-    INDEPENDENT,
-    REPLACEMENT,
-    HYBRID
-}
-```
-
-when the concept has a real closed set of values.
-
-Prefer a record when the type is genuinely an immutable data carrier:
-
-```java
-record CooldownEntry(Class<?> owner, AbilityType type, long expiresAt) {}
-```
-
-Use a class when the type has identity, mutable state, lifecycle, richer encapsulation, inheritance requirements, or framework constraints that make a record inappropriate.
-
-Do not create wrapper types for every primitive merely to make the code appear more strongly typed.
-
-### Consistency is a feature
-
-Related APIs should use consistent terminology, return conventions, and failure behavior.
-
-A caller should be able to predict how an unfamiliar API works from nearby APIs.
-
-Avoid surprising special cases hidden behind convenience methods.
-
-### Documentation is part of the API
-
-Public or reusable APIs should have Javadocs that explain what a consumer actually needs to know:
-
-* What the operation does.
-* Important assumptions or invariants.
-* Return and absence semantics.
-* Failure behavior.
-* Thread or lifecycle requirements.
-* Intended usage when it is not obvious.
-
-Prefer examples that demonstrate consumer usage over descriptions of internal implementation.
+Extend an existing concept. NEVER build a parallel one.
 
 ---
 
-# Modern Java
+## 2. Scope
 
-The project targets Java 25.
+Do exactly what was asked. Nothing else.
 
-Use modern Java deliberately.
+Pick the first option that works:
 
-Before manually implementing something, check whether Java or the standard library already provides a clearer native capability.
+1. Build nothing.
+2. Reuse existing code.
+3. Use the standard library or the platform.
+4. Use an installed dependency.
+5. Write the smallest clear implementation.
 
-Do not use a language or library feature merely because it is newer. Use it when it improves clarity, correctness, safety, or the resulting API.
+- NEVER refactor code you were not asked to touch. A small local cleanup inside the code you are changing is fine.
+- Delete before adding. Boring over clever.
+- Three similar lines beat the wrong abstraction. Extract only when the code is one real concept (see section 6).
+- NEVER weaken correctness, security, validation, thread-safety, accessibility, or data-loss protection to write less
+  code.
 
-### Prefer modern language constructs when they improve the code
-
-Examples include:
-
-* Pattern matching for `instanceof`.
-* Pattern matching and expressions in `switch`.
-* Record patterns when destructuring improves readability.
-* Records for genuine data carriers.
-* Sealed types when a domain is intentionally closed.
-* Text blocks for genuinely multi-line text.
-* Unnamed variables when a value is intentionally unused.
-* Sequenced collection methods such as `getFirst()` and `getLast()` when the intent is specifically first/last access.
-* Immutable collection factories when immutable snapshots are appropriate.
-
-For example:
+`// ponytail:` marks a deliberate trade-off. Optional. Use it only when a reader would otherwise "fix" it.
 
 ```java
-if (event instanceof CreatureSpawnEvent spawnEvent) {
-    handle(spawnEvent);
+// ponytail: kept — this operation must run on the main server thread.
+```
+
+---
+
+## 3. Types: let the compiler infer
+
+Write a type only where the compiler cannot work it out.
+
+NEVER write:
+
+- a redundant explicit local type when `var` makes the initializer and intent equally clear; keep interface types where
+  they communicate the abstraction
+- explicit generic arguments the diamond `<>` or inference supplies
+- types on lambda parameters
+- a cast after `instanceof`. Use a pattern: `if (event instanceof CreatureSpawnEvent spawnEvent)`
+- a raw type, an unchecked cast, or `@SuppressWarnings` without a reason in the comment
+
+```java
+// bad
+ArrayList<Player> players = new ArrayList<Player>();
+candidates.
+
+forEach((SpawnableEntity candidate) ->
+
+spawn(candidate));
+        if(event instanceof CreatureSpawnEvent){
+var spawnEvent = (CreatureSpawnEvent) event;
 }
-```
 
-rather than manually casting after an `instanceof` check.
-
-Likewise:
-
-```java
-return switch (type) {
-    case LEFT_CLICK -> handleLeft();
-    case RIGHT_CLICK -> handleRight();
-    default -> handleAny();
-};
-```
-
-when the expression form communicates the operation more clearly.
-
-### Prefer intent over feature usage
-
-Modern syntax is not inherently better.
-
-A normal loop can be clearer than a stream.
-
-An explicit type can be clearer than `var`.
-
-A class can be more appropriate than a record.
-
-A local implementation can be better than a generic abstraction.
-
-Choose the construct that communicates intent best.
-
-### `var`
-
-Use `var` when the initializer makes the concrete type obvious and the declared type does not add useful semantic information.
-
-Good:
-
-```java
+// good
 var players = new ArrayList<Player>();
+candidates.
+
+forEach(candidate ->
+
+spawn(candidate));
+        if(event instanceof
+CreatureSpawnEvent spawnEvent){
+
+handleSpawn(spawnEvent);
+}
 ```
 
-Less useful when the abstraction itself matters:
+Keep the declared type when the abstraction is the point:
 
 ```java
 Map<EntityType, List<SpawnableEntity>> cache = createCache();
 ```
 
-Do not use `var` simply to minimize characters.
+Method parameters and return types are always written. That is the signature contract.
 
-### Collections
+Closed sets are `enum` or `sealed` types. Immutable data carriers are `record`. Use a class only for identity, mutable
+state, lifecycle, or framework constraints.
 
-When the intent is specifically first or last element access:
-
-```java
-values.getFirst();
-values.getLast();
-```
-
-Use indexed access when the index itself is meaningful to the algorithm.
-
-Choose collection implementations according to their actual semantics and requirements.
-
-Do not manually reimplement standard collection behavior without a reason.
-
-### Streams
-
-Streams are appropriate when they make a transformation or aggregation clearer.
-
-Do not convert straightforward imperative logic into streams merely to appear modern.
-
-A loop is often preferable when the operation has early exits, mutation, multiple conditions, or meaningful control flow.
-
-### Virtual threads
-
-Virtual threads do not change Bukkit's threading requirements.
-
-Use the Bukkit scheduler for Bukkit work.
-
-Virtual threads are appropriate for isolated workloads such as suitable blocking I/O when no Bukkit API is accessed from the virtual thread.
-
-Do not move Bukkit API work to arbitrary background threads simply because virtual threads exist.
-
-### Preview features
-
-Do not introduce preview features unless the project explicitly enables and intends to use them.
-
-When uncertain about the status or suitability of a Java 25 feature, verify it before using it.
+NEVER wrap every primitive in a type to look strongly typed.
 
 ---
 
-# Minecraft and Spigot
+## 4. Naming
 
-This project targets **Spigot 26.2**, not Paper.
+Write whole words. A name says what the thing **is** in this domain.
 
-### Use the actual target API
+Max 50 characters. The only allowed abbreviations: `id`, `url`, `http`.
 
-Do not assume an API exists because it appears in Paper documentation, a Paper plugin, or a generic Minecraft tutorial.
+```java
+// bad: cmd, cfg, ctx, idx, tmp, FooHelper, FooManager
+// good: command, configuration, context, index, spawnCandidates, punishmentRegistry
+```
 
-Verify Bukkit/Spigot APIs against the actual Spigot dependency and version used by the project.
+- Loop and lambda variables are words too. NEVER `i`, `x`, `a`, `b`, `e`.
+- Name by domain concept, never by mechanism. `PunishmentRegistry`, not `PunishmentManager`.
+- NEVER create `Utils`, `Helper`, `Common`, or `Misc` classes. Name the class for what it does.
+- Booleans read as a question: `isMuted`, `hasPermission`, `canSpawnAt`.
+- Types `PascalCase`. Methods and variables `camelCase`. Constants `UPPER_SNAKE_CASE`.
 
-Do not silently introduce Paper-only APIs.
-
-Examples of Paper-specific concepts that must not be assumed available include Paper-only events, schedulers, and APIs.
-
-### Threading
-
-Respect Bukkit's execution model.
-
-Bukkit state and APIs that require the main server thread must remain on the appropriate thread.
-
-Keep asynchronous work isolated and return to the Bukkit scheduler before interacting with thread-confined server state.
-
-### Deprecated APIs
-
-Do not introduce deprecated Bukkit or Spigot APIs when a current replacement exists.
-
-When an obsolete API is genuinely necessary because the target platform exposes no suitable alternative, document the reason near the usage.
-
-### NMS and server internals
-
-Prefer the public Spigot API.
-
-Do not introduce mapping, remapping, or reobfuscation workflows for the project's current Minecraft target.
-
-Do not parse Minecraft versions from NMS package names.
-
-When internal server code is genuinely necessary, isolate it behind an appropriate project abstraction rather than spreading version-specific implementation details throughout the codebase.
+Before you write a name, ask: would a new teammate need a comment to decode it? If yes, rename it.
 
 ---
 
-# Naming
+## 5. No slop
 
-Names should communicate meaning without requiring the reader to decode them.
+Slop is code nobody asked for. NEVER write any of these:
 
-Prefer concise, descriptive names.
+- Comments that restate the code. Comment only the **why** the code cannot show.
+- `catch` blocks that log and continue, return a fallback, or are empty.
+- Null checks or defensive branches for states the types already make impossible.
+- Optional parameters, overloads, or options "for later".
+- Boolean flag parameters. Split the method.
+- Wrapper methods that only forward their arguments.
+- A new class used in exactly one place and unrelated to the task.
+- Static utility classes.
+- Default values that hide a missing required input.
+- `System.out.println`, `TODO`, commented-out code, unused imports, unused parameters, dead branches.
+- Hand-written getters, setters, `equals`, or `hashCode` where a record fits.
+- Emoji in code, comments, or commit messages.
+- Renames, reorders, or reformatting of lines you were not asked to change.
+- A README, doc file, or summary file unless asked.
 
-Avoid unnecessary abbreviations. The following are acceptable when they genuinely represent the intended concept:
+Early returns over nested `if`. One responsibility per method.
 
-* `id`
-* `url`
-* `http`
+### Code shape
 
-Do not use vague names such as `data`, `info`, `helper`, or `util` when a more specific name exists.
-
-Do not shorten names merely to save characters.
-
-Prefer:
-
-```java
-List<SpawnableEntity> candidates;
-```
-
-over:
-
-```java
-List<SpawnableEntity> arr;
-```
-
-Names should reflect the domain concept rather than generic implementation details.
+- **No nested ternaries.** Use an early return, `switch`, or named calculation. Keep simple ternaries on one readable
+  line.
+- **Dispatch explicitly.** For three or more branches testing the same closed discriminant, prefer `switch` or a keyed
+  lookup. Independent guard clauses are not a ladder. Use exhaustive handling where the compiler can verify a sealed
+  hierarchy or enum.
+- **Name complex conditions.** Break mixed `&&` / `||` expressions and conditions with several distinct rules into
+  meaningful boolean names. Do not extract trivial conditions merely to satisfy a count.
+- **No unexplained literals.** Name non-obvious thresholds, units, masks, and protocol codes. Self-explanatory domain
+  literals are fine. Use Bukkit/Spigot constants and enums where available.
+- **Prefer shallow control flow.** Flatten deeply nested logic when it improves readability; do not split a cohesive
+  method to meet a line limit.
+- **No duplicated domain workflows.** Commands, listeners, and scheduled tasks delegate shared invariants to one owner.
+  Similar syntax alone does not justify extraction.
+- **Do not extend a problematic construct.** When changing a branch or condition, improve the affected construct locally
+  rather than adding another layer of complexity.
 
 ---
 
-# Nullability and absence
+## 6. Interface design
 
-Do not use `null` casually, but do not replace every nullable internal value with ceremony.
+Every public or package-visible class, method, event, command, and configuration key is an API. Someone else will call
+it without reading its source. Design it for that caller.
 
-Use an explicit absence mechanism when it makes an API clearer.
+**Write the call site first.** Write the code that uses the interface before the code that implements it. If the call
+site reads badly, the design is wrong.
 
-`Optional` is primarily useful for appropriate return values; it is not a requirement for fields, parameters, or every internal local.
+**Common case first.** The simplest use is the shortest use. NEVER make callers coordinate low-level parameters or
+supply what the API can determine.
 
-A simple nullable local can be the clearest implementation when the value is only created when needed:
+```java
+// good
+punishments.add(player, PunishmentType.MUTE, reason);
+```
+
+**Progressive disclosure.** Simple things simple, advanced things possible. Do not force every caller through a builder,
+configuration object, or generic abstraction.
+
+```java
+spawn(entity, location);
+
+spawn(entity, location, options);
+```
+
+**Make the right way the easy way.** Required inputs are required. Defaults are safe. Invalid states cannot be expressed
+in the types.
+
+```java
+// bad: nothing stops a caller passing contradictory flags
+review(application, true,false);
+
+// good: one value from a closed set
+review(application, Decision.ACCEPTED);
+```
+
+**No dead ends.** A failure says what failed, which input, and what the caller should do. Throw a specific exception
+type with context. NEVER `throw new RuntimeException("error")`.
+
+**Small surface.** Package-private by default. Everything public is a promise you keep. Do not expose methods without a
+real consumer or an established framework requirement. NEVER return mutable internals.
+
+**Consistent.** One concept, one name, everywhere. Same verbs, same return conventions, same failure behavior across
+related APIs. Search for the existing name before you add one.
+
+**Predictable.** A method does what its name says and nothing else. No hidden side effects. No parameter that changes
+what the method fundamentally does.
+
+**Safe to retry.** An operation a caller may repeat is idempotent, or its docs say it is not.
+
+**Design from concepts, not syntax.** Extract an abstraction for a shared domain concept, invariant, or ownership
+boundary. NEVER extract because two loops look alike.
 
 ```java
 List<SpawnableEntity> eligible = null;
+for(
+var candidate :candidates){
+        if(!candidate.
 
-for (SpawnableEntity entity : candidates) {
-    if (!entity.canSpawnAt(location, world)) continue;
+canSpawnAt(location, world))continue;
+        if(eligible ==null)eligible =new ArrayList<>(candidates.
 
-    if (eligible == null) {
-        eligible = new ArrayList<>(candidates.size());
-    }
+size());
+        eligible.
 
-    eligible.add(entity);
+add(candidate);
 }
 ```
 
-Do not introduce a generic helper solely to eliminate this pattern.
+This loop does not deserve a shared helper because another spawner has the same loop. A probability-selection algorithm
+both spawners genuinely share may deserve one.
+
+**Understandable and flexible.** An engineer unfamiliar with the implementation should understand a common call site
+from its names, types, and documented contract. Keep dependencies explicit, responsibilities cohesive, and changes
+local. Avoid requiring callers to understand lifecycle internals or call methods in a hidden order.
+
+**Extend without rewriting.** When a real new variant arrives (spawn strategy, entity behavior, punishment type), extend
+the existing domain model and preserve shared invariants. A new variant should normally require a localized addition,
+not copied workflows across listeners or commands. Do not prebuild a registry, factory, or strategy for hypothetical
+variants.
+
+**Integrate through contracts.** Expose the smallest stable operations and domain types that consumers can compose. Hide
+mutable collections, storage layout, scheduler mechanics, and implementation classes. Prefer explicit outcomes when
+callers need to distinguish expected states; `void` is correct for a command with no meaningful result.
+
+**Design for the next engineer.** Check real callers before changing an API. Make valid use obvious, error handling
+actionable, and thread/lifecycle requirements visible. Preserve a simple path for common use without blocking
+demonstrated advanced use.
+
+**Change without breaking.** Add, do not rename or remove. Before you change a public class, method, constructor, field,
+enum value, or configuration format, search its usages. When consumers exist, migrate them in the same change. When none
+exist, change it freely and build no compatibility layer.
+
+**Self-documenting.** Names and types are the documentation. Public and reusable APIs get Javadoc: behavior,
+assumptions, return and absence meaning, failure behavior, thread or lifecycle requirements, one usage example when
+non-obvious. Use the `generate-docs` skill.
 
 ---
 
-# Allocation and performance
+## 7. Modern Java
 
-Prefer correct, understandable code first.
+Use the Java release configured in `pom.xml` or the build tool as the source of truth; do not assume the runtime or
+language level. Before hand-writing something, check whether the supported language or standard library already does it.
 
-Avoid unnecessary copies and allocations when ownership and lifecycle are already clear.
+Use a construct when it improves clarity, correctness, safety, or the API. NEVER use it because it is new.
 
-Use immutable snapshots when immutability provides a useful guarantee.
+Prefer when they fit:
 
-Do not perform micro-optimizations without a meaningful reason or workload.
+- Pattern matching for `instanceof`, and in `switch`.
+- Record patterns when destructuring reads better.
+- Records for data carriers. Sealed types for intentionally closed domains.
+- Switch expressions when they say it more clearly.
+- Text blocks for genuine multi-line text.
+- Unnamed variables `_` when a value is intentionally unused.
+- `getFirst()` and `getLast()` for first and last access. Indexed access when the index matters.
+- Immutable collection factories for immutable snapshots.
 
-A small allocation is not automatically a performance problem.
+```java
+return switch(type){
+        case LEFT_CLICK ->
 
-Likewise, do not sacrifice readability for a theoretical optimization that does not matter to the actual workload.
+handleLeft();
+    case RIGHT_CLICK ->
 
-When performance genuinely matters, reason from the relevant workload and measure rather than guessing.
+handleRight();
 
----
+default ->
 
-# Validation and errors
+handleAny();
+};
+```
 
-Validate external or untrusted input at the boundary where it enters the system.
+**Streams.** Use for clear transformation or aggregation. NEVER convert logic with early exits, mutation, or several
+conditions into a stream. Use a loop.
 
-Keep domain invariants close to the objects or methods responsible for enforcing them.
+**Virtual threads.** They do not change Bukkit's threading rules. Use them only for isolated blocking I/O that touches
+no Bukkit API.
 
-Prefer designs that make invalid states difficult to represent.
-
-Do not duplicate validation everywhere when a trusted internal abstraction already guarantees the invariant.
-
-Do not swallow exceptions silently.
-
-Error behavior should be predictable and useful to the caller.
-
----
-
-# Testing
-
-Read existing tests before adding new ones and follow their established conventions.
-
-Prefer tests of observable behavior and important invariants over implementation details.
-
-When designing or changing an API, test the API from the consumer's perspective where practical.
-
-A good API test should resemble the way another part of the plugin is actually expected to use the API.
-
-Run the relevant build and test checks before submitting a change.
-
-Never claim that a build or test passed unless it was actually run.
+**Preview features.** NEVER introduce one unless the project explicitly enables it. When unsure about a language
+feature,
+verify it first.
 
 ---
 
-# Compatibility and public APIs
+## 8. Spigot
 
-Treat public APIs as contracts.
+The target is **Spigot, not Paper**. Read the exact Spigot API and Minecraft versions from the build configuration; do
+not infer them from the JDK version.
 
-Before changing or removing a public class, method, constructor, field, enum value, or configuration format, inspect its usages and determine whether compatibility matters.
-
-Do not build speculative compatibility layers for consumers that do not exist.
-
-When compatibility is required, prefer the simplest migration path that preserves the contract without introducing unnecessary architectural complexity.
-
-A clean API for real consumers is more valuable than theoretical compatibility with imaginary ones.
-
----
-
-# Version control
-
-Agents must not create commits, stage files for committing, or push changes without explicit authorization from the user.
-
-If a commit is requested, show the exact commit message and obtain approval before executing it.
-
-Do not commit merely because a task is complete.
-
-Agents may inspect diffs and draft commit messages without creating commits.
+- Verify every Bukkit and Spigot API against the Spigot dependency this project uses. NEVER assume an API exists because
+  it appears in Paper docs, a Paper plugin, or a tutorial.
+- NEVER introduce a Paper-only event, scheduler, or API.
+- **Threading.** Bukkit state and any API that needs the main server thread stays on it. Keep asynchronous work
+  isolated. Return to the Bukkit scheduler before touching thread-confined server state. Cancel lifecycle-bound tasks on
+  shutdown or destruction; never assume an asynchronous callback still has a live player, world, or entity.
+- **Deprecated APIs.** NEVER introduce one when a current replacement exists. When none exists, document the reason
+  beside the usage.
+- **NMS and server internals.** Prefer the public Spigot API. NEVER add mapping, remapping, or reobfuscation workflows.
+  NEVER parse the Minecraft version from NMS package names. When internals are unavoidable, isolate them behind one
+  project abstraction.
 
 ---
 
-# Before submitting code
+## 9. Nullability and absence
 
-Verify that:
+- NEVER let `null` cross a public API without documenting it or annotating it.
+- Return `Optional` for "may be absent" results. NEVER use it for fields or parameters.
+- A nullable local that is created only when needed is fine (see the `eligible` loop in section 6).
+- NEVER add a helper only to remove that pattern.
 
-* The relevant existing code was read before changing it.
-* The solution is proportional to the problem.
-* Existing abstractions were reused where they genuinely fit.
-* New abstractions solve a real problem rather than merely removing textual duplication.
-* The public API is understandable from the consumer's point of view.
-* The common use case is simple.
-* Modern Java capabilities were considered where they materially improve the code.
-* No preview feature was introduced unintentionally.
-* Bukkit/Spigot APIs were verified against the actual target rather than assumed from Paper.
-* No unnecessary deprecated API was introduced.
-* Threading remains compatible with Bukkit's execution model.
-* Tests and build checks relevant to the change were run.
-* Unrelated code was not refactored without a reason.
-* No commit, staging, or push occurred without explicit authorization.
+---
+
+## 10. Validation and errors
+
+- Validate untrusted input where it enters the system: commands, configuration, packets, player-supplied text.
+- Keep domain invariants in the object or method that owns them. NEVER re-validate what a trusted internal abstraction
+  already guarantees.
+- Make invalid states hard to represent.
+- NEVER swallow an exception. Throw typed, useful errors (section 6).
+
+---
+
+## 11. Performance
+
+Correct and readable first. Measure before you optimise.
+
+- Avoid copies and allocations when ownership and lifecycle are already clear.
+- Use immutable snapshots when immutability gives a useful guarantee.
+- A small allocation is not a performance problem.
+- NEVER sacrifice readability for an optimisation without a workload that needs it.
+
+---
+
+## 12. Testing
+
+Read the existing tests first. Follow their conventions.
+
+Test observable behavior and invariants, not implementation. Test an API the way another part of the plugin will call
+it.
+
+Priority:
+
+1. Validation and permission checks at every entry point. Must reject malformed and unauthorized input.
+2. Logic with real branching.
+3. Failure behavior. Callers depend on it.
+
+Run the relevant build and tests before you finish. NEVER claim a build or test passed unless you ran it.
+
+---
+
+## 13. Version control
+
+NEVER commit, stage, or push without explicit authorization. If asked to commit, show the exact message and wait for
+approval. Reading diffs and drafting messages is fine.
+
+---
+
+## 14. Before you finish
+
+- [ ] Read the relevant code first; checked `git status` / `git diff` and preserved existing changes.
+- [ ] Did only what was asked. Reused what exists.
+- [ ] No type written where the compiler infers it.
+- [ ] No abbreviations. Every name is a whole word.
+- [ ] No slop or needless control-flow complexity from section 5.
+- [ ] New or changed APIs pass section 6: clear call site, small surface, explicit contract, understandable to other
+  engineers.
+- [ ] New variants extend one domain owner without duplicated workflows or speculative abstractions.
+- [ ] Shared contracts hide internals; changes remain local and consumers can migrate safely.
+- [ ] Spigot APIs verified against the real target. No Paper-only API. No unnecessary deprecated API.
+- [ ] Threading is compatible with Bukkit's model.
+- [ ] No preview feature added by accident.
+- [ ] Public API consumers checked before any change.
+- [ ] Build and relevant tests run.
+- [ ] No unrelated changes. No commit.
+
+````

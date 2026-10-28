@@ -1,173 +1,137 @@
 ---
 name: generate-docs
-description: Write or improve concise, accurate Javadocs for Java APIs and source types without changing behavior or structure.
+description: Write or improve concise, accurate docs for front-facing APIs in any language without changing behavior. Covers public types, functions, server functions, HTTP endpoints, schemas, and shared component props. Use when asked to document code, add doc comments, or improve API docs.
 ---
 
 # Generate Docs
 
-Write Javadocs that are useful at the API boundary: precise, concise, consistent, and grounded in the actual contract.
+Write docs for the people who call the API without reading its source. Precise, short, grounded in the real contract.
 
-Documentation quality matters more than documentation coverage.
+Quality beats coverage. A missing comment is better than a wrong or empty one.
+
+## What counts as front-facing
+
+Document an API when someone outside its file calls it:
+
+* public or exported types, functions, methods, constants, and modules
+* anything reachable from a package or library entry point
+* server functions and HTTP endpoints
+* schemas that define a boundary (inputs, outputs, shared contracts)
+* shared component props used by other features
+* command-line flags and configuration keys that users set
+
+Skip internal modules, private members, local helpers, and one-use components. A non-obvious invariant a maintainer must keep belongs in a normal source comment, not in API docs.
 
 ## Workflow
 
-1. Read the complete touched type before changing its documentation. Read related types when needed to understand inheritance, lifecycle, nullability, or other API contracts.
-2. Infer the contract from the code and existing documentation. Document what consumers can rely on, not implementation trivia or speculation.
-3. Preserve implementation, structure, and behavior unless the user explicitly asks for code changes.
-4. Match the project's existing documentation style. When no clear style exists, use the conventions below.
-5. Return the form requested by the user. Do not reproduce an entire source file when the requested output only requires documentation changes.
+1. Read the whole touched file before editing docs. Read related code when the contract depends on it: inheritance, lifecycle, nullability, authorization, schemas, error types, callers.
+2. Infer the contract from the code and existing docs. Document what a caller can rely on. Never document trivia or guesses.
+3. Preserve implementation, structure, and behavior unless the user asks for code changes.
+4. Use the language's own doc-comment format and tags. Match the project's existing style and terminology. When the project has none, use the language's standard convention.
+5. Return only what was asked. For doc-only work, do not reproduce a whole file when the doc changes suffice.
 
-## What to document
+## What a good API doc answers
 
-Document public and protected API when the documentation communicates something useful that is not already obvious.
+In this order, only what applies:
 
-Do not add Javadocs simply to increase coverage.
+1. **What it is or does.** One strong sentence about observable behavior.
+2. **What the caller must provide.** Non-obvious preconditions, units, ranges, formats.
+3. **What the caller gets.** The meaning of the return value, including null, empty, or absent cases that are part of the contract.
+4. **How it fails.** Each failure a caller can handle, with its stable error code or type and the condition that triggers it. The caller must know what to do next.
+5. **What else happens.** Side effects, state changes, lifecycle, concurrency requirements, idempotency, retry safety, rate or size limits.
+6. **Who may call it.** Authorization, when the API enforces it.
+7. **One example.** Only when usage is non-obvious.
 
-### Types
+Skip any item the name and types already make obvious.
 
-A class, interface, enum, or record summary should explain what the type represents or provides.
+## Rules
 
-Prefer:
+* Describe behavior, not the name in different words.
+* Explain what a value **means**, not that it is returned.
+* No filler: "the specified", "the given", "this function is used to", "returns the result", "provides functionality for".
+* No marketing language, implementation walkthroughs, or obvious language explanations.
+* No speculative behavior. Never invent guarantees, nullability, or error cases.
+* Where the language has a type system, the compiler owns types. NEVER put a type in a doc tag. NEVER restate a type in prose.
+* Respect existing nullability or optionality annotations. When absent, claim nullability only if the code and surrounding API make it clear.
+* Use project terminology. Write whole words. No new abbreviations beyond `id`, `url`, `http`.
+* Add links and tags only when they help navigation. Follow the project's existing conventions for deprecation, version, and cross-reference tags. Add none the project does not use.
+* One strong sentence beats several weak ones.
 
-```java
-/**
- * Manages menu lifecycle, navigation, and active menu state.
- */
+```
+// bad: restates the name and the types
+// Gets an application.
+// param applicationId (string): the id of the application
+// returns (Application): the application
+
+// good: behavior, failures, authorization
+// Loads an application with its answers, for staff review.
+// Fails with `application_not_found` when no application has this id.
+// Fails with `forbidden` when the caller lacks the staff role.
 ```
 
-Add a second paragraph only when it communicates an important contract, lifecycle rule, usage constraint, or behavioral distinction.
+Comment syntax above is illustrative. Use the language's own.
 
-### Methods and constructors
+## Kinds of API
 
-Describe observable behavior rather than restating the method name.
+**Types, classes, interfaces, records.** The summary says what the type represents or provides. Add a second paragraph only for an important contract, lifecycle rule, usage constraint, or behavioral distinction.
 
-Document:
+**Interfaces, traits, protocols, and callbacks.** Document the contract implementers must honor. For a single-operation interface or callback type, explain the operation it represents and the input/output semantics. Document other members by their real behavior. Do not assume a helper or factory needs docs.
 
-* important side effects
-* non-obvious preconditions
-* state or lifecycle changes
-* meaningful return semantics
-* meaningful failure behavior
-* thread requirements when relevant
+**Functions, methods, constructors.** Document important side effects, non-obvious preconditions, state or lifecycle changes, meaningful return and failure behavior, and concurrency requirements. A constructor needs no summary when the type doc and parameter descriptions make its purpose clear.
 
-Do not document an obvious implementation detail merely because it is present in the method body.
+**Parameters and returns.** Describe a parameter only when its name and type do not carry the meaning (units, ranges, formats, side effects). Describe a return only when its meaning is not obvious. Skip a redundant return description.
 
-Constructors do not need a separate summary when the type documentation and parameter descriptions already make their purpose clear.
+**Enumerations.** Document the type. Document constants only when their meaning is not clear from the name or the project requires it. If the user says to leave constants alone, leave them alone.
 
-### Parameters and returns
+**Server functions and endpoints.** Document:
 
-Keep descriptions direct:
+* what it does, in observable terms
+* who may call it (the authorization it enforces)
+* input constraints the schema does not make obvious (units, limits, formats)
+* the shape of what it returns, when it is a deliberate subset of stored data
+* every handled failure: error code, trigger, what the caller should do
+* side effects, idempotency or retry safety, rate and size limits
 
-```java
-@param player player viewing the menu
-@param menu menu to open
-@return the currently active menu, or {@code null} when none is active
+```
+// Accepts a pending application and notifies the applicant.
+//
+// Staff only. Safe to retry: accepting an already accepted application
+// succeeds without notifying again.
+//
+// Fails with `forbidden` when the caller lacks the staff role.
+// Fails with `application_not_pending` when the application was rejected or withdrawn.
 ```
 
-Avoid filler such as:
+**Schemas.** Document a field only when meaning, unit, limit, or format is not obvious from its name and constraints. Document the schema when it is a shared contract. NEVER describe every field.
 
-* "the specified"
-* "the given"
-* "this method is used to"
-* "returns the result"
+**Components.** Document props only for shared components used across features, and only the props whose behavior is not obvious.
 
-For return values, explain what the value **means** rather than merely saying that something is returned.
+**Error codes.** Every stable code a caller can branch on is documented where it is raised or where the error type is defined. Say what triggers it and what to do about it. If an error has no code or field, say so separately (see API quality).
 
-Document `null` behavior when `null` is a valid part of the contract.
+**Private members.** No docs.
 
-### Interfaces and functional interfaces
+**Standalone reference pages.** Write a README or endpoint reference only when the user asks. Keep one example per non-obvious endpoint and one table of error codes. Never invent endpoints, fields, or codes.
 
-Document the contract expected by implementations.
+## Existing docs
 
-For a functional interface, explain the operation represented by its function method and any important input/output semantics.
-
-Document additional methods according to their actual behavior. Do not assume that every functional interface needs factory or helper documentation.
-
-### Enums
-
-Document the enum type.
-
-Document constants when their semantics are not obvious from their names or when project conventions require it.
-
-If the user explicitly asks to leave constants undocumented, preserve that instruction.
-
-### Private implementation details
-
-Do not add Javadocs to private members merely because they exist.
-
-A non-obvious invariant that future maintainers must preserve may belong in a normal source comment rather than API Javadoc.
-
-## Tags and links
-
-Use `{@code ...}` for literals, expressions, or code references when it improves readability.
-
-Use `{@link ...}` when a reference helps the reader navigate the API or understand a relationship:
-
-```java
-{@link Menu#setSlotItem(int, ItemStack)}
-{@link TickableMenu}
-{@code true}
-```
-
-Do not add links or tags decoratively.
-
-Use the project's existing conventions for tags such as `@since`, `@deprecated`, or `@see`. Do not introduce new documentation conventions without a reason.
-
-## Nullability
-
-Respect existing nullability annotations and established API semantics.
-
-Do not invent nullability guarantees.
-
-When annotations are absent, infer nullability only when the implementation and surrounding API make the contract sufficiently clear. Otherwise, avoid making a stronger claim than the code supports.
-
-## Existing documentation
-
-When improving existing Javadocs:
-
-* preserve useful semantic information
-* remove redundancy
-* resolve ambiguity
-* tighten wording
-* preserve meaningful project terminology
-
-Do not rewrite documentation solely for stylistic variation.
-
-## What to avoid
-
-Avoid:
-
-* marketing language
-* generic descriptions such as "provides functionality for..."
-* implementation walkthroughs
-* repeating the method name in different words
-* obvious Java explanations
-* speculative behavior
-* redundant `@return` descriptions
-* excessive `@see` tags
-* documentation added solely for coverage
-* documenting every public member mechanically
-
-Prefer one strong sentence over several weak ones.
+When improving docs: keep useful information, remove redundancy, resolve ambiguity, tighten wording, keep project terminology. Do not rewrite for stylistic variety.
 
 ## API quality
 
-Javadocs should complement the API design, not compensate for a confusing API.
+Docs complement the API. They do not rescue a confusing one.
 
-When the code exposes an ambiguous or surprising contract that cannot be documented accurately, call that out separately.
+When the contract is ambiguous or surprising and cannot be documented accurately, say so in a separate note. Examples: a function that returns nothing in one branch and fails in another, an error with no stable code, an endpoint returning raw storage rows, two names for one concept, a mutation with unclear retry behavior.
 
-Do not silently change the API or implementation to make the Javadoc easier to write.
+Never silently change the API or implementation to make the docs easier to write. Never invent the intended behavior.
 
 ## Output
 
-The resulting documentation must be:
+The result must be:
 
-* valid Javadoc
-* accurate to the implementation and contract
+* valid for its format (the language's doc-comment syntax, or Markdown)
+* accurate to the code and contract
 * consistent with the surrounding project
-* useful to an API consumer
+* useful to a caller
 * free of unrelated code changes
 
-For documentation-only requests, do not refactor or improve unrelated code.
-
-When an implementation issue materially affects the documented contract, mention it separately rather than silently changing the code.
+For doc-only requests, do not refactor or touch unrelated code. When an implementation issue materially affects the documented contract, report it separately.

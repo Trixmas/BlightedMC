@@ -3,28 +3,58 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Improve the Javadocs in this Java API type as a senior library developer. Read the surrounding code and preserve the existing implementation exactly. Keep the class summary concise, document observable behavior and non-obvious contracts, and avoid adding Javadocs merely for coverage. Match the existing project's terminology and style.",
-      "expected_output": "Revised Java source or documentation matching the requested format, with accurate API-focused Javadocs, no implementation changes, and no unnecessary documentation added."
+      "prompt": "Improve the doc comments in this source file as a senior library developer. Read the surrounding code and preserve the existing implementation exactly. Keep the type summary concise, document observable behavior and non-obvious contracts, and avoid adding docs merely for coverage. Match the existing project's terminology and style.",
+      "expected_output": "Revised source or documentation matching the requested format, with accurate API-focused docs in the language's native doc-comment format, no implementation changes, and no unnecessary documentation added."
     },
     {
       "id": 2,
-      "prompt": "Add Javadocs to this functional interface and its public API. Explain the contract represented by the functional method, document any meaningful input/output or nullability semantics, and document additional methods only where their behavior needs explanation. Use links where they improve navigation. Preserve the implementation exactly.",
-      "expected_output": "Concise, contract-focused Javadocs for the interface and relevant methods, without invented behavior, filler, or code changes."
+      "prompt": "Add docs to this single-operation interface (or callback type) and its public API. Explain the contract represented by its operation, document any meaningful input/output or nullability semantics, and document additional members only where their behavior needs explanation. Use cross-references where they improve navigation. Preserve the implementation exactly.",
+      "expected_output": "Concise, contract-focused docs for the interface and relevant members, without invented behavior, filler, or code changes."
     },
     {
       "id": 3,
-      "prompt": "Clean up the Javadocs for this enum. Document the enum's purpose and any non-obvious public API, but do not add Javadocs to the enum constants because those are being handled separately. Preserve existing useful wording where possible and make no code changes.",
-      "expected_output": "Concise Javadocs for the enum and relevant non-constant API, with no constant documentation and no implementation changes."
+      "prompt": "Clean up the docs for this enumeration. Document its purpose and any non-obvious public API, but do not document the individual constants because those are being handled separately. Preserve existing useful wording where possible and make no code changes.",
+      "expected_output": "Concise docs for the enumeration and relevant non-constant API, with no constant documentation and no implementation changes."
     },
     {
       "id": 4,
-      "prompt": "Review this Java type's Javadocs. Some public methods are self-explanatory while others have important side effects and nullability behavior. Improve only the documentation that adds real value. Do not document every public member automatically and do not change the implementation.",
+      "prompt": "Review the docs in this file. Some public members are self-explanatory while others have important side effects and nullability behavior. Improve only the documentation that adds real value. Do not document every public member automatically and do not change the implementation.",
       "expected_output": "Selective documentation improvements focused on meaningful API contracts rather than documentation coverage."
     },
     {
       "id": 5,
-      "prompt": "Improve these Javadocs where the current wording describes implementation details rather than consumer-visible behavior. Rewrite them around the actual API contract, preserve meaningful existing information, and avoid inventing guarantees that the code does not establish.",
+      "prompt": "Improve these docs where the current wording describes implementation details rather than consumer-visible behavior. Rewrite them around the actual API contract, preserve meaningful existing information, and avoid inventing guarantees that the code does not establish.",
       "expected_output": "Documentation rewritten around observable behavior and supported guarantees, with no speculative claims or implementation changes."
+    },
+    {
+      "id": 6,
+      "prompt": "Add doc comments to the exported functions of this package entry point. Callers import them from other apps. Document behavior, non-obvious input constraints, return meaning, and failure codes. Do not repeat types in the comments, do not document internal helpers, and do not change any code.",
+      "expected_output": "Docs only on exported functions, with no types in tags, no restated types in prose, failure entries using the real error codes, and no changes to implementation or unexported code."
+    },
+    {
+      "id": 7,
+      "prompt": "Document this server function. It validates input with a schema, checks the caller's role, writes to the database, and raises typed errors. Document what a caller needs to know: who may call it, what it does, how it fails, and whether retrying is safe. Preserve the implementation exactly.",
+      "expected_output": "A doc comment covering behavior, required authorization, each handled error with its code and trigger, and retry or idempotency behavior only if the code supports a claim. No invented guarantees, no code changes."
+    },
+    {
+      "id": 8,
+      "prompt": "Document this shared schema file used by multiple apps. Add documentation only where it helps a consumer: units, limits, formats, or non-obvious meaning. Do not describe every field and do not change any schema.",
+      "expected_output": "Selective docs on the schema and on fields whose meaning, unit, limit, or format is not obvious. Self-explanatory fields stay undocumented. No schema changes."
+    },
+    {
+      "id": 9,
+      "prompt": "Document this function. It returns nothing when no record is found but raises a generic error with no code when the caller lacks access, and it returns raw database rows. Add the docs and preserve the code exactly.",
+      "expected_output": "Accurate docs for the observable behavior, plus a separate note flagging the inconsistent empty-versus-failure contract, the missing error code, and the raw-row return. No code changes and no invented intended behavior."
+    },
+    {
+      "id": 10,
+      "prompt": "Write a short endpoint reference in Markdown for the HTTP routes in this file. Include what each route does, who may call it, the request fields that need explanation, the response shape, and an error table. Only use what the code establishes.",
+      "expected_output": "A concise Markdown reference limited to routes present in the code, one example only where usage is non-obvious, an error table using real codes, and no invented routes, fields, or codes."
+    },
+    {
+      "id": 11,
+      "prompt": "Add docs to this module written in a language you have not seen in this project (for example Python, Go, or Rust). Use that language's standard doc-comment convention, document only the public API, and preserve the code exactly.",
+      "expected_output": "Docs in the language's native format and tag style, public API only, no types restated where the language has a type system, and no code changes."
     }
   ]
 }
